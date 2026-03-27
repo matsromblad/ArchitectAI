@@ -728,7 +728,23 @@ function drawPixelAgent(x, y, color, hat, scale, status, bobPhase, rejected) {
   if (status === 'blocked' || rejected) {
     ctx.fillText('💢', x, ry - s*9);
   } else if (status === 'waiting') {
-    ctx.fillText('💤', x, ry - s*9);
+    // Animated Zzz sleep bubbles
+    const zCount = 3;
+    for (let i = 0; i < zCount; i++) {
+      // Each Z floats up and fades at a different offset
+      const offset = (bobPhase * 0.4 + i * (Math.PI * 2 / zCount)) % (Math.PI * 2);
+      const progress = offset / (Math.PI * 2); // 0..1
+      const zx = x + s * 3 + progress * s * 5;
+      const zy = ry - s * 9 - progress * s * 8;
+      const alpha = Math.sin(progress * Math.PI); // fade in then out
+      const zSize = Math.max(7, s * 5 + progress * s * 3);
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.85;
+      ctx.font = `bold ${zSize}px Courier New`;
+      ctx.fillStyle = '#79C0FF';
+      ctx.fillText('z', zx, zy);
+      ctx.restore();
+    }
   } else if (status === 'qa') {
     ctx.fillText('📋', x, ry - s*9);
   } else if (status === 'approved') {
@@ -816,9 +832,10 @@ function update() {
       s.ty = slot.y;
 
       if (s.station === null) {
-        // Snap to start position near bottom
-        s.x = W * 0.5 + (AGENTS.indexOf(a) - 4) * 25;
-        s.y = H * 0.85;
+        // Snap to start position (waiting area at bottom)
+        const idx = AGENTS.indexOf(a);
+        s.x = W * 0.25 + (idx % 5) * 30;
+        s.y = H * 0.88 - Math.floor(idx / 5) * 36;
         s.station = s.targetStation;
       }
 
@@ -855,13 +872,15 @@ function draw() {
   // Stations
   STATIONS.forEach(st => drawStation(st));
 
-  // Agents
-  AGENTS.forEach(a => {
+  // Agents — always draw, snap to waiting area if not yet placed
+  AGENTS.forEach((a, idx) => {
     const s = agentState[a.id];
-    if (s.x && s.y) {
-      drawPixelAgent(s.x, s.y, a.color, a.hat, SCALE, s.status, s.bobPhase, s.rejected);
-      drawAgentLabel(s.x, s.y, a.abbr, SCALE);
+    if (!s.x || !s.y) {
+      s.x = W * 0.25 + (idx % 5) * 30;
+      s.y = H * 0.88 - Math.floor(idx / 5) * 36;
     }
+    drawPixelAgent(s.x, s.y, a.color, a.hat, SCALE, s.status, s.bobPhase, s.rejected);
+    drawAgentLabel(s.x, s.y, a.abbr, SCALE);
   });
 
   // Title watermark
