@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "mep_schema",
+  "title": "MEP Schema",
+  "description": "Mechanical, Electrical, Plumbing schema produced by MEP Agent",
+  "type": "object",
+  "required": ["project_id", "version", "shafts", "plant_rooms", "zones"],
+  "properties": {
+    "project_id": { "type": "string" },
+    "version":    { "type": "string" },
+    "shafts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["shaft_id", "type", "position"],
+        "properties": {
+          "shaft_id":    { "type": "string" },
+          "type":        { "type": "string", "enum": ["hvac","plumbing","electrical","combined"] },
+          "floors":      { "type": "array", "items": {"type":"integer"} },
+          "position":    { "type": "object", "properties": { "x": {"type":"number"}, "y": {"type":"number"} } },
+          "dimensions":  { "type": "object", "properties": { "width": {"type":"number"}, "depth": {"type":"number"} } }
+        }
+      }
+    },
+    "plant_rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "plant_id":   { "type": "string" },
+          "type":       { "type": "string", "enum": ["electrical","hvac","plumbing","sprinkler","it"] },
+          "floor":      { "type": "integer" },
+          "room_ref":   { "type": "string", "description": "Spatial layout room_id" },
+          "area_m2":    { "type": "number" }
+        }
+      }
+    },
+    "zones": {
+      "type": "array",
+      "description": "Fire compartments, ventilation zones, etc.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "zone_id":    { "type": "string" },
+          "type":       { "type": "string", "enum": ["fire_compartment","ventilation_zone","pressure_zone"] },
+          "floor":      { "type": "integer" },
+          "room_refs":  { "type": "array", "items": {"type":"string"} },
+          "area_m2":    { "type": "number" }
+        }
+      }
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity":   { "type": "string", "enum": ["info","warning","error"] },
+          "ref":        { "type": "string" },
+          "message":    { "type": "string" }
+        }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": "string", "default": "mep_agent" }
+  }
+}

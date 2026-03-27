@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "spatial_layout",
+  "title": "Spatial Layout",
+  "description": "Floor plan layout produced by Architect Agent",
+  "type": "object",
+  "required": ["project_id", "version", "floors"],
+  "properties": {
+    "project_id":  { "type": "string" },
+    "version":     { "type": "string" },
+    "floors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["floor_id", "level", "rooms", "corridors"],
+        "properties": {
+          "floor_id":    { "type": "string" },
+          "level":       { "type": "integer", "description": "0 = ground floor" },
+          "floor_height_m": { "type": "number", "default": 3.0 },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["room_id", "program_ref", "position", "dimensions"],
+              "properties": {
+                "room_id":     { "type": "string" },
+                "program_ref": { "type": "string", "description": "Links to room_program room id" },
+                "position":    { "type": "object", "properties": { "x": {"type":"number"}, "y": {"type":"number"} } },
+                "dimensions":  { "type": "object", "properties": { "width": {"type":"number"}, "depth": {"type":"number"} } },
+                "area_m2":     { "type": "number" },
+                "rotation_deg":{ "type": "number", "default": 0 }
+              }
+            }
+          },
+          "corridors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "corridor_id": { "type": "string" },
+                "width_m":     { "type": "number" },
+                "path":        { "type": "array", "items": { "type": "array", "items": {"type":"number"} } },
+                "connects":    { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "stairs": { "type": "array", "items": { "type": "object" } },
+          "lifts":  { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    },
+    "notes":      { "type": "array", "items": { "type": "string" } },
+    "created_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": "string", "default": "architect_agent" }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "structural_schema",
+  "title": "Structural Schema",
+  "description": "Structural system produced by Structural Agent",
+  "type": "object",
+  "required": ["project_id", "version", "grid", "elements"],
+  "properties": {
+    "project_id": { "type": "string" },
+    "version":    { "type": "string" },
+    "system_type":{ "type": "string", "enum": ["concrete_frame","steel_frame","masonry","timber","hybrid"] },
+    "grid": {
+      "type": "object",
+      "properties": {
+        "x_spacing_m": { "type": "array", "items": {"type":"number"}, "description": "Column grid spacing in X" },
+        "y_spacing_m": { "type": "array", "items": {"type":"number"}, "description": "Column grid spacing in Y" },
+        "origin":      { "type": "array", "items": {"type":"number"}, "minItems": 2 }
+      }
+    },
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["element_id", "type"],
+        "properties": {
+          "element_id":  { "type": "string" },
+          "type":        { "type": "string", "enum": ["column","beam","wall","slab","core","foundation"] },
+          "floor":       { "type": "integer" },
+          "position":    { "type": "object", "properties": { "x": {"type":"number"}, "y": {"type":"number"} } },
+          "dimensions":  { "type": "object" },
+          "material":    { "type": "string" },
+          "load_bearing":{ "type": "boolean", "default": true },
+          "notes":       { "type": "string" }
+        }
+      }
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity":    { "type": "string", "enum": ["info","warning","error"] },
+          "element_ref": { "type": "string" },
+          "message":     { "type": "string" }
+        }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": "string", "default": "structural_agent" }
+  }
+}

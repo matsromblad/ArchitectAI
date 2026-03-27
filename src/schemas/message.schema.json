@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "message",
+  "title": "Agent Message",
+  "description": "Inter-agent message envelope",
+  "type": "object",
+  "required": ["msg_id", "timestamp", "from", "to", "type", "project_id", "payload"],
+  "properties": {
+    "msg_id":     { "type": "string", "description": "UUID v4" },
+    "timestamp":  { "type": "string", "format": "date-time" },
+    "from":       { "type": "string", "enum": ["pm","input_parser","brief","compliance","architect","structural","mep","ifc_builder","qa","dashboard","user"] },
+    "to":         { "type": "string", "enum": ["pm","input_parser","brief","compliance","architect","structural","mep","ifc_builder","qa","dashboard","user","broadcast"] },
+    "type":       { "type": "string", "enum": ["task_assignment","compliance_query","compliance_response","qa_submission","qa_verdict","escalation","user_approval_request","user_approval_response","status_update","log"] },
+    "project_id": { "type": "string" },
+    "reply_to":   { "type": ["string","null"], "description": "msg_id of message being replied to" },
+    "payload":    { "type": "object", "description": "Type-specific content" }
+  }
+}

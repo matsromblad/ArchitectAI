@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+
+# Project data (large files, personal data)
+projects/*/
+compliance_kb/*/chroma/
+*.ifc
+
+# Exceptions — keep example project structure
+!projects/.gitkeep
+!compliance_kb/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
