@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Project — ArchitectAI</title>
+  <meta name="description" content="Start a new ArchitectAI project. Upload site drawings, governing documents, and describe your building in plain language." />
+  <meta property="og:title" content="New Project — ArchitectAI" />
+  <meta property="og:description" content="From prompt to building. In minutes." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0D1117;
+      --bg-2:         #161B22;
+      --bg-3:         #1C2128;
+      --border:       rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.16);
+      --gold:         #FFD700;
+      --gold-dim:     rgba(255,215,0,0.10);
+      --gold-glow:    rgba(255,215,0,0.25);
+      --gold-border:  rgba(255,215,0,0.30);
+      --text:         #E6EDF3;
+      --text-muted:   #8B949E;
+      --text-dim:     #6E7681;
+      --danger:       #EF4444;
+      --danger-dim:   rgba(239,68,68,0.10);
+      --success:      #22C55E;
+      --radius:       12px;
+      --radius-sm:    8px;
+      --nav-height:   64px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-height);
+      z-index: 100;
+      background: rgba(13,17,23,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo .logo-icon {
+      width: 24px; height: 24px;
+      background: var(--gold);
+      border-radius: 5px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .nav-page-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .nav-back {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-back:hover { color: var(--text); }
+
+    /* ── PROGRESS STEPS ── */
+    .progress-bar {
+      position: fixed;
+      top: var(--nav-height);
+      left: 0; right: 0;
+      z-index: 99;
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+
+    .progress-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: stretch;
+      height: 44px;
+    }
+
+    .progress-step {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.3px;
+      position: relative;
+      cursor: default;
+      transition: color 0.2s;
+    }
+
+    .progress-step + .progress-step::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+    }
+
+    .progress-step.active {
+      color: var(--gold);
+    }
+
+    .progress-step.active .step-dot {
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold-glow);
+    }
+
+    .step-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    /* ── PAGE LAYOUT ── */
+    .page-wrapper {
+      padding-top: calc(var(--nav-height) + 44px + 40px);
+      padding-bottom: 80px;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    .page-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      margin-bottom: 4px;
+    }
+
+    .page-header h1 {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 520px;
+    }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .section-card:focus-within {
+      border-color: var(--border-hover);
+    }
+
+    .card-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .card-title-group {}
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .badge-optional {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .card-body {
+      padding: 20px 24px 24px;
+    }
+
+    /* ── DROPZONE ── */
+    .dropzone {
+      border: 1.5px dashed var(--border-hover);
+      border-radius: var(--radius-sm);
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .dropzone:hover, .dropzone.dz-hover {
+      border-color: var(--gold-border);
+      background: var(--gold-dim);
+    }
+
+    .dropzone.dz-hover .dropzone-icon {
+      transform: scale(1.1);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .dropzone-icon {
+      font-size: 32px;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+
+    .dropzone-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .dropzone-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .file-type-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .file-type-pill {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    /* ── FILE LIST ── */
+    .file-list {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .file-empty {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-dim);
+      padding: 12px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .file-type-badge {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 3px 7px;
+      border-radius: 5px;
+      background: var(--gold-dim);
+      color: var(--gold);
+      border: 1px solid var(--gold-border);
+      flex-shrink: 0;
+      min-width: 38px;
+      text-align: center;
+    }
+
+    .file-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-size {
+      font-size: 11px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .file-remove {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      line-height: 1;
+      font-size: 16px;
+    }
+
+    .file-remove:hover {
+      color: var(--danger);
+      background: var(--danger-dim);
+    }
+
+    /* ── TEXTAREA ── */
+    .prompt-textarea {
+      width: 100%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.7;
+      padding: 14px 16px;
+      resize: vertical;
+      min-height: 160px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .prompt-textarea::placeholder { color: var(--text-dim); }
+
+    .prompt-textarea:focus {
+      border-color: var(--gold-border);
+    }
+
+    .textarea-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .char-counter {
+      font-size: 12px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .char-counter.warn { color: #F97316; }
+    .char-counter.limit { color: var(--danger); }
+
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 11px;
+      border-radius: 100px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .chip:hover {
+      border-color: var(--gold-border);
+      color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    /* ── PROJECT SETTINGS ── */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-group.full { grid-column: 1 / -1; }
+
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+    }
+
+    .field-input, .field-select {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 14px;
+      width: 100%;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .field-input::placeholder { color: var(--text-dim); }
+
+    .field-input:focus, .field-select:focus {
+      border-color: var(--gold-border);
+    }
+
+    .field-select {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B949E' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    .field-select option { background: var(--bg-2); }
+
+    /* ── SUBMIT SECTION ── */
+    .submit-section {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .submit-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-family: inherit;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #0D1117;
+    }
+
+    .btn-gold:hover:not(:disabled) {
+      background: #ffe033;
+      box-shadow: 0 0 24px var(--gold-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-gold:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      padding: 10px 20px;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* ── SUMMARY CARD ── */
+    .summary-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+
+    .summary-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+
+    .summary-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .summary-key {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .summary-val {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .summary-val.ok { color: var(--success); }
+    .summary-val.missing { color: var(--text-dim); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 999;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      max-width: 360px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .toast-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      line-height: 1.2;
+    }
+
+    .toast-body {}
+
+    .toast-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .toast-msg {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .toast-close {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .toast-close:hover { color: var(--text); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      .settings-grid { grid-template-columns: 1fr; }
+      .submit-section { grid-template-columns: 1fr; }
+      .progress-step span:not(.step-dot) { display: none; }
+      .progress-step { min-width: 0; }
+      .card-header { flex-wrap: wrap; }
+    }
+
+    @media (max-width: 480px) {
+      .page-wrapper { padding-left: 16px; padding-right: 16px; }
+      .card-body { padding: 16px; }
+      .card-header { padding: 16px; }
+      .toast { left: 16px; right: 16px; max-width: none; bottom: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon"></span>
+      ArchitectAI
+      <span class="nav-page-label" style="margin-left:4px;">/ New Project</span>
+    </a>
+    <a href="index.html" class="nav-back">
+      ← Back to home
+    </a>
+  </div>
+</nav>
+
+<!-- ── PROGRESS STEPS ── -->
+<div class="progress-bar">
+  <div class="progress-inner">
+    <div class="progress-step active">
+      <span class="step-dot"></span>
+      <span>Input</span>
+    </div>
+    <div class="progress-step">
+      <span class="step-dot"></span>
+      <span>Agents</span>
+    </div>
+    <div class="progress-step">
+      <span class="step-dot"></span>
+      <span>Review</span>
+    </div>
+    <div class="progress-step">
+      <span class="step-dot"></span>
+      <span>IFC Export</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<main class="page-wrapper">
+  <div class="page-inner">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <h1>Start a new project</h1>
+      <p>Upload your site drawings, attach any governing documents, then describe the building in plain language. ArchitectAI will take it from there.</p>
+    </div>
+
+    <!-- ── SECTION A: Site Drawings ── -->
+    <div class="section-card" id="card-drawings">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="card-icon">📐</div>
+          <div class="card-title-group">
+            <div class="card-title">Site Drawings</div>
+            <div class="card-subtitle">The Input Parser agent will extract site boundaries and constraints</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="dropzone" id="dz-drawings" role="button" tabindex="0" aria-label="Upload site drawings">
+          <input type="file" id="input-drawings" multiple accept=".dwg,.pdf,.png,.jpg,.jpeg,.ifc" aria-hidden="true" />
+          <div class="dropzone-icon">🗂️</div>
+          <div class="dropzone-label">Drop files here or click to browse</div>
+          <div class="dropzone-hint">Multiple files supported</div>
+          <div class="file-type-pills">
+            <span class="file-type-pill">DWG</span>
+            <span class="file-type-pill">PDF</span>
+            <span class="file-type-pill">PNG</span>
+            <span class="file-type-pill">JPG</span>
+            <span class="file-type-pill">IFC</span>
+          </div>
+        </div>
+
+        <div class="file-list" id="list-drawings">
+          <div class="file-empty" id="empty-drawings">No site drawings added yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION B: Governing Documents ── -->
+    <div class="section-card" id="card-docs">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="card-icon">📄</div>
+          <div class="card-title-group">
+            <div class="card-title">Governing Documents</div>
+            <div class="card-subtitle">Space programs, healthcare standards, employer requirements, room data sheets</div>
+          </div>
+        </div>
+        <span class="badge-optional">Optional</span>
+      </div>
+      <div class="card-body">
+        <div class="dropzone" id="dz-docs" role="button" tabindex="0" aria-label="Upload governing documents">
+          <input type="file" id="input-docs" multiple accept=".pdf,.docx,.txt,.xlsx,.csv" aria-hidden="true" />
+          <div class="dropzone-icon">📋</div>
+          <div class="dropzone-label">Drop documents here or click to browse</div>
+          <div class="dropzone-hint">Space programs · healthcare standards · employer requirements</div>
+          <div class="file-type-pills">
+            <span class="file-type-pill">PDF</span>
+            <span class="file-type-pill">DOCX</span>
+            <span class="file-type-pill">TXT</span>
+            <span class="file-type-pill">XLSX</span>
+          </div>
+        </div>
+
+        <div class="file-list" id="list-docs">
+          <div class="file-empty" id="empty-docs">No governing documents added yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION C: Prompt ── -->
+    <div class="section-card" id="card-prompt">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="card-icon">✍️</div>
+          <div class="card-title-group">
+            <div class="card-title">Design Brief</div>
+            <div class="card-subtitle">Describe the building you want ArchitectAI to design</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <textarea
+          class="prompt-textarea"
+          id="prompt-input"
+          maxlength="4000"
+          placeholder="Design a geriatric ward for Gävle Hospital on this site. Include 24 patient rooms, 3 isolation rooms, nurse station, clean and dirty utility rooms, staff support spaces, and accessible circulation."
+          aria-label="Design prompt"
+        ></textarea>
+
+        <div class="textarea-footer">
+          <div class="suggestion-chips" id="chips">
+            <button class="chip" data-prompt="Design a primary care clinic with 12 consultation rooms, waiting area, reception, and accessible toilets on the attached site.">Primary care clinic</button>
+            <button class="chip" data-prompt="Design a secondary school with 20 classrooms, science labs, library, sports hall, and staff rooms. Site is attached.">Secondary school</button>
+            <button class="chip" data-prompt="Design a mixed-use residential building with 40 apartments, shared amenities, ground-floor retail, and underground parking.">Mixed-use residential</button>
+          </div>
+          <div class="char-counter" id="char-counter">0 / 4000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION D: Project Settings ── -->
+    <div class="section-card" id="card-settings">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="card-icon">⚙️</div>
+          <div class="card-title-group">
+            <div class="card-title">Project Settings</div>
+            <div class="card-subtitle">Used by the Compliance Agent to apply the correct standards</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="settings-grid">
+          <div class="field-group full">
+            <label class="field-label" for="project-name">Project name</label>
+            <input
+              type="text"
+              id="project-name"
+              class="field-input"
+              placeholder="e.g. Gävle Hospital — Geriatric Ward"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="jurisdiction">Jurisdiction</label>
+            <select id="jurisdiction" class="field-select">
+              <option value="">Select jurisdiction</option>
+              <option value="SE">Sweden</option>
+              <option value="AE">UAE</option>
+              <option value="GB">United Kingdom</option>
+              <option value="US">United States</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="building-type">Building type</label>
+            <select id="building-type" class="field-select">
+              <option value="">Select building type</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="education">Education</option>
+              <option value="office">Office</option>
+              <option value="residential">Residential</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION E: Submit ── -->
+    <div class="submit-section">
+      <div class="submit-actions">
+        <button class="btn btn-gold" id="btn-launch" disabled>
+          Launch ArchitectAI →
+        </button>
+        <button class="btn btn-outline" id="btn-draft">
+          Save draft
+        </button>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-title">Project summary</div>
+        <div class="summary-rows">
+          <div class="summary-row">
+            <span class="summary-key">Site drawings</span>
+            <span class="summary-val missing" id="sum-drawings">None</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Governing docs</span>
+            <span class="summary-val missing" id="sum-docs">None</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Design brief</span>
+            <span class="summary-val missing" id="sum-prompt">Empty</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Project name</span>
+            <span class="summary-val missing" id="sum-name">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Jurisdiction</span>
+            <span class="summary-val missing" id="sum-jurisdiction">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Building type</span>
+            <span class="summary-val missing" id="sum-btype">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast" role="alert" aria-live="polite">
+  <span class="toast-icon">✅</span>
+  <div class="toast-body">
+    <div class="toast-title">Project intake captured</div>
+    <div class="toast-msg">Backend connection pending. Payload logged to console.</div>
+  </div>
+  <button class="toast-close" id="toast-close" aria-label="Close">✕</button>
+</div>
+
+<!-- ── JAVASCRIPT ── -->
+<script>
+  // ── State ──
+  const state = {
+    siteDrawings: [],
+    governingDocs: [],
+    prompt: '',
+    projectName: '',
+    jurisdiction: '',
+    buildingType: ''
+  };
+
+  // ── File helpers ──
+  function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  function getExt(filename) {
+    const parts = filename.split('.');
+    return parts.length > 1 ? parts.pop().toUpperCase() : '?';
+  }
+
+  // ── Render file list ──
+  function renderFileList(listId, emptyId, files, stateKey) {
+    const list = document.getElementById(listId);
+    const empty = document.getElementById(emptyId);
+
+    // Remove existing items (keep empty state el)
+    Array.from(list.querySelectorAll('.file-item')).forEach(el => el.remove());
+
+    if (files.length === 0) {
+      empty.style.display = '';
+      return;
+    }
+
+    empty.style.display = 'none';
+
+    files.forEach((file, idx) => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.dataset.idx = idx;
+
+      const ext = getExt(file.name);
+      item.innerHTML = `
+        <span class="file-type-badge">${ext}</span>
+        <span class="file-name" title="${file.name}">${file.name}</span>
+        <span class="file-size">${formatBytes(file.size)}</span>
+        <button class="file-remove" aria-label="Remove ${file.name}" data-key="${stateKey}" data-idx="${idx}">×</button>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function refreshDrawings() {
+    renderFileList('list-drawings', 'empty-drawings', state.siteDrawings, 'siteDrawings');
+    updateSummary();
+    updateLaunchState();
+  }
+
+  function refreshDocs() {
+    renderFileList('list-docs', 'empty-docs', state.governingDocs, 'governingDocs');
+    updateSummary();
+  }
+
+  // ── Remove file handler (event delegation) ──
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.file-remove');
+    if (!btn) return;
+    const key = btn.dataset.key;
+    const idx = parseInt(btn.dataset.idx, 10);
+    state[key].splice(idx, 1);
+    if (key === 'siteDrawings') refreshDrawings();
+    else refreshDocs();
+  });
+
+  // ── Setup dropzone ──
+  function setupDropzone(dzId, inputId, stateKey, refreshFn) {
+    const dz = document.getElementById(dzId);
+    const input = document.getElementById(inputId);
+
+    const addFiles = (fileList) => {
+      const existing = new Set(state[stateKey].map(f => f.name + f.size));
+      Array.from(fileList).forEach(f => {
+        if (!existing.has(f.name + f.size)) {
+          state[stateKey].push(f);
+        }
+      });
+      refreshFn();
+    };
+
+    input.addEventListener('change', (e) => {
+      addFiles(e.target.files);
+      input.value = '';
+    });
+
+    dz.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dz.classList.add('dz-hover');
+    });
+
+    dz.addEventListener('dragleave', (e) => {
+      if (!dz.contains(e.relatedTarget)) {
+        dz.classList.remove('dz-hover');
+      }
+    });
+
+    dz.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dz.classList.remove('dz-hover');
+      addFiles(e.dataTransfer.files);
+    });
+
+    dz.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        input.click();
+      }
+    });
+  }
+
+  setupDropzone('dz-drawings', 'input-drawings', 'siteDrawings', refreshDrawings);
+  setupDropzone('dz-docs',     'input-docs',     'governingDocs', refreshDocs);
+
+  // ── Prompt textarea ──
+  const promptEl = document.getElementById('prompt-input');
+  const counterEl = document.getElementById('char-counter');
+  const MAX_CHARS = 4000;
+
+  promptEl.addEventListener('input', () => {
+    state.prompt = promptEl.value.trim();
+    const len = promptEl.value.length;
+    counterEl.textContent = `${len} / ${MAX_CHARS}`;
+    counterEl.className = 'char-counter' + (len > MAX_CHARS * 0.9 ? ' warn' : '') + (len >= MAX_CHARS ? ' limit' : '');
+    updateSummary();
+    updateLaunchState();
+  });
+
+  // Suggestion chips
+  document.getElementById('chips').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    const text = chip.dataset.prompt;
+    promptEl.value = text;
+    state.prompt = text.trim();
+    promptEl.dispatchEvent(new Event('input'));
+    promptEl.focus();
+  });
+
+  // ── Settings ──
+  const projectNameEl  = document.getElementById('project-name');
+  const jurisdictionEl = document.getElementById('jurisdiction');
+  const buildingTypeEl = document.getElementById('building-type');
+
+  projectNameEl.addEventListener('input', () => {
+    state.projectName = projectNameEl.value.trim();
+    updateSummary();
+    updateLaunchState();
+  });
+
+  jurisdictionEl.addEventListener('change', () => {
+    state.jurisdiction = jurisdictionEl.value;
+    updateSummary();
+  });
+
+  buildingTypeEl.addEventListener('change', () => {
+    state.buildingType = buildingTypeEl.value;
+    updateSummary();
+  });
+
+  // ── Summary ──
+  const jurisdictionLabels = { SE: 'Sweden', AE: 'UAE', GB: 'United Kingdom', US: 'United States', OTHER: 'Other' };
+  const buildingTypeLabels = { healthcare: 'Healthcare', education: 'Education', office: 'Office', residential: 'Residential', other: 'Other' };
+
+  function setSummaryVal(id, val, present) {
+    const el = document.getElementById(id);
+    el.textContent = val;
+    el.className = 'summary-val ' + (present ? 'ok' : 'missing');
+  }
+
+  function updateSummary() {
+    const dc = state.siteDrawings.length;
+    const gc = state.governingDocs.length;
+    setSummaryVal('sum-drawings',    dc > 0 ? `${dc} file${dc > 1 ? 's' : ''}` : 'None', dc > 0);
+    setSummaryVal('sum-docs',        gc > 0 ? `${gc} file${gc > 1 ? 's' : ''}` : 'None', gc > 0);
+    setSummaryVal('sum-prompt',      state.prompt.length > 0 ? 'Ready' : 'Empty', state.prompt.length > 0);
+    setSummaryVal('sum-name',        state.projectName || '—', !!state.projectName);
+    setSummaryVal('sum-jurisdiction', state.jurisdiction ? jurisdictionLabels[state.jurisdiction] : '—', !!state.jurisdiction);
+    setSummaryVal('sum-btype',       state.buildingType ? buildingTypeLabels[state.buildingType] : '—', !!state.buildingType);
+  }
+
+  // ── Launch button state ──
+  const launchBtn = document.getElementById('btn-launch');
+
+  function updateLaunchState() {
+    const canLaunch = state.siteDrawings.length > 0 && state.prompt.length > 0 && state.projectName.length > 0;
+    launchBtn.disabled = !canLaunch;
+  }
+
+  // ── getFormPayload() ──
+  function getFormPayload() {
+    return {
+      projectName:   state.projectName,
+      jurisdiction:  state.jurisdiction,
+      buildingType:  state.buildingType,
+      prompt:        state.prompt,
+      siteDrawings:  state.siteDrawings.map(f => ({ name: f.name, size: f.size, type: f.type })),
+      governingDocs: state.governingDocs.map(f => ({ name: f.name, size: f.size, type: f.type })),
+      createdAt:     new Date().toISOString()
+    };
+  }
+
+  // ── Submit handler ──
+  launchBtn.addEventListener('click', () => {
+    const payload = getFormPayload();
+    console.group('ArchitectAI — Project Payload');
+    console.log(JSON.stringify(payload, null, 2));
+    console.groupEnd();
+    showToast();
+
+    // Future: replace with real POST
+    // fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  });
+
+  // ── Save draft ──
+  document.getElementById('btn-draft').addEventListener('click', () => {
+    const payload = getFormPayload();
+    try {
+      localStorage.setItem('architectai_draft', JSON.stringify(payload));
+    } catch (e) { /* storage unavailable */ }
+    showToast('Draft saved', 'Your project has been saved locally.');
+  });
+
+  // ── Toast ──
+  const toastEl    = document.getElementById('toast');
+  const toastTitle = toastEl.querySelector('.toast-title');
+  const toastMsg   = toastEl.querySelector('.toast-msg');
+  let toastTimer;
+
+  function showToast(title = 'Project intake captured', msg = 'Backend connection pending. Payload logged to console.') {
+    toastTitle.textContent = title;
+    toastMsg.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 5000);
+  }
+
+  document.getElementById('toast-close').addEventListener('click', () => {
+    clearTimeout(toastTimer);
+    toastEl.classList.remove('show');
+  });
+
+  // ── Init ──
+  updateSummary();
+</script>
+
+</body>
+</html>
