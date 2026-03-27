@@ -79,7 +79,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** User prompt, site data, milestone status  
 **Outputs:** Task assignments, status updates, user approval requests  
-**Model:** High-capability reasoning model (e.g., Claude Sonnet / GPT-4o)
+**Model:** `claude-opus-4-5` — Opus for complex reasoning, conflict resolution, and orchestration decisions. PM errors propagate to all agents, so highest capability is warranted.
 
 ---
 
@@ -94,7 +94,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** Raw file (DWG, PDF, PNG, IFC)  
 **Outputs:** `site_data.json` — boundary polygon, constraints, metadata  
-**Model:** Vision-capable model for images; code execution for DWG/IFC  
+**Model:** `claude-sonnet-4-5` with vision capability for images; code execution for DWG/IFC  
 **Libraries:** ezdxf, pdfplumber, ifcopenshell
 
 ---
@@ -110,7 +110,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** User prompt, building type taxonomy  
 **Outputs:** `room_program.json` — room list with areas, requirements, adjacency matrix  
-**Model:** High-capability language model  
+**Model:** `claude-sonnet-4-5` — well-defined extraction task from structured prompt  
 **Communicates with:** Compliance Agent (to validate area requirements)
 
 ---
@@ -127,7 +127,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** Compliance query + jurisdiction context  
 **Outputs:** Compliance verdict (pass/fail/conditional) + rule reference + suggested fix  
-**Model:** RAG-augmented language model with regulatory document library  
+**Model:** `claude-sonnet-4-5` with RAG over regulatory documents — upgrade to Opus if complex legal interpretation is required (e.g., conflicting local ordinances)  
 **Note:** This agent is the only one that holds jurisdiction-specific knowledge. All others are jurisdiction-agnostic.
 
 ---
@@ -144,7 +144,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** `room_program.json`, `site_data.json`, compliance rules  
 **Outputs:** `spatial_layout.json` — room positions, dimensions, circulation paths  
-**Model:** Reasoning model with geometric reasoning capability  
+**Model:** `claude-sonnet-4-5` — well-scoped spatial reasoning task with structured input/output  
 **Communicates with:** Compliance Agent, QA Agent, Structural Agent
 
 ---
@@ -160,7 +160,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** `spatial_layout.json`  
 **Outputs:** `structural_schema.json` — grid, load-bearing elements, core positions  
-**Model:** Reasoning model  
+**Model:** `claude-sonnet-4-5`  
 **Communicates with:** Architect Agent (may require layout changes), QA Agent, Compliance Agent
 
 ---
@@ -176,7 +176,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** `spatial_layout.json`, `structural_schema.json`  
 **Outputs:** `mep_schema.json` — shaft positions, plant rooms, distribution strategy  
-**Model:** Reasoning model  
+**Model:** `claude-sonnet-4-5`  
 **Communicates with:** Compliance Agent, QA Agent, Architect Agent
 
 ---
@@ -192,7 +192,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** Approved `spatial_layout.json`, `structural_schema.json`, `mep_schema.json`  
 **Outputs:** `building.ifc`  
-**Model:** Code execution agent  
+**Model:** `claude-sonnet-4-5` — primarily code generation; consider `claude-haiku-4-5` for cost if tasks are repetitive and well-templated  
 **Libraries:** ifcopenshell, ifcopenshell-utils  
 **Note:** This agent only runs after QA approval of all upstream schemas.
 
@@ -211,7 +211,7 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** Any agent's output schema  
 **Outputs:** QA verdict (approved / rejected + comments)  
-**Model:** Reasoning model  
+**Model:** `claude-sonnet-4-5` — upgrade to Opus if QA decisions involve complex multi-discipline trade-offs  
 **Note:** The QA Agent is the only agent that can block progress. Its approvals are logged and visible in the dashboard.
 
 ---
@@ -277,11 +277,25 @@ The system has two types of feedback loops:
 | IFC generation | ifcopenshell + ifcopenshell-utils |
 | DWG parsing | ezdxf |
 | PDF parsing | pdfplumber / pymupdf |
-| Image understanding | Vision-capable LLM (Claude / GPT-4o) |
+| Image understanding | claude-sonnet-4-5 (vision) |
 | Compliance knowledge | RAG over regulatory documents (LlamaIndex / Chroma) |
-| Dashboard | Web app — React + canvas (pixelart animation) |
+| Dashboard | Standalone HTML + Canvas (pixel-art animation) |
 | Message bus | Redis pub/sub or simple in-process queue (MVP) |
 | Storage | Local filesystem → future: object storage |
+
+### Model Assignment Summary
+
+| Agent | Model | Rationale |
+|-------|-------|-----------|
+| Project Manager | `claude-opus-4-5` | Complex orchestration, conflict resolution, escalation decisions |
+| Input Parser | `claude-sonnet-4-5` | Vision + structured extraction |
+| Brief Agent | `claude-sonnet-4-5` | Prompt-to-JSON extraction |
+| Compliance Agent | `claude-sonnet-4-5` *(→ Opus if needed)* | RAG-augmented rule lookup; upgrade for complex legal interpretation |
+| Architect Agent | `claude-sonnet-4-5` | Spatial reasoning with structured I/O |
+| Structural Agent | `claude-sonnet-4-5` | Structural logic, well-scoped task |
+| MEP Agent | `claude-sonnet-4-5` | Technical system routing |
+| IFC Builder | `claude-sonnet-4-5` *(→ Haiku if templated)* | Code generation; downgrade possible for repetitive tasks |
+| QA Agent | `claude-sonnet-4-5` *(→ Opus if needed)* | Checklist validation; upgrade for complex multi-discipline trade-offs |
 
 ---
 
