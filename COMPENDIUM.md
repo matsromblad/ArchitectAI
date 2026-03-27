@@ -1,5 +1,5 @@
 # ArchitectAI — Project Compendium
-**Version:** 0.1 — Initial Draft  
+**Version:** 0.2 — Architecture Decisions  
 **Date:** 2026-03-27  
 **Author:** James (AI Assistant) & Mats Romblad  
 **Status:** Living document — update as the project evolves
@@ -128,6 +128,12 @@ The system is structured as a classic construction project organization. Each ag
 **Inputs:** Compliance query + jurisdiction context  
 **Outputs:** Compliance verdict (pass/fail/conditional) + rule reference + suggested fix  
 **Model:** `claude-sonnet-4-5` with RAG over regulatory documents — upgrade to Opus if complex legal interpretation is required (e.g., conflicting local ordinances)  
+
+**Knowledge acquisition strategy:**
+1. **Self-sourcing first:** Agent uses web search to find and download applicable regulations for the given jurisdiction + building type combination. It caches PDFs locally and indexes them into ChromaDB.
+2. **Ask PM if stuck:** If the agent cannot find a required document (paywalled, unavailable, jurisdiction unknown), it sends an `escalation` message to PM with a specific request: *"Need: Socialstyrelsen SOSFS 2013:7 — URL or PDF"*. PM decides whether to ask the user or provide an alternative source.
+3. **No hallucination policy:** If a rule cannot be sourced and verified, the agent must report `unknown` — never invent a regulation.
+
 **Note:** This agent is the only one that holds jurisdiction-specific knowledge. All others are jurisdiction-agnostic.
 
 ---
@@ -218,21 +224,55 @@ The system is structured as a classic construction project organization. Each ag
 
 ## 6. Inter-Agent Communication
 
-All agents communicate through a shared message bus. Messages are structured JSON:
+**Decision: LangGraph state machine with structured JSON messages.**
+
+LangGraph is chosen over a raw message bus (Redis/Celery) for the MVP because:
+- Built-in state persistence and checkpoint/resume capability
+- Native support for conditional routing (QA approve → next agent, QA reject → back to originator)
+- Integrates directly with Anthropic Claude via LangChain
+- Easier to debug and visualize than a raw pub/sub system
+- Can be upgraded to distributed (Redis) later without changing agent logic
+
+### Message Schema
+
+All inter-agent messages follow this envelope:
 
 ```json
 {
+  "msg_id": "uuid-v4",
+  "timestamp": "2026-03-27T08:00:00Z",
   "from": "architect_agent",
   "to": "compliance_agent",
-  "type": "compliance_query",
-  "payload": {
-    "jurisdiction": "SE",
-    "building_type": "healthcare",
-    "query": "Minimum corridor width for geriatric ward",
-    "proposed_value": 2200,
-    "unit": "mm"
-  }
+  "type": "compliance_query | task_assignment | qa_submission | qa_verdict | escalation | user_approval_request",
+  "project_id": "gävle-geriatric-001",
+  "payload": { ... },
+  "reply_to": "uuid-of-original-msg-or-null"
 }
+```
+
+### Message Types
+
+| Type | Sender | Receiver | Description |
+|------|--------|----------|-------------|
+| `task_assignment` | PM | Any agent | PM assigns work to an agent |
+| `compliance_query` | Any | Compliance | Ask about a regulation |
+| `compliance_response` | Compliance | Any | Verdict + rule reference |
+| `qa_submission` | Any | QA | Submit work for review |
+| `qa_verdict` | QA | PM + originator | Approved or rejected with comments |
+| `escalation` | Any | PM | Agent can't proceed, needs PM decision |
+| `user_approval_request` | PM | Dashboard | PM requests user input at milestone |
+| `user_approval_response` | Dashboard | PM | User approves/rejects/modifies |
+
+### Routing Rules (LangGraph nodes)
+
+```
+START → PM (kickoff)
+PM → Input Parser → Brief Agent
+Brief Agent ↔ Compliance Agent (query loop)
+Brief Agent → QA Agent
+QA Agent → [APPROVED: PM] | [REJECTED: originating agent]
+PM → [milestone gate] → Dashboard (user approval)
+Dashboard → PM (user decision) → next phase
 ```
 
 The Project Manager Agent monitors all messages and maintains a project state log.
@@ -273,15 +313,19 @@ The system has two types of feedback loops:
 
 | Component | Technology |
 |-----------|------------|
-| Agent framework | Python — LangGraph or custom orchestrator |
+| Agent framework | Python + **LangGraph** (state machine, checkpointing) |
+| LLM provider | **Anthropic** (Claude API, local API key) |
 | IFC generation | ifcopenshell + ifcopenshell-utils |
 | DWG parsing | ezdxf |
 | PDF parsing | pdfplumber / pymupdf |
 | Image understanding | claude-sonnet-4-5 (vision) |
-| Compliance knowledge | RAG over regulatory documents (LlamaIndex / Chroma) |
-| Dashboard | Standalone HTML + Canvas (pixel-art animation) |
-| Message bus | Redis pub/sub or simple in-process queue (MVP) |
-| Storage | Local filesystem → future: object storage |
+| Compliance knowledge | Web search + RAG over downloaded regulatory PDFs (LlamaIndex + ChromaDB) |
+| Message bus | LangGraph state (MVP) → Redis pub/sub (scale-out) |
+| Dashboard | Standalone HTML + Canvas + WebSocket for live state |
+| Storage | Local filesystem (`/project/<id>/`) — structured by phase |
+| User interaction | Dashboard (browser) — milestone gates, approval buttons |
+| Notifications | Future: Telegram/OpenClaw push notifications |
+| Dev environment | **Stationär dator** (development), **RPi5** (deployment/serving) |
 
 ### Model Assignment Summary
 
@@ -299,7 +343,66 @@ The system has two types of feedback loops:
 
 ---
 
-## 10. Dashboard
+## 10. Memory Architecture
+
+Each project has a structured memory hierarchy. Memory is scoped to a project ID and persists on disk.
+
+### Three Levels of Memory
+
+**1. Working Memory (LangGraph state)**
+- Lives in LangGraph checkpoint — the active state machine snapshot
+- Contains: current phase, last messages per agent, pending tasks, QA queue
+- Persists across restarts (SQLite checkpoint store)
+- Scope: single project session
+
+**2. Project Memory (structured files)**
+Stored in `/projects/<project_id>/`:
+```
+/projects/gävle-geriatric-001/
+  ├── state.json              ← project phase, milestone, decisions log
+  ├── inputs/
+  │   └── floorplan.png
+  ├── schemas/
+  │   ├── site_data.json
+  │   ├── room_program.json    ← versioned (v1, v2...)
+  │   ├── spatial_layout.json
+  │   ├── structural_schema.json
+  │   └── mep_schema.json
+  ├── outputs/
+  │   ├── building.ifc
+  │   └── qa_reports/
+  │       ├── qa_m1.json
+  │       └── ...
+  └── messages/
+      └── message_log.jsonl   ← full audit trail of all agent messages
+```
+- All schema files are **versioned** (v1, v2...) — old versions never deleted
+- `state.json` tracks which version of each file is the current approved version
+- Dashboard reads from this directory for the Outputs tab
+
+**3. Compliance Knowledge Base (vector store)**
+Stored in `/compliance_kb/<jurisdiction>/`:
+```
+/compliance_kb/
+  ├── SE/
+  │   ├── BBR_2023.pdf
+  │   ├── SOSFS_2013-7.pdf
+  │   └── chroma/             ← ChromaDB vector index
+  └── AE/
+      └── ...
+```
+- Shared across projects (jurisdiction-scoped, not project-scoped)
+- Compliance Agent self-populates by downloading + indexing documents
+- ChromaDB persists embeddings — only re-indexed when source docs change
+
+### Memory & Dashboard Integration
+- Dashboard reads `state.json` + `schemas/` for the Outputs tab (live file status)
+- A lightweight Python WebSocket server (`server.py`) watches the project directory and pushes updates to the dashboard in real time
+- No database required for MVP — filesystem is the source of truth
+
+---
+
+## 11. Dashboard
 
 The dashboard visualizes the live state of all agents as pixel-art characters moving between workstations.
 
@@ -364,12 +467,30 @@ The dashboard visualizes the live state of all agents as pixel-art characters mo
 
 ---
 
-## 12. Open Questions
+## 13. Deployment
 
-- What is the primary development environment? (local Python, cloud, Docker?)
-- What LLM provider(s) are preferred? (Anthropic, OpenAI, local models?)
-- Should the dashboard be a standalone app or embedded in the agent system?
-- How are regulatory documents sourced and kept up to date?
+| Role | Machine | Why |
+|------|---------|-----|
+| Development | Stationär Windows/Linux-dator | Fast iteration, VS Code, heavy parsing |
+| Production server | RPi5 | Always-on, serves dashboard + runs agents via API calls |
+| LLM compute | Anthropic cloud (API) | Opus/Sonnet — no local GPU needed |
+| Vector store | Local disk (RPi5 or dev machine) | ChromaDB is lightweight, no cloud needed |
+
+**RPi5 note:** The RPi5 does not run models locally — it only orchestrates API calls. This makes it perfectly capable as a deployment target. CPU-heavy tasks (DWG parsing, IFC generation) may be slow but are not blocking.
+
+---
+
+## 14. Open Questions — RESOLVED
+
+| Question | Decision |
+|----------|----------|
+| LLM provider | Anthropic (local API key) |
+| Agent communication | LangGraph state machine + structured JSON messages |
+| Dashboard interaction | Browser-based, WebSocket for live updates |
+| Regulatory documents | Self-sourced by Compliance Agent; escalates to PM if unavailable |
+| Deployment | Dev on workstation, serve on RPi5 |
+| Notifications | Future: Telegram/OpenClaw push (post-MVP) |
+| Dashboard type | Standalone HTML + lightweight Python WebSocket server |
 
 ---
 
