@@ -36,7 +36,7 @@ Output ONLY valid JSON matching the room_program schema. No prose, no markdown.
 
 class BriefAgent(BaseAgent):
     AGENT_ID = "brief"
-    DEFAULT_MODEL = "claude-sonnet-4-5"
+    DEFAULT_MODEL = "claude-sonnet-4-6"
 
     def run(self, inputs: dict) -> dict:
         """

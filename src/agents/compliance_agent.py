@@ -48,7 +48,7 @@ Output format:
 
 class ComplianceAgent(BaseAgent):
     AGENT_ID = "compliance"
-    DEFAULT_MODEL = "claude-sonnet-4-5"
+    DEFAULT_MODEL = "claude-sonnet-4-6"
 
     def __init__(self, memory, model=None):
         super().__init__(memory, model)

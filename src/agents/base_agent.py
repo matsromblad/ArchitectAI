@@ -26,7 +26,7 @@ class BaseAgent(ABC):
 
     # Override in subclass
     AGENT_ID: str = "base"
-    DEFAULT_MODEL: str = "claude-sonnet-4-5"
+    DEFAULT_MODEL: str = "claude-sonnet-4-6"
 
     def __init__(self, memory: ProjectMemory, model: str = None):
         self.memory = memory

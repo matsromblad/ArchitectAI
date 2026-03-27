@@ -41,7 +41,7 @@ class ArchitectAgent(BaseAgent):
     """
 
     AGENT_ID = "architect"
-    DEFAULT_MODEL = "claude-sonnet-4-5"
+    DEFAULT_MODEL = "claude-sonnet-4-6"
 
     def run(self, inputs: dict) -> dict:
         """

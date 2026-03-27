@@ -35,7 +35,7 @@ class StructuralAgent(BaseAgent):
     """
 
     AGENT_ID = "structural"
-    DEFAULT_MODEL = "claude-sonnet-4-5"
+    DEFAULT_MODEL = "claude-sonnet-4-6"
 
     # Thresholds that trigger engineering review flags
     MAX_SPAN_M = 8.0

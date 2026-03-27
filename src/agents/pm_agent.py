@@ -1,5 +1,5 @@
 """
-Project Manager Agent — orchestrator. Runs on claude-opus-4-5.
+Project Manager Agent — orchestrator. Runs on claude-opus-4-6.
 Coordinates all agents, resolves conflicts, manages milestones, gates user approvals.
 """
 
@@ -47,7 +47,7 @@ You always respond with a structured JSON action:
 
 class PMAgent(BaseAgent):
     AGENT_ID = "pm"
-    DEFAULT_MODEL = "claude-opus-4-5"
+    DEFAULT_MODEL = "claude-opus-4-6"
 
     def run(self, inputs: dict) -> dict:
         """

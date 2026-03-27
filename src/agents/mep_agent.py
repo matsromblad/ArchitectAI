@@ -47,7 +47,7 @@ class MEPAgent(BaseAgent):
     """
 
     AGENT_ID = "mep"
-    DEFAULT_MODEL = "claude-sonnet-4-5"
+    DEFAULT_MODEL = "claude-sonnet-4-6"
 
     # Healthcare fire compartment max area (m²) per BBR
     HEALTHCARE_MAX_COMPARTMENT_M2 = 1250.0

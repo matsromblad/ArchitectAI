@@ -43,7 +43,7 @@ Output ONLY valid JSON:
 
 class QAAgent(BaseAgent):
     AGENT_ID = "qa"
-    DEFAULT_MODEL = "claude-sonnet-4-5"
+    DEFAULT_MODEL = "claude-sonnet-4-6"
     MAX_REJECTIONS = 3  # Escalate to PM after this many rejections
 
     def run(self, inputs: dict) -> dict:
