@@ -204,7 +204,31 @@ The system is structured as a classic construction project organization. Each ag
 
 ---
 
-### 5.9 QA Agent
+### 5.9 Component Library Agent
+**Role:** Owns the library of parametric room templates and building element definitions. The IFC equivalent of Revit families.
+
+**Responsibilities:**
+- Maintain a library of room templates per building type (healthcare, education, office, etc.)
+- Each template defines: geometry parameters, required MEP connections, accessibility requirements, standard furnishing zones
+- Serve templates to the Architect Agent (room placement) and IFC Builder (geometry generation)
+- Grow the library over time — templates are created/refined per project and reused across projects
+- Flag when a requested room type has no existing template (triggers template creation)
+
+**Example templates:**
+- `healthcare.geriatric_patient_room` — 12 m², bed zone, hygiene unit, nurse call point, window required
+- `healthcare.isolation_room` — 16 m² + 4 m² airlock, negative pressure zone, sealed surfaces
+- `healthcare.nurse_station` — L-shape, min 8 m², direct sightline to corridor
+- `healthcare.clean_utility` — 6 m², shelving, sink, adjacency to dirty utility
+
+**Inputs:** Room type request (building_type + room_name + jurisdiction)
+**Outputs:** `component_template.json` — geometry params, MEP hookups, compliance refs, adjacency rules
+**Model:** No LLM needed for lookup — template retrieval is deterministic. LLM only invoked to *generate* a new template when one doesn't exist.
+**Storage:** `/component_library/<building_type>/<room_type>.json` — shared across all projects
+**Note:** This is the IFC-native equivalent of Revit families. No separate family files needed — geometry is described parametrically in JSON and realized by the IFC Builder.
+
+---
+
+### 5.10 QA Agent
 **Role:** Quality gatekeeper. Reviews all deliverables from all disciplines and approves or rejects them before they proceed.
 
 **Responsibilities:**
@@ -338,6 +362,7 @@ The system has two types of feedback loops:
 | Architect Agent | `claude-sonnet-4-5` | Spatial reasoning with structured I/O |
 | Structural Agent | `claude-sonnet-4-5` | Structural logic, well-scoped task |
 | MEP Agent | `claude-sonnet-4-5` | Technical system routing |
+| Component Library | none (deterministic) *(→ Sonnet for new templates)* | Template lookup is code; LLM only for generating new templates |
 | IFC Builder | `claude-sonnet-4-5` *(→ Haiku if templated)* | Code generation; downgrade possible for repetitive tasks |
 | QA Agent | `claude-sonnet-4-5` *(→ Opus if needed)* | Checklist validation; upgrade for complex multi-discipline trade-offs |
 
