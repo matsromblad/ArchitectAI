@@ -132,6 +132,98 @@
     padding-top: 8px;
     line-height: 1.5;
   }
+
+  /* Outputs tab */
+  .outputs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .outputs-header h2 { font-size: 13px; color: #E6EDF3; letter-spacing: 1px; }
+  .outputs-header .legend { display: flex; gap: 12px; font-size: 10px; color: #8B949E; }
+  .legend-dot { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:4px; vertical-align:middle; }
+
+  .milestone-folder {
+    margin-bottom: 20px;
+    border: 1px solid #30363D;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .milestone-folder-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #161B22;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #30363D;
+  }
+  .milestone-folder-header:hover { background: #1C2128; }
+  .milestone-folder-header .mf-icon { font-size: 14px; }
+  .milestone-folder-header .mf-title { flex:1; font-size: 12px; font-weight: bold; color: #E6EDF3; }
+  .milestone-folder-header .mf-status {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    background: #21262D; color: #8B949E;
+  }
+  .milestone-folder-header .mf-status.active { background: #1F4E79; color: #58A6FF; }
+  .milestone-folder-header .mf-status.done { background: #1A3C2A; color: #2ECC71; }
+  .milestone-folder-header .mf-status.pending { background: #21262D; color: #6E7681; }
+  .milestone-folder-header .mf-chevron { font-size: 10px; color: #8B949E; transition: transform 0.2s; }
+  .milestone-folder-header.collapsed .mf-chevron { transform: rotate(-90deg); }
+
+  .milestone-folder-body {
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+    background: #0D1117;
+  }
+  .milestone-folder-body.hidden { display: none; }
+
+  .discipline-group { margin-bottom: 4px; }
+  .discipline-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #6E7681;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .discipline-label::after { content:''; flex:1; height:1px; background:#21262D; }
+
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #30363D;
+    background: #161B22;
+    font-size: 10px;
+    cursor: default;
+    transition: border-color 0.2s;
+  }
+  .doc-item:hover { border-color: #58A6FF44; }
+  .doc-item.status-done { border-left: 3px solid #2ECC71; }
+  .doc-item.status-active { border-left: 3px solid #58A6FF; animation: pulse 2s infinite; }
+  .doc-item.status-rejected { border-left: 3px solid #E74C3C; }
+  .doc-item.status-pending { border-left: 3px solid #30363D; opacity: 0.5; }
+  .doc-icon { font-size: 13px; flex-shrink:0; }
+  .doc-info { flex:1; min-width:0; }
+  .doc-name { color: #C9D1D9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .doc-meta { color: #6E7681; font-size: 9px; margin-top:1px; }
+  .doc-badge {
+    font-size: 8px; padding: 1px 5px; border-radius: 8px; flex-shrink:0;
+    background: #21262D; color: #8B949E;
+  }
+  .doc-badge.done { background: #1A3C2A; color: #2ECC71; }
+  .doc-badge.active { background: #1A2B4A; color: #58A6FF; }
+  .doc-badge.rejected { background: #3C1215; color: #F85149; }
+  .doc-badge.pending { background: #21262D; color: #6E7681; }
   .milestone-bar {
     display: flex;
     align-items: center;
@@ -270,6 +362,7 @@
 <div class="tab-bar">
   <button class="tab active" onclick="switchTab('live')">🟢 LIVE VIEW</button>
   <button class="tab" onclick="switchTab('agents')">🤖 AGENTS</button>
+  <button class="tab" onclick="switchTab('outputs')">📁 OUTPUTS</button>
 </div>
 
 <div id="tab-live" class="tab-content active">
@@ -294,6 +387,10 @@
 
 <div id="tab-agents" class="tab-content" style="overflow-y:auto;">
   <div class="agents-grid" id="agentsGrid"></div>
+</div>
+
+<div id="tab-outputs" class="tab-content" style="overflow-y:auto; flex-direction:column;">
+  <div id="outputsRoot" style="padding:16px 20px;"></div>
 </div>
 
 <script>
@@ -399,82 +496,89 @@ function meetingBriefing(agentId, question, answer) {
 }
 
 function initSim() {
+  // Reset all doc statuses
+  Object.values(OUTPUT_DOCS).forEach(phase => phase.forEach(d => { d.status='pending'; d.version=null; d.updatedAt=null; }));
+
   // PM is always in meeting room
   scheduleAt(10, () => { moveAgent('pm', 'meeting', 'working'); addLog('PM', 'Project kickoff — ready for briefings'); });
 
   // M1: Input + Brief
-  scheduleAt(60,  () => moveAgent('parser', 'input', 'working'));
+  scheduleAt(60,  () => { moveAgent('parser', 'input', 'working'); setDocStatus('site_data','active'); });
   scheduleAt(90,  () => addLog('Parser', 'Parsing floor plan PNG'));
 
   // Parser visits PM with a question
   scheduleAt(130, () => { moveAgent('parser', 'meeting', 'waiting'); addLog('Parser', '❓ Scale unclear in PNG — 1:100 or 1:200?'); });
   scheduleAt(190, () => { addLog('PM', '→ Confirmed 1:100. Proceed.'); moveAgent('parser', 'input', 'working'); });
 
-  scheduleAt(230, () => { moveAgent('parser', 'brief', 'working'); moveAgent('brief', 'brief', 'working'); addLog('Brief', 'Generating room program'); });
-  scheduleAt(280, () => { moveAgent('compliance', 'compliance', 'working'); addLog('Compliance', 'Loading SE healthcare rules (BBR, Socialstyrelsen)'); });
+  scheduleAt(200, () => { setDocStatus('site_data','done','v1'); });
+  scheduleAt(230, () => { moveAgent('parser', 'brief', 'working'); moveAgent('brief', 'brief', 'working'); addLog('Brief', 'Generating room program'); setDocStatus('room_program','active'); });
+  scheduleAt(280, () => { moveAgent('compliance', 'compliance', 'working'); addLog('Compliance', 'Loading SE healthcare rules (BBR, Socialstyrelsen)'); setDocStatus('compliance_m1','active'); });
 
   // Brief visits PM before QA
   scheduleAt(310, () => { moveAgent('brief', 'meeting', 'waiting'); addLog('Brief', '❓ Include isolation rooms in geriatric ward?'); });
   scheduleAt(370, () => { addLog('PM', '→ Yes, min 2 isolation rooms. Check with Compliance.'); moveAgent('brief', 'brief', 'working'); });
 
-  scheduleAt(420, () => { sendToQA('room-program', 'Room Program v1'); moveAgent('brief', 'qa', 'qa'); });
-  scheduleAt(500, () => { qaReject('room-program', 'Room Program v1'); moveAgent('brief', 'meeting', 'waiting'); addLog('Brief', '❓ QA rejected — missing isolation rooms'); });
+  scheduleAt(380, () => { setDocStatus('compliance_m1','done','v1'); });
+  scheduleAt(420, () => { sendToQA('room-program', 'Room Program v1'); moveAgent('brief', 'qa', 'qa'); setDocStatus('qa_m1','active'); setDocStatus('room_program','done','v1'); });
+  scheduleAt(500, () => { qaReject('room-program', 'Room Program v1'); setDocStatus('qa_m1','rejected'); moveAgent('brief', 'meeting', 'waiting'); addLog('Brief', '❓ QA rejected — missing isolation rooms'); });
   scheduleAt(560, () => { addLog('PM', '→ Escalating to user: isolation room count needed'); milestoneWaiting = true; moveAgent('pm', 'milestone', 'waiting'); });
   scheduleAt(660, () => { milestoneWaiting = false; addLog('PM', '✅ User confirmed: 3 isolation rooms. Resume.'); moveAgent('pm', 'meeting', 'working'); moveAgent('brief', 'brief', 'working'); });
-  scheduleAt(720, () => { sendToQA('room-program', 'Room Program v2'); moveAgent('brief', 'qa', 'qa'); });
-  scheduleAt(800, () => { qaApprove('room-program', 'Room Program v2'); addLog('QA', 'Room Program v2 — APPROVED'); });
+  scheduleAt(720, () => { sendToQA('room-program', 'Room Program v2'); moveAgent('brief', 'qa', 'qa'); setDocStatus('room_program','active'); setDocStatus('qa_m1','active'); });
+  scheduleAt(800, () => { qaApprove('room-program', 'Room Program v2'); setDocStatus('room_program','done','v2'); setDocStatus('qa_m1','done','v1'); addLog('QA', 'Room Program v2 — APPROVED'); });
 
   // M1 milestone gate
   scheduleAt(840,  () => { moveAgent('pm', 'milestone', 'waiting'); addLog('PM', '🚦 M1: Awaiting user approval'); milestoneWaiting = true; });
   scheduleAt(960,  () => { milestoneWaiting = false; currentMilestone = 1; addLog('PM', '✅ M1 approved — proceeding to layout'); moveAgent('pm', 'meeting', 'working'); updateMilestoneUI(); });
 
   // M2: Architecture + Compliance
-  scheduleAt(1000, () => { moveAgent('architect', 'design', 'working'); addLog('Architect', 'Laying out geriatric ward floor plan'); });
-  scheduleAt(1050, () => { moveAgent('compliance', 'compliance', 'working'); addLog('Compliance', 'Checking corridor widths (BBR 3:4)'); });
+  scheduleAt(1000, () => { moveAgent('architect', 'design', 'working'); addLog('Architect', 'Laying out geriatric ward floor plan'); setDocStatus('spatial_layout','active'); });
+  scheduleAt(1050, () => { moveAgent('compliance', 'compliance', 'working'); addLog('Compliance', 'Checking corridor widths (BBR 3:4)'); setDocStatus('compliance_m2','active'); });
 
   // Architect visits PM
   scheduleAt(1090, () => { moveAgent('architect', 'meeting', 'waiting'); addLog('Architect', '❓ East wing: load-bearing wall conflicts with open plan'); });
   scheduleAt(1150, () => { addLog('PM', '→ Consult Structural. Keep corridor clear, adjust grid.'); moveAgent('architect', 'design', 'working'); });
 
-  scheduleAt(1200, () => { sendToQA('layout', 'Floor Plan v1'); moveAgent('architect', 'qa', 'qa'); });
-  scheduleAt(1280, () => { qaReject('layout', 'Floor Plan v1'); moveAgent('architect', 'design', 'working'); addLog('Architect', 'Widening corridors to 2400mm'); });
-  scheduleAt(1360, () => { sendToQA('layout', 'Floor Plan v2'); moveAgent('architect', 'qa', 'qa'); });
-  scheduleAt(1440, () => { qaApprove('layout', 'Floor Plan v2'); addLog('QA', 'Floor Plan v2 — APPROVED'); });
+  scheduleAt(1150, () => { setDocStatus('compliance_m2','done','v1'); });
+  scheduleAt(1200, () => { sendToQA('layout', 'Floor Plan v1'); moveAgent('architect', 'qa', 'qa'); setDocStatus('spatial_layout','done','v1'); setDocStatus('qa_m2','active'); });
+  scheduleAt(1280, () => { qaReject('layout', 'Floor Plan v1'); setDocStatus('qa_m2','rejected'); moveAgent('architect', 'design', 'working'); addLog('Architect', 'Widening corridors to 2400mm'); setDocStatus('spatial_layout','active'); });
+  scheduleAt(1360, () => { sendToQA('layout', 'Floor Plan v2'); moveAgent('architect', 'qa', 'qa'); setDocStatus('spatial_layout','done','v2'); setDocStatus('qa_m2','active'); });
+  scheduleAt(1440, () => { qaApprove('layout', 'Floor Plan v2'); setDocStatus('qa_m2','done','v1'); addLog('QA', 'Floor Plan v2 — APPROVED'); });
   scheduleAt(1480, () => { moveAgent('pm', 'milestone', 'waiting'); addLog('PM', '🚦 M2: Awaiting user approval'); milestoneWaiting = true; });
   scheduleAt(1600, () => { milestoneWaiting = false; currentMilestone = 2; addLog('PM', '✅ M2 approved — proceeding to systems'); moveAgent('pm', 'meeting', 'working'); updateMilestoneUI(); });
 
   // M3: Structure + MEP
-  scheduleAt(1640, () => { moveAgent('structural', 'structure', 'working'); addLog('Structural', 'Calculating structural grid'); });
-  scheduleAt(1680, () => { moveAgent('mep', 'mep', 'working'); addLog('MEP', 'Routing HVAC and plumbing shafts'); });
+  scheduleAt(1640, () => { moveAgent('structural', 'structure', 'working'); addLog('Structural', 'Calculating structural grid'); setDocStatus('structural','active'); });
+  scheduleAt(1680, () => { moveAgent('mep', 'mep', 'working'); addLog('MEP', 'Routing HVAC and plumbing shafts'); setDocStatus('mep','active'); setDocStatus('compliance_m3','active'); });
 
   // MEP visits PM with conflict
   scheduleAt(1740, () => { moveAgent('mep', 'meeting', 'waiting'); addLog('MEP', '❓ Shaft position conflicts with stairwell'); });
   scheduleAt(1800, () => { addLog('PM', '→ Move shaft 1.2m west. Architect to confirm.'); moveAgent('mep', 'mep', 'working'); moveAgent('architect', 'meeting', 'waiting'); });
   scheduleAt(1840, () => { addLog('Architect', '❓ Confirming shaft shift impact on layout'); addLog('PM', '→ Approved. Update drawings.'); moveAgent('architect', 'design', 'working'); });
 
-  scheduleAt(1880, () => { sendToQA('structure', 'Structural Schema v1'); moveAgent('structural', 'qa', 'qa'); });
-  scheduleAt(1940, () => { qaApprove('structure', 'Structural Schema v1'); addLog('QA', 'Structural Schema — APPROVED'); });
-  scheduleAt(1980, () => { sendToQA('mep', 'MEP Layout v2'); moveAgent('mep', 'qa', 'qa'); });
-  scheduleAt(2060, () => { qaApprove('mep', 'MEP Layout v2'); addLog('QA', 'MEP Layout v2 — APPROVED'); });
+  scheduleAt(1860, () => { setDocStatus('compliance_m3','done','v1'); });
+  scheduleAt(1880, () => { sendToQA('structure', 'Structural Schema v1'); moveAgent('structural', 'qa', 'qa'); setDocStatus('structural','done','v1'); setDocStatus('qa_m3','active'); });
+  scheduleAt(1940, () => { qaApprove('structure', 'Structural Schema v1'); setDocStatus('qa_m3','done','v1'); addLog('QA', 'Structural Schema — APPROVED'); });
+  scheduleAt(1980, () => { sendToQA('mep', 'MEP Layout v2'); moveAgent('mep', 'qa', 'qa'); setDocStatus('mep','done','v2'); setDocStatus('qa_m3','active'); });
+  scheduleAt(2060, () => { qaApprove('mep', 'MEP Layout v2'); setDocStatus('qa_m3','done','v2'); addLog('QA', 'MEP Layout v2 — APPROVED'); });
   scheduleAt(2100, () => { moveAgent('pm', 'milestone', 'waiting'); milestoneWaiting = true; addLog('PM', '🚦 M3: Awaiting user approval'); });
   scheduleAt(2220, () => { milestoneWaiting = false; currentMilestone = 3; addLog('PM', '✅ M3 approved — building IFC model'); moveAgent('pm', 'meeting', 'working'); updateMilestoneUI(); });
 
   // M4: IFC Build
-  scheduleAt(2260, () => { moveAgent('ifc', 'ifc', 'working'); addLog('IFC Builder', 'Generating IFC4 entities...'); });
+  scheduleAt(2260, () => { moveAgent('ifc', 'ifc', 'working'); addLog('IFC Builder', 'Generating IFC4 entities...'); setDocStatus('ifc_model','active'); });
   scheduleAt(2320, () => { addLog('IFC Builder', 'Creating IfcSpace relationships'); });
 
   // IFC visits PM
   scheduleAt(2360, () => { moveAgent('ifc', 'meeting', 'waiting'); addLog('IFC Builder', '❓ IfcZone assignment — merge clean/dirty zones?'); });
   scheduleAt(2420, () => { addLog('PM', '→ Keep separate. Tag with Pset_SpaceCommon.'); moveAgent('ifc', 'ifc', 'working'); });
 
-  scheduleAt(2460, () => { sendToQA('ifc', 'IFC Model v1'); moveAgent('ifc', 'qa', 'qa'); });
-  scheduleAt(2540, () => { qaApprove('ifc', 'IFC Model v1'); addLog('QA', 'IFC Model v1 — APPROVED'); });
+  scheduleAt(2460, () => { sendToQA('ifc', 'IFC Model v1'); moveAgent('ifc', 'qa', 'qa'); setDocStatus('ifc_model','done','v1'); setDocStatus('qa_m4','active'); });
+  scheduleAt(2540, () => { qaApprove('ifc', 'IFC Model v1'); setDocStatus('qa_m4','done','v1'); addLog('QA', 'IFC Model v1 — APPROVED'); });
   scheduleAt(2580, () => { moveAgent('pm', 'milestone', 'waiting'); milestoneWaiting = true; addLog('PM', '🚦 M4: Full model — awaiting approval'); });
   scheduleAt(2700, () => { milestoneWaiting = false; currentMilestone = 4; addLog('PM', '✅ M4 approved — final export'); moveAgent('pm', 'meeting', 'working'); updateMilestoneUI(); });
 
   // M5: Export
-  scheduleAt(2740, () => { moveAgent('ifc', 'ifc', 'working'); addLog('IFC Builder', 'Exporting building.ifc (IFC4)'); });
-  scheduleAt(2820, () => { moveAgent('pm', 'milestone', 'approved'); addLog('PM', '🎉 PROJECT COMPLETE — IFC exported!'); currentMilestone = 5; updateMilestoneUI(); });
+  scheduleAt(2740, () => { moveAgent('ifc', 'ifc', 'working'); addLog('IFC Builder', 'Exporting building.ifc (IFC4)'); setDocStatus('ifc_export','active'); setDocStatus('qa_final','active'); });
+  scheduleAt(2820, () => { moveAgent('pm', 'milestone', 'approved'); setDocStatus('ifc_export','done','final'); setDocStatus('qa_final','done','final'); addLog('PM', '🎉 PROJECT COMPLETE — IFC exported!'); currentMilestone = 5; updateMilestoneUI(); });
 
   // Loop
   scheduleAt(3000, () => { resetSim(); });
@@ -952,6 +1056,141 @@ function switchTab(name) {
   document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
   document.getElementById(`tab-${name}`).classList.add('active');
   if (name === 'live') resize();
+  if (name === 'outputs') renderOutputs();
+}
+
+// ============================================================
+// OUTPUTS DATA & RENDERING
+// ============================================================
+
+// Document registry — updated by sim events
+const OUTPUT_DOCS = {
+  m1: [
+    { id:'site_data',     name:'site_data.json',        icon:'🗺️', discipline:'Input Parser',   meta:'Site boundary + constraints', status:'pending' },
+    { id:'room_program',  name:'room_program.json',      icon:'📋', discipline:'Brief Agent',     meta:'Room list, areas, adjacency', status:'pending' },
+    { id:'compliance_m1', name:'compliance_brief.json',  icon:'📜', discipline:'Compliance',      meta:'SE healthcare rules check',   status:'pending' },
+    { id:'qa_m1',         name:'qa_report_m1.json',      icon:'🔍', discipline:'QA Agent',        meta:'Brief quality report',        status:'pending' },
+  ],
+  m2: [
+    { id:'spatial_layout', name:'spatial_layout.json',   icon:'📐', discipline:'Architect',       meta:'Room positions + circulation', status:'pending' },
+    { id:'compliance_m2',  name:'compliance_layout.json',icon:'📜', discipline:'Compliance',      meta:'BBR corridor + fire check',    status:'pending' },
+    { id:'qa_m2',          name:'qa_report_m2.json',     icon:'🔍', discipline:'QA Agent',        meta:'Layout quality report',        status:'pending' },
+  ],
+  m3: [
+    { id:'structural',    name:'structural_schema.json', icon:'🏗️', discipline:'Structural',      meta:'Grid, columns, cores',        status:'pending' },
+    { id:'mep',           name:'mep_schema.json',        icon:'⚙️', discipline:'MEP Agent',       meta:'Shafts, plant, distribution', status:'pending' },
+    { id:'compliance_m3', name:'compliance_mep.json',    icon:'📜', discipline:'Compliance',      meta:'Ventilation + fire zones',    status:'pending' },
+    { id:'qa_m3',         name:'qa_report_m3.json',      icon:'🔍', discipline:'QA Agent',        meta:'Systems quality report',      status:'pending' },
+  ],
+  m4: [
+    { id:'ifc_model',     name:'building.ifc',           icon:'🏛️', discipline:'IFC Builder',     meta:'Full IFC4 building model',    status:'pending' },
+    { id:'qa_m4',         name:'qa_report_m4.json',      icon:'🔍', discipline:'QA Agent',        meta:'Model validation report',     status:'pending' },
+  ],
+  m5: [
+    { id:'ifc_export',    name:'building_final.ifc',     icon:'✅', discipline:'IFC Builder',     meta:'Final export — all approved', status:'pending' },
+    { id:'qa_final',      name:'qa_report_final.json',   icon:'🔍', discipline:'QA Agent',        meta:'Full project QA summary',     status:'pending' },
+  ],
+};
+
+const MILESTONE_META = [
+  { key:'m1', label:'M1 — Brief & Compliance', desc:'Room program, site data, initial compliance check', icon:'📋' },
+  { key:'m2', label:'M2 — Concept Layout',     desc:'Floor plan, circulation, layout compliance',         icon:'📐' },
+  { key:'m3', label:'M3 — Technical Systems',  desc:'Structure, MEP routing, technical compliance',       icon:'⚙️' },
+  { key:'m4', label:'M4 — Full Building Model',desc:'Complete IFC model, all disciplines coordinated',    icon:'🏛️' },
+  { key:'m5', label:'M5 — Final Export',        desc:'Validated IFC4 file ready for handover',            icon:'📦' },
+];
+
+function setDocStatus(id, status, version) {
+  for (const phase of Object.values(OUTPUT_DOCS)) {
+    const doc = phase.find(d => d.id === id);
+    if (doc) {
+      doc.status = status;
+      if (version) doc.version = version;
+      doc.updatedAt = new Date().toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'});
+    }
+  }
+}
+
+function getMilestoneStatus(key) {
+  const idx = ['m1','m2','m3','m4','m5'].indexOf(key);
+  if (idx < currentMilestone) return 'done';
+  if (idx === currentMilestone) return 'active';
+  return 'pending';
+}
+
+function renderOutputs() {
+  const root = document.getElementById('outputsRoot');
+
+  // Group docs by discipline within each milestone
+  const html = MILESTONE_META.map(m => {
+    const docs = OUTPUT_DOCS[m.key] || [];
+    const status = getMilestoneStatus(m.key);
+    const doneCount = docs.filter(d => d.status === 'done').length;
+    const statusLabel = status === 'done' ? 'Complete' : status === 'active' ? 'In Progress' : 'Pending';
+
+    // Group by discipline
+    const byDiscipline = {};
+    docs.forEach(d => {
+      if (!byDiscipline[d.discipline]) byDiscipline[d.discipline] = [];
+      byDiscipline[d.discipline].push(d);
+    });
+
+    const disciplineHTML = Object.entries(byDiscipline).map(([disc, items]) => {
+      const itemsHTML = items.map(doc => {
+        const badgeLabel = doc.status === 'done' ? (doc.version || 'Done') :
+                           doc.status === 'active' ? 'Working…' :
+                           doc.status === 'rejected' ? 'Rejected' : '—';
+        return `
+          <div class="doc-item status-${doc.status}">
+            <span class="doc-icon">${doc.icon}</span>
+            <div class="doc-info">
+              <div class="doc-name">${doc.name}</div>
+              <div class="doc-meta">${doc.meta}${doc.updatedAt ? ' · ' + doc.updatedAt : ''}</div>
+            </div>
+            <span class="doc-badge ${doc.status}">${badgeLabel}</span>
+          </div>`;
+      }).join('');
+      return `
+        <div class="discipline-group">
+          <div class="discipline-label">${disc}</div>
+          ${itemsHTML}
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="milestone-folder">
+        <div class="milestone-folder-header" onclick="toggleFolder('${m.key}')">
+          <span class="mf-icon">${m.icon}</span>
+          <span class="mf-title">${m.label}</span>
+          <span style="font-size:10px;color:#6E7681;margin-right:8px">${doneCount}/${docs.length} files</span>
+          <span class="mf-status ${status}">${statusLabel}</span>
+          <span class="mf-chevron">▼</span>
+        </div>
+        <div class="milestone-folder-body" id="folder-${m.key}">
+          <div style="grid-column:1/-1;font-size:10px;color:#6E7681;margin-bottom:6px">${m.desc}</div>
+          ${disciplineHTML}
+        </div>
+      </div>`;
+  }).join('');
+
+  root.innerHTML = `
+    <div class="outputs-header">
+      <h2>📁 PROJECT OUTPUT FILES</h2>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#2ECC71"></span>Done</span>
+        <span><span class="legend-dot" style="background:#58A6FF"></span>Active</span>
+        <span><span class="legend-dot" style="background:#E74C3C"></span>Rejected</span>
+        <span><span class="legend-dot" style="background:#30363D"></span>Pending</span>
+      </div>
+    </div>
+    ${html}`;
+}
+
+function toggleFolder(key) {
+  const body = document.getElementById(`folder-${key}`);
+  const header = body.previousElementSibling;
+  body.classList.toggle('hidden');
+  header.classList.toggle('collapsed');
 }
 
 // ============================================================
@@ -1066,6 +1305,7 @@ resize();
 updateMilestoneUI();
 updateQAUI();
 renderAgentCards();
+renderOutputs();
 initSim();
 loop();
 </script>
