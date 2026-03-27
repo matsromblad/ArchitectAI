@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArchitectAI — From prompt to building. In minutes.</title>
+  <meta name="description" content="ArchitectAI is a multi-agent AI system that autonomously designs standards-compliant buildings — from a natural language brief and a site plan to a full IFC model." />
+  <meta property="og:title" content="ArchitectAI — From prompt to building. In minutes." />
+  <meta property="og:description" content="Multi-agent AI system for autonomous building design. Natural language → IFC4 BIM model." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ArchitectAI" />
+  <meta name="twitter:description" content="From prompt to building. In minutes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0D1117;
+      --bg-2: #161B22;
+      --bg-3: #1C2128;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.16);
+      --gold: #FFD700;
+      --gold-dim: rgba(255,215,0,0.12);
+      --gold-glow: rgba(255,215,0,0.25);
+      --text: #E6EDF3;
+      --text-muted: #8B949E;
+      --text-dim: #6E7681;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --nav-height: 64px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-height);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      transition: background 0.3s, backdrop-filter 0.3s, border-color 0.3s;
+      border-bottom: 1px solid transparent;
+    }
+
+    nav.scrolled {
+      background: rgba(13,17,23,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-color: var(--border);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo .logo-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--gold);
+      border-radius: 5px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      white-space: nowrap;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #0D1117;
+    }
+
+    .btn-gold:hover {
+      background: #ffe033;
+      box-shadow: 0 0 20px var(--gold-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border-hover);
+    }
+
+    .btn-outline:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.04);
+      transform: translateY(-1px);
+    }
+
+    .btn-lg {
+      padding: 12px 24px;
+      font-size: 15px;
+    }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-muted);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: calc(var(--nav-height) + 60px) 24px 80px;
+      overflow: hidden;
+    }
+
+    /* Animated grid background */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,215,0,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,215,0,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridPulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* Radial glow in center */
+    .hero-glow {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(255,215,0,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(255,215,0,0.25);
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    h1 {
+      font-size: clamp(40px, 7vw, 80px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    h1 .accent { color: var(--gold); }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 0;
+      margin-top: 80px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg-2);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .hero-stat {
+      flex: 1;
+      padding: 24px 20px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .hero-stat:last-child { border-right: none; }
+
+    .hero-stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: -0.5px;
+    }
+
+    .hero-stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: 96px 24px;
+    }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* ── HOW IT WORKS ── */
+    #how-it-works { background: var(--bg-2); }
+
+    .timeline {
+      display: flex;
+      gap: 0;
+      margin-top: 60px;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      right: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), var(--gold-glow), var(--border), transparent);
+    }
+
+    .timeline-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .timeline-num {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .timeline-step:hover .timeline-num {
+      border-color: var(--gold);
+      box-shadow: 0 0 24px var(--gold-glow);
+    }
+
+    .timeline-step-num-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .timeline-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .timeline-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── AGENTS ── */
+    #agents { background: var(--bg); }
+
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    .agent-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--agent-color, var(--gold));
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: all 0.2s;
+      cursor: default;
+    }
+
+    .agent-card:hover {
+      border-color: var(--agent-color, var(--gold));
+      border-left-color: var(--agent-color, var(--gold));
+      background: var(--bg-3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .agent-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .agent-emoji {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .agent-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .agent-model {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .agent-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── FEATURES ── */
+    #features { background: var(--bg-2); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+
+    .feature-card {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: all 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    }
+
+    .feature-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+
+    .feature-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* ── TECH ── */
+    #tech { background: var(--bg); }
+
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 40px;
+    }
+
+    .tech-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .tech-pill:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-dim);
+      transform: translateY(-2px);
+    }
+
+    .tech-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--pill-color, var(--gold));
+      flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--text); }
+
+    .footer-right {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .footer-right span { color: var(--text-muted); }
+
+    /* ── PLACEHOLDER IMG ── */
+    .placeholder-img {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, var(--bg-2) 0%, var(--bg-3) 50%, var(--bg-2) 100%);
+      border: 1px dashed var(--border-hover);
+      border-radius: var(--radius);
+      min-height: 200px;
+    }
+
+    /* ── ENTRANCE ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-up-delay-1 { transition-delay: 0.1s; }
+    .fade-up-delay-2 { transition-delay: 0.2s; }
+    .fade-up-delay-3 { transition-delay: 0.3s; }
+    .fade-up-delay-4 { transition-delay: 0.4s; }
+    .fade-up-delay-5 { transition-delay: 0.5s; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .agents-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: 1fr; }
+
+      .timeline {
+        flex-direction: column;
+        gap: 32px;
+      }
+
+      .timeline::before {
+        top: 0;
+        bottom: 0;
+        left: 40px;
+        right: auto;
+        width: 1px;
+        height: auto;
+        background: linear-gradient(180deg, transparent, var(--border), var(--gold-glow), var(--border), transparent);
+      }
+
+      .timeline-step {
+        flex-direction: row;
+        text-align: left;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 0;
+      }
+
+      .timeline-num {
+        width: 64px;
+        height: 64px;
+        font-size: 22px;
+        flex-shrink: 0;
+        margin-bottom: 0;
+      }
+
+      .timeline-step-content { padding-top: 8px; }
+    }
+
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: var(--nav-height);
+        left: 0; right: 0;
+        background: rgba(13,17,23,0.97);
+        backdrop-filter: blur(16px);
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+        gap: 16px;
+      }
+      .nav-hamburger { display: flex; }
+      .nav-cta-desktop { display: none; }
+
+      .agents-grid { grid-template-columns: 1fr; }
+
+      .hero-stats {
+        flex-direction: column;
+        max-width: 280px;
+      }
+
+      .hero-stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .hero-stat:last-child { border-bottom: none; }
+
+      .footer-inner { flex-direction: column; gap: 16px; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="logo-icon"></span>
+      ArchitectAI
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#how-it-works">How it Works</a></li>
+      <li><a href="#agents">Agents</a></li>
+      <li><a href="#tech">Tech</a></li>
+      <li><a href="https://github.com" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+
+    <a href="/dashboard" class="btn btn-gold nav-cta-desktop">View Dashboard →</a>
+
+    <div class="nav-hamburger" id="hamburger" aria-label="Menu" role="button" tabindex="0">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div style="position:absolute;inset:0;background-image:url('images/hero-bg.png');background-size:cover;background-position:center;opacity:0.18;z-index:0;pointer-events:none;"></div>
+
+  <div class="hero-content" style="position:relative;z-index:1;">
+    <div class="hero-badge">Multi-Agent AI · IFC4 · BIM</div>
+
+    <h1>From prompt to building.<br /><span class="accent">In minutes.</span></h1>
+
+    <p class="hero-sub">
+      ArchitectAI is a multi-agent system that autonomously designs standards-compliant buildings —
+      from a natural language brief and a site plan to a full IFC model.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="../dashboard/index.html" class="btn btn-gold btn-lg">View Dashboard →</a>
+      <a href="https://github.com/matsromblad/ArchitectAI" class="btn btn-outline btn-lg">View on GitHub →</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-value">10</div>
+      <div class="hero-stat-label">Agents</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">IFC4</div>
+      <div class="hero-stat-label">Output</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">Global</div>
+      <div class="hero-stat-label">Compliance</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how-it-works">
+  <div class="section-inner">
+    <span class="section-label fade-up">Process</span>
+    <h2 class="fade-up">How it works</h2>
+    <p class="section-sub fade-up">Five milestones from brief to BIM — fully automated, quality-gated at every step.</p>
+    <div class="fade-up" style="margin:2rem 0 2.5rem;border-radius:12px;overflow:hidden;border:1px solid #30363D;">
+      <img src="images/workflow.png" alt="ArchitectAI workflow — 5 milestones from brief to IFC" style="width:100%;display:block;">
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-step fade-up fade-up-delay-1">
+        <div class="timeline-num">
+          📋
+          <span class="timeline-step-num-label">M1</span>
+        </div>
+        <div class="timeline-step-content">
+          <div class="timeline-title">Brief</div>
+          <div class="timeline-desc">Describe the building in plain language. Upload a site plan.</div>
+        </div>
+      </div>
+
+      <div class="timeline-step fade-up fade-up-delay-2">
+        <div class="timeline-num">
+          📐
+          <span class="timeline-step-num-label">M2</span>
+        </div>
+        <div class="timeline-step-content">
+          <div class="timeline-title">Layout</div>
+          <div class="timeline-desc">The Architect Agent places rooms and designs circulation.</div>
+        </div>
+      </div>
+
+      <div class="timeline-step fade-up fade-up-delay-3">
+        <div class="timeline-num">
+          ⚙️
+          <span class="timeline-step-num-label">M3</span>
+        </div>
+        <div class="timeline-step-content">
+          <div class="timeline-title">Systems</div>
+          <div class="timeline-desc">Structural and MEP agents coordinate technical systems.</div>
+        </div>
+      </div>
+
+      <div class="timeline-step fade-up fade-up-delay-4">
+        <div class="timeline-num">
+          🏛️
+          <span class="timeline-step-num-label">M4</span>
+        </div>
+        <div class="timeline-step-content">
+          <div class="timeline-title">Model</div>
+          <div class="timeline-desc">IFC Builder generates a complete BIM model.</div>
+        </div>
+      </div>
+
+      <div class="timeline-step fade-up fade-up-delay-5">
+        <div class="timeline-num">
+          ✅
+          <span class="timeline-step-num-label">M5</span>
+        </div>
+        <div class="timeline-step-content">
+          <div class="timeline-title">Export</div>
+          <div class="timeline-desc">Download your validated IFC4 file.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── AGENTS ── -->
+<section id="agents">
+  <div class="section-inner">
+    <span class="section-label fade-up">Architecture</span>
+    <h2 class="fade-up">10 specialized agents</h2>
+    <p class="section-sub fade-up">Each agent owns a domain. The Project Manager orchestrates them all.</p>
+    <div class="fade-up" style="margin:2rem 0 2.5rem;border-radius:12px;overflow:hidden;border:1px solid #30363D;max-width:700px;margin-left:auto;margin-right:auto;">
+      <img src="images/agents-team.png" alt="ArchitectAI agent team in pixel art style" style="width:100%;display:block;">
+    </div>
+
+    <div class="agents-grid">
+
+      <div class="agent-card fade-up fade-up-delay-1" style="--agent-color: #FFD700;">
+        <div class="agent-header">
+          <span class="agent-emoji">👑</span>
+          <span class="agent-name">Project Manager</span>
+          <span class="agent-model">claude-opus-4-5</span>
+        </div>
+        <div class="agent-desc">Orchestrates the full design process</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-2" style="--agent-color: #A855F7;">
+        <div class="agent-header">
+          <span class="agent-emoji">📥</span>
+          <span class="agent-name">Input Parser</span>
+          <span class="agent-model">claude-sonnet-4-5</span>
+        </div>
+        <div class="agent-desc">Parses DWG, PDF, PNG site plans</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-3" style="--agent-color: #14B8A6;">
+        <div class="agent-header">
+          <span class="agent-emoji">📋</span>
+          <span class="agent-name">Brief Agent</span>
+          <span class="agent-model">claude-sonnet-4-5</span>
+        </div>
+        <div class="agent-desc">Generates structured room programs</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-1" style="--agent-color: #EF4444;">
+        <div class="agent-header">
+          <span class="agent-emoji">📜</span>
+          <span class="agent-name">Compliance Agent</span>
+          <span class="agent-model">claude-sonnet-4-5</span>
+        </div>
+        <div class="agent-desc">Expert on local building codes</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-2" style="--agent-color: #3B82F6;">
+        <div class="agent-header">
+          <span class="agent-emoji">📐</span>
+          <span class="agent-name">Architect Agent</span>
+          <span class="agent-model">claude-sonnet-4-5</span>
+        </div>
+        <div class="agent-desc">Spatial layout and circulation design</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-3" style="--agent-color: #6B7280;">
+        <div class="agent-header">
+          <span class="agent-emoji">🏗️</span>
+          <span class="agent-name">Structural Agent</span>
+          <span class="agent-model">claude-sonnet-4-5</span>
+        </div>
+        <div class="agent-desc">Structural grid and load-bearing elements</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-1" style="--agent-color: #F97316;">
+        <div class="agent-header">
+          <span class="agent-emoji">⚙️</span>
+          <span class="agent-name">MEP Agent</span>
+          <span class="agent-model">claude-sonnet-4-5</span>
+        </div>
+        <div class="agent-desc">HVAC, electrical, plumbing routing</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-2" style="--agent-color: #22C55E;">
+        <div class="agent-header">
+          <span class="agent-emoji">📚</span>
+          <span class="agent-name">Component Library</span>
+          <span class="agent-model">deterministic</span>
+        </div>
+        <div class="agent-desc">Parametric room template library</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-3" style="--agent-color: #10B981;">
+        <div class="agent-header">
+          <span class="agent-emoji">🏛️</span>
+          <span class="agent-name">IFC Builder</span>
+          <span class="agent-model">claude-sonnet-4-5</span>
+        </div>
+        <div class="agent-desc">Generates valid IFC4 output</div>
+      </div>
+
+      <div class="agent-card fade-up fade-up-delay-1" style="--agent-color: #DC143C; grid-column: 2;">
+        <div class="agent-header">
+          <span class="agent-emoji">🔍</span>
+          <span class="agent-name">QA Agent</span>
+          <span class="agent-model">claude-sonnet-4-5</span>
+        </div>
+        <div class="agent-desc">Quality gatekeeper — approves all deliverables</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="section-inner">
+    <span class="section-label fade-up">Why ArchitectAI</span>
+    <h2 class="fade-up">Built for real projects</h2>
+    <p class="section-sub fade-up">Not just a demo — a production-grade pipeline designed for architects and AEC firms.</p>
+    <div class="fade-up" style="margin:2rem auto 2.5rem;border-radius:12px;overflow:hidden;border:1px solid #30363D;max-width:800px;">
+      <img src="images/ifc-model.png" alt="IFC4 building model generated by ArchitectAI" style="width:100%;display:block;">
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card fade-up fade-up-delay-1">
+        <div class="feature-icon">🌍</div>
+        <div class="feature-title">Global by default</div>
+        <div class="feature-desc">One system for Sweden, UAE, UK. The Compliance Agent adapts to any jurisdiction automatically — no manual configuration needed.</div>
+      </div>
+
+      <div class="feature-card fade-up fade-up-delay-2">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-title">Iterative by design</div>
+        <div class="feature-desc">QA gates and feedback loops ensure quality at every step. Agents revise their outputs until they meet the standard — or escalate to the PM.</div>
+      </div>
+
+      <div class="feature-card fade-up fade-up-delay-3">
+        <div class="feature-icon">📂</div>
+        <div class="feature-title">Open format</div>
+        <div class="feature-desc">IFC4 output opens in Revit, ArchiCAD, Vectorworks, Solibri — no lock-in. Your model belongs to you, in an industry-standard format.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── TECH STACK ── -->
+<section id="tech">
+  <div class="section-inner">
+    <span class="section-label fade-up">Under the Hood</span>
+    <h2 class="fade-up">Tech stack</h2>
+    <p class="section-sub fade-up">Proven open-source tooling, orchestrated by LangGraph and powered by Anthropic Claude.</p>
+
+    <div class="tech-grid">
+      <div class="tech-pill fade-up fade-up-delay-1">
+        <span class="dot" style="--pill-color: #3776AB;"></span>
+        Python
+      </div>
+      <div class="tech-pill fade-up fade-up-delay-1">
+        <span class="dot" style="--pill-color: #FF6B35;"></span>
+        LangGraph
+      </div>
+      <div class="tech-pill fade-up fade-up-delay-2">
+        <span class="dot" style="--pill-color: #D97706;"></span>
+        Anthropic Claude
+      </div>
+      <div class="tech-pill fade-up fade-up-delay-2">
+        <span class="dot" style="--pill-color: #10B981;"></span>
+        ifcopenshell
+      </div>
+      <div class="tech-pill fade-up fade-up-delay-3">
+        <span class="dot" style="--pill-color: #6366F1;"></span>
+        ezdxf
+      </div>
+      <div class="tech-pill fade-up fade-up-delay-3">
+        <span class="dot" style="--pill-color: #EC4899;"></span>
+        ChromaDB
+      </div>
+      <div class="tech-pill fade-up fade-up-delay-4">
+        <span class="dot" style="--pill-color: #22C55E;"></span>
+        FastAPI
+      </div>
+      <div class="tech-pill fade-up fade-up-delay-4">
+        <span class="dot" style="--pill-color: #14B8A6;"></span>
+        WebSockets
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <a href="#" class="footer-logo">
+      <span class="logo-icon" style="width:20px;height:20px;background:var(--gold);border-radius:4px;display:inline-block;"></span>
+      ArchitectAI
+    </a>
+
+    <ul class="footer-links">
+      <li><a href="https://github.com" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="/docs">Compendium</a></li>
+    </ul>
+
+    <div class="footer-right">
+      Built with <span>Claude Opus 4.5 + Sonnet 4.5</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── JAVASCRIPT ── -->
+<script>
+  // Nav scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  // Mobile hamburger
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
+  hamburger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') navLinks.classList.toggle('open');
+  });
+
+  // Close mobile nav on link click
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => navLinks.classList.remove('open'));
+  });
+
+  // IntersectionObserver for entrance animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Subtle parallax on hero grid
+  const heroGrid = document.querySelector('.hero-grid');
+  if (heroGrid) {
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      heroGrid.style.transform = `translateY(${y * 0.3}px)`;
+    }, { passive: true });
+  }
+</script>
+
+</body>
+</html>
