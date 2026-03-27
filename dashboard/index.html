@@ -30,6 +30,108 @@
     text-shadow: 0 0 10px #FFD70055;
   }
   header .subtitle { font-size: 11px; color: #8B949E; }
+  .tab-bar {
+    display: flex;
+    gap: 2px;
+    padding: 0 20px;
+    background: #161B22;
+    border-bottom: 1px solid #30363D;
+  }
+  .tab {
+    padding: 7px 18px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #8B949E;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s;
+  }
+  .tab:hover { color: #C9D1D9; }
+  .tab.active { color: #FFD700; border-bottom: 2px solid #FFD700; }
+  .tab-content { display: none; flex: 1; overflow: hidden; }
+  .tab-content.active { display: flex; }
+
+  /* Agents tab */
+  .agents-grid {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+    align-content: start;
+  }
+  .agent-card {
+    background: #161B22;
+    border: 1px solid #30363D;
+    border-radius: 6px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--agent-color);
+  }
+  .agent-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .agent-card-avatar {
+    width: 32px; height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #0D1117;
+    flex-shrink: 0;
+  }
+  .agent-card-title { flex: 1; }
+  .agent-card-title h4 { font-size: 13px; color: #E6EDF3; margin-bottom: 2px; }
+  .agent-card-title .model-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background: #21262D;
+    color: #8B949E;
+    border: 1px solid #30363D;
+    display: inline-block;
+  }
+  .model-badge.opus { background: #2A1F4A; color: #B388FF; border-color: #7C3AED44; }
+  .model-badge.sonnet { background: #1A2B4A; color: #79C0FF; border-color: #1F6FEB44; }
+  .model-badge.haiku { background: #1A3C2A; color: #56D364; border-color: #2EA04344; }
+  .agent-card p {
+    font-size: 10px;
+    color: #8B949E;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .agent-card-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .tag {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: #21262D;
+    color: #8B949E;
+    border: 1px solid #30363D;
+  }
+  .tag.input-tag  { border-color: #9B59B655; color: #9B59B6; }
+  .tag.output-tag { border-color: #2ECC7155; color: #2ECC71; }
+  .agent-card .how {
+    font-size: 10px;
+    color: #6E7681;
+    border-top: 1px solid #21262D;
+    margin-top: 8px;
+    padding-top: 8px;
+    line-height: 1.5;
+  }
   .milestone-bar {
     display: flex;
     align-items: center;
@@ -165,7 +267,13 @@
   <div class="milestone-bar" id="milestoneBar"></div>
 </header>
 
-<div class="main">
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('live')">🟢 LIVE VIEW</button>
+  <button class="tab" onclick="switchTab('agents')">🤖 AGENTS</button>
+</div>
+
+<div id="tab-live" class="tab-content active">
+<div class="main" style="flex:1;display:flex;overflow:hidden;">
   <canvas id="worldCanvas"></canvas>
   <div class="sidebar">
     <div class="sidebar-section">
@@ -181,6 +289,11 @@
       <div id="activityLog"></div>
     </div>
   </div>
+</div>
+</div><!-- end tab-live -->
+
+<div id="tab-agents" class="tab-content" style="overflow-y:auto;">
+  <div class="agents-grid" id="agentsGrid"></div>
 </div>
 
 <script>
@@ -812,12 +925,128 @@ function updateLogUI() {
 }
 
 // ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+  if (name === 'live') resize();
+}
+
+// ============================================================
+// AGENT CARDS DATA
+// ============================================================
+const AGENT_CARDS = [
+  {
+    id: 'pm', name: 'Project Manager', emoji: '👑', model: 'claude-opus-4-5', modelType: 'opus',
+    role: 'Orchestrator of the entire build process. Coordinates all agents, owns the project state machine, and is the sole decision-maker on whether issues are escalated to the user.',
+    how: 'Sits permanently in the Meeting Room. Receives questions from all agents, resolves conflicts, and assigns tasks. Tracks milestone progress and triggers user approval gates.',
+    inputs: ['User prompt', 'Agent queries', 'QA reports'],
+    outputs: ['Task assignments', 'Approval decisions', 'User escalations'],
+  },
+  {
+    id: 'parser', name: 'Input Parser', emoji: '📥', model: 'claude-sonnet-4-5', modelType: 'sonnet',
+    role: 'Translates raw site input files (DWG, PDF, PNG, IFC) into a normalized JSON site data schema that all other agents can consume.',
+    how: 'Detects file type and selects parsing strategy: ezdxf for DWG, pdfplumber for PDF, vision model for PNG/JPG, ifcopenshell for IFC. Extracts boundary geometry, constraints, orientation, and scale.',
+    inputs: ['DWG / PDF / PNG / IFC file'],
+    outputs: ['site_data.json'],
+  },
+  {
+    id: 'brief', name: 'Brief Agent', emoji: '📋', model: 'claude-sonnet-4-5', modelType: 'sonnet',
+    role: 'Converts the user\'s natural language prompt into a structured room program — the definitive list of spaces, areas, and requirements for the building.',
+    how: 'Parses the prompt, identifies building type and department, generates a room list with areas and adjacency requirements. Consults Compliance Agent to validate minimum areas. Submits to QA before proceeding.',
+    inputs: ['User prompt', 'Building type taxonomy'],
+    outputs: ['room_program.json'],
+  },
+  {
+    id: 'compliance', name: 'Compliance Agent', emoji: '📜', model: 'claude-sonnet-4-5 *', modelType: 'sonnet',
+    role: 'The regulatory expert. The only agent with jurisdiction-specific knowledge. All other agents consult this agent before finalizing any design decision.',
+    how: 'Maintains a RAG knowledge base of building codes (BBR, Eurocodes, healthcare standards, ADA, local fire codes). Answers yes/no/conditional compliance queries with specific rule references and suggested fixes. Adapts to project jurisdiction.',
+    inputs: ['Compliance query', 'Jurisdiction (SE / UAE / UK / US / …)'],
+    outputs: ['Compliance verdict', 'Rule reference', 'Suggested fix'],
+  },
+  {
+    id: 'architect', name: 'Architect Agent', emoji: '📐', model: 'claude-sonnet-4-5', modelType: 'sonnet',
+    role: 'Creates the spatial layout — room placement, circulation, adjacencies, and spatial flow. The primary design agent.',
+    how: 'Places rooms from the room program onto the site, optimizes for adjacency requirements (e.g., clean/dirty flow in healthcare), designs corridors and vertical circulation. Iterates based on QA and Compliance feedback.',
+    inputs: ['room_program.json', 'site_data.json', 'Compliance rules'],
+    outputs: ['spatial_layout.json'],
+  },
+  {
+    id: 'structural', name: 'Structural Agent', emoji: '🏗', model: 'claude-sonnet-4-5', modelType: 'sonnet',
+    role: 'Reviews the architectural layout and proposes a structural system. Flags problematic spans and ensures structural continuity between floors.',
+    how: 'Identifies structural grid based on layout, proposes column/wall/core placement, flags spans exceeding structural norms. Does not perform calculations — flags issues for human engineer review.',
+    inputs: ['spatial_layout.json'],
+    outputs: ['structural_schema.json'],
+  },
+  {
+    id: 'mep', name: 'MEP Agent', emoji: '⚙️', model: 'claude-sonnet-4-5', modelType: 'sonnet',
+    role: 'Handles mechanical, electrical, and plumbing systems. Places shafts, plant rooms, and main distribution routes.',
+    how: 'Identifies MEP zones from layout and building type, routes main distribution paths, flags spatial conflicts with architecture and structure. Ensures compliance with ventilation rates, fire compartment rules, and technical standards.',
+    inputs: ['spatial_layout.json', 'structural_schema.json'],
+    outputs: ['mep_schema.json'],
+  },
+  {
+    id: 'ifc', name: 'IFC Builder', emoji: '🏛', model: 'claude-sonnet-4-5 †', modelType: 'sonnet',
+    role: 'Translates all approved design schemas into a valid IFC4 building model file that can be opened in any major BIM tool.',
+    how: 'Consumes approved spatial, structural, and MEP schemas. Generates IFC entities (walls, slabs, spaces, doors, zones) with correct relationships. Only runs after QA approval of all upstream schemas.',
+    inputs: ['spatial_layout.json ✓', 'structural_schema.json ✓', 'mep_schema.json ✓'],
+    outputs: ['building.ifc (IFC4)'],
+  },
+  {
+    id: 'qa', name: 'QA Agent', emoji: '🔍', model: 'claude-sonnet-4-5 *', modelType: 'sonnet',
+    role: 'The quality gatekeeper. The only agent that can block progress. Reviews all deliverables and approves or rejects them with specific feedback.',
+    how: 'Checks each schema for internal consistency, spatial conflicts, compliance gaps, and IFC validity. Produces a pass/fail report per checklist item. Sends rejected items back to the originating agent with targeted comments. Max 3 automatic iterations before escalating to PM.',
+    inputs: ['Any agent output schema'],
+    outputs: ['QA verdict (approved / rejected + comments)'],
+  },
+];
+
+function renderAgentCards() {
+  const grid = document.getElementById('agentsGrid');
+  grid.innerHTML = AGENT_CARDS.map(a => {
+    const agent = AGENTS.find(ag => ag.id === a.id);
+    const color = agent ? agent.color : '#8B949E';
+    const inputTags = a.inputs.map(i => `<span class="tag input-tag">${i}</span>`).join('');
+    const outputTags = a.outputs.map(o => `<span class="tag output-tag">${o}</span>`).join('');
+    return `
+      <div class="agent-card" style="--agent-color:${color}">
+        <div class="agent-card-header">
+          <div class="agent-card-avatar" style="background:${color}">${a.emoji}</div>
+          <div class="agent-card-title">
+            <h4>${a.name}</h4>
+            <span class="model-badge ${a.modelType}">${a.model}</span>
+          </div>
+        </div>
+        <p>${a.role}</p>
+        <div class="how">⚙️ ${a.how}</div>
+        <div class="agent-card-row" style="margin-top:10px">
+          <span style="font-size:9px;color:#6E7681;margin-right:2px">IN:</span>${inputTags}
+        </div>
+        <div class="agent-card-row" style="margin-top:4px">
+          <span style="font-size:9px;color:#6E7681;margin-right:2px">OUT:</span>${outputTags}
+        </div>
+      </div>`;
+  }).join('');
+
+  // footnotes
+  grid.insertAdjacentHTML('beforeend', `
+    <div style="grid-column:1/-1;font-size:9px;color:#6E7681;padding:8px 0 16px">
+      * May be upgraded to Opus for complex legal/multi-discipline decisions &nbsp;|&nbsp;
+      † May be downgraded to Haiku for repetitive templated tasks
+    </div>`);
+}
+
+// ============================================================
 // INIT
 // ============================================================
 window.addEventListener('resize', () => { resize(); });
 resize();
 updateMilestoneUI();
 updateQAUI();
+renderAgentCards();
 initSim();
 loop();
 </script>
