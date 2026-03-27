@@ -202,15 +202,16 @@ const AGENTS = [
 const MILESTONES = ['M1 Brief','M2 Layout','M3 Systems','M4 Model','M5 Export'];
 
 const STATIONS = [
-  { id:'input',      label:'📥 INPUT',      x:0.05, y:0.12, w:0.12, h:0.14 },
-  { id:'brief',      label:'📋 BRIEF',      x:0.22, y:0.05, w:0.12, h:0.14 },
-  { id:'compliance', label:'📜 COMPLIANCE', x:0.40, y:0.05, w:0.14, h:0.14 },
-  { id:'design',     label:'📐 DESIGN',     x:0.22, y:0.32, w:0.14, h:0.14 },
-  { id:'structure',  label:'🏗 STRUCTURE',  x:0.40, y:0.32, w:0.13, h:0.14 },
-  { id:'mep',        label:'⚙️ MEP',        x:0.58, y:0.32, w:0.10, h:0.14 },
-  { id:'qa',         label:'🔍 QA REVIEW',  x:0.60, y:0.05, w:0.14, h:0.25 },
-  { id:'ifc',        label:'🏛 IFC BUILD',  x:0.76, y:0.32, w:0.12, h:0.14 },
-  { id:'milestone',  label:'✅ MILESTONE',  x:0.76, y:0.05, w:0.11, h:0.14 },
+  { id:'meeting',    label:'🪑 MEETING ROOM', x:0.05, y:0.55, w:0.16, h:0.32, isMeeting: true },
+  { id:'input',      label:'📥 INPUT',        x:0.05, y:0.12, w:0.12, h:0.14 },
+  { id:'brief',      label:'📋 BRIEF',        x:0.22, y:0.05, w:0.12, h:0.14 },
+  { id:'compliance', label:'📜 COMPLIANCE',   x:0.40, y:0.05, w:0.14, h:0.14 },
+  { id:'design',     label:'📐 DESIGN',       x:0.22, y:0.32, w:0.14, h:0.14 },
+  { id:'structure',  label:'🏗 STRUCTURE',    x:0.40, y:0.32, w:0.13, h:0.14 },
+  { id:'mep',        label:'⚙️ MEP',          x:0.58, y:0.32, w:0.10, h:0.14 },
+  { id:'qa',         label:'🔍 QA REVIEW',    x:0.60, y:0.05, w:0.14, h:0.25 },
+  { id:'ifc',        label:'🏛 IFC BUILD',    x:0.76, y:0.32, w:0.12, h:0.14 },
+  { id:'milestone',  label:'✅ MILESTONE',    x:0.76, y:0.05, w:0.11, h:0.14 },
 ];
 
 // ============================================================
@@ -274,57 +275,96 @@ let simScheduled = false;
 
 function scheduleAt(t, fn) { simEvents.push({t, fn}); simEvents.sort((a,b)=>a.t-b.t); }
 
+function meetingBriefing(agentId, question, answer) {
+  // Agent walks to meeting room, PM responds, agent walks back
+  moveAgent(agentId, 'meeting', 'waiting');
+  addLog(AGENTS.find(a=>a.id===agentId).name, `❓ ${question}`);
+  scheduleAt(simTime + 60, () => {
+    addLog('PM', `→ ${answer}`);
+    moveAgent(agentId, agentState[agentId].station || 'brief', 'working');
+  });
+}
+
 function initSim() {
-  // M1: Brief + Compliance
+  // PM is always in meeting room
+  scheduleAt(10, () => { moveAgent('pm', 'meeting', 'working'); addLog('PM', 'Project kickoff — ready for briefings'); });
+
+  // M1: Input + Brief
   scheduleAt(60,  () => moveAgent('parser', 'input', 'working'));
   scheduleAt(90,  () => addLog('Parser', 'Parsing floor plan PNG'));
-  scheduleAt(180, () => { moveAgent('parser', 'brief', 'working'); moveAgent('brief', 'brief', 'working'); addLog('Brief', 'Generating room program'); });
-  scheduleAt(240, () => { moveAgent('compliance', 'compliance', 'working'); addLog('Compliance', 'Loading SE healthcare rules'); });
-  scheduleAt(300, () => { sendToQA('room-program', 'Room Program v1'); moveAgent('brief', 'qa', 'qa'); });
-  scheduleAt(380, () => { qaReject('room-program', 'Room Program v1'); moveAgent('brief', 'brief', 'working'); addLog('Brief', 'Revising: missing isolation rooms'); });
-  scheduleAt(460, () => { sendToQA('room-program', 'Room Program v2'); moveAgent('brief', 'qa', 'qa'); });
-  scheduleAt(520, () => { qaApprove('room-program', 'Room Program v2'); addLog('QA', 'Room Program v2 — APPROVED'); });
 
-  // M1 gate
-  scheduleAt(560, () => { moveAgent('pm', 'milestone', 'waiting'); addLog('PM', '🚦 M1: Awaiting user approval'); milestoneWaiting = true; });
-  scheduleAt(680, () => { milestoneWaiting = false; currentMilestone = 1; addLog('PM', '✅ M1 approved — proceeding to layout'); updateMilestoneUI(); });
+  // Parser visits PM with a question
+  scheduleAt(130, () => { moveAgent('parser', 'meeting', 'waiting'); addLog('Parser', '❓ Scale unclear in PNG — 1:100 or 1:200?'); });
+  scheduleAt(190, () => { addLog('PM', '→ Confirmed 1:100. Proceed.'); moveAgent('parser', 'input', 'working'); });
+
+  scheduleAt(230, () => { moveAgent('parser', 'brief', 'working'); moveAgent('brief', 'brief', 'working'); addLog('Brief', 'Generating room program'); });
+  scheduleAt(280, () => { moveAgent('compliance', 'compliance', 'working'); addLog('Compliance', 'Loading SE healthcare rules (BBR, Socialstyrelsen)'); });
+
+  // Brief visits PM before QA
+  scheduleAt(310, () => { moveAgent('brief', 'meeting', 'waiting'); addLog('Brief', '❓ Include isolation rooms in geriatric ward?'); });
+  scheduleAt(370, () => { addLog('PM', '→ Yes, min 2 isolation rooms. Check with Compliance.'); moveAgent('brief', 'brief', 'working'); });
+
+  scheduleAt(420, () => { sendToQA('room-program', 'Room Program v1'); moveAgent('brief', 'qa', 'qa'); });
+  scheduleAt(500, () => { qaReject('room-program', 'Room Program v1'); moveAgent('brief', 'meeting', 'waiting'); addLog('Brief', '❓ QA rejected — missing isolation rooms'); });
+  scheduleAt(560, () => { addLog('PM', '→ Escalating to user: isolation room count needed'); milestoneWaiting = true; moveAgent('pm', 'milestone', 'waiting'); });
+  scheduleAt(660, () => { milestoneWaiting = false; addLog('PM', '✅ User confirmed: 3 isolation rooms. Resume.'); moveAgent('pm', 'meeting', 'working'); moveAgent('brief', 'brief', 'working'); });
+  scheduleAt(720, () => { sendToQA('room-program', 'Room Program v2'); moveAgent('brief', 'qa', 'qa'); });
+  scheduleAt(800, () => { qaApprove('room-program', 'Room Program v2'); addLog('QA', 'Room Program v2 — APPROVED'); });
+
+  // M1 milestone gate
+  scheduleAt(840,  () => { moveAgent('pm', 'milestone', 'waiting'); addLog('PM', '🚦 M1: Awaiting user approval'); milestoneWaiting = true; });
+  scheduleAt(960,  () => { milestoneWaiting = false; currentMilestone = 1; addLog('PM', '✅ M1 approved — proceeding to layout'); moveAgent('pm', 'meeting', 'working'); updateMilestoneUI(); });
 
   // M2: Architecture + Compliance
-  scheduleAt(720,  () => { moveAgent('architect', 'design', 'working'); addLog('Architect', 'Laying out geriatric ward floor plan'); });
-  scheduleAt(780,  () => { moveAgent('compliance', 'compliance', 'working'); addLog('Compliance', 'Checking corridor widths (BBR 3:4)'); });
-  scheduleAt(860,  () => { sendToQA('layout', 'Floor Plan v1'); moveAgent('architect', 'qa', 'qa'); });
-  scheduleAt(940,  () => { qaReject('layout', 'Floor Plan v1'); moveAgent('architect', 'design', 'working'); addLog('Architect', 'Widening corridors to 2400mm'); });
-  scheduleAt(1020, () => { sendToQA('layout', 'Floor Plan v2'); moveAgent('architect', 'qa', 'qa'); });
-  scheduleAt(1100, () => { qaApprove('layout', 'Floor Plan v2'); addLog('QA', 'Floor Plan v2 — APPROVED'); });
-  scheduleAt(1140, () => { moveAgent('pm', 'milestone', 'waiting'); addLog('PM', '🚦 M2: Awaiting user approval'); milestoneWaiting = true; });
-  scheduleAt(1260, () => { milestoneWaiting = false; currentMilestone = 2; addLog('PM', '✅ M2 approved — proceeding to systems'); updateMilestoneUI(); });
+  scheduleAt(1000, () => { moveAgent('architect', 'design', 'working'); addLog('Architect', 'Laying out geriatric ward floor plan'); });
+  scheduleAt(1050, () => { moveAgent('compliance', 'compliance', 'working'); addLog('Compliance', 'Checking corridor widths (BBR 3:4)'); });
+
+  // Architect visits PM
+  scheduleAt(1090, () => { moveAgent('architect', 'meeting', 'waiting'); addLog('Architect', '❓ East wing: load-bearing wall conflicts with open plan'); });
+  scheduleAt(1150, () => { addLog('PM', '→ Consult Structural. Keep corridor clear, adjust grid.'); moveAgent('architect', 'design', 'working'); });
+
+  scheduleAt(1200, () => { sendToQA('layout', 'Floor Plan v1'); moveAgent('architect', 'qa', 'qa'); });
+  scheduleAt(1280, () => { qaReject('layout', 'Floor Plan v1'); moveAgent('architect', 'design', 'working'); addLog('Architect', 'Widening corridors to 2400mm'); });
+  scheduleAt(1360, () => { sendToQA('layout', 'Floor Plan v2'); moveAgent('architect', 'qa', 'qa'); });
+  scheduleAt(1440, () => { qaApprove('layout', 'Floor Plan v2'); addLog('QA', 'Floor Plan v2 — APPROVED'); });
+  scheduleAt(1480, () => { moveAgent('pm', 'milestone', 'waiting'); addLog('PM', '🚦 M2: Awaiting user approval'); milestoneWaiting = true; });
+  scheduleAt(1600, () => { milestoneWaiting = false; currentMilestone = 2; addLog('PM', '✅ M2 approved — proceeding to systems'); moveAgent('pm', 'meeting', 'working'); updateMilestoneUI(); });
 
   // M3: Structure + MEP
-  scheduleAt(1300, () => { moveAgent('structural', 'structure', 'working'); addLog('Structural', 'Calculating structural grid'); });
-  scheduleAt(1340, () => { moveAgent('mep', 'mep', 'working'); addLog('MEP', 'Routing HVAC and plumbing shafts'); });
-  scheduleAt(1400, () => { sendToQA('structure', 'Structural Schema v1'); moveAgent('structural', 'qa', 'qa'); });
-  scheduleAt(1460, () => { qaApprove('structure', 'Structural Schema v1'); addLog('QA', 'Structural Schema — APPROVED'); });
-  scheduleAt(1500, () => { sendToQA('mep', 'MEP Layout v1'); moveAgent('mep', 'qa', 'qa'); });
-  scheduleAt(1580, () => { qaReject('mep', 'MEP Layout v1'); moveAgent('mep', 'mep', 'working'); addLog('MEP', 'Repositioning fire shaft (conflict)'); });
-  scheduleAt(1660, () => { sendToQA('mep', 'MEP Layout v2'); moveAgent('mep', 'qa', 'qa'); });
-  scheduleAt(1740, () => { qaApprove('mep', 'MEP Layout v2'); addLog('QA', 'MEP Layout v2 — APPROVED'); });
-  scheduleAt(1780, () => { moveAgent('pm', 'milestone', 'waiting'); milestoneWaiting = true; addLog('PM', '🚦 M3: Awaiting user approval'); });
-  scheduleAt(1900, () => { milestoneWaiting = false; currentMilestone = 3; addLog('PM', '✅ M3 approved — building IFC model'); updateMilestoneUI(); });
+  scheduleAt(1640, () => { moveAgent('structural', 'structure', 'working'); addLog('Structural', 'Calculating structural grid'); });
+  scheduleAt(1680, () => { moveAgent('mep', 'mep', 'working'); addLog('MEP', 'Routing HVAC and plumbing shafts'); });
+
+  // MEP visits PM with conflict
+  scheduleAt(1740, () => { moveAgent('mep', 'meeting', 'waiting'); addLog('MEP', '❓ Shaft position conflicts with stairwell'); });
+  scheduleAt(1800, () => { addLog('PM', '→ Move shaft 1.2m west. Architect to confirm.'); moveAgent('mep', 'mep', 'working'); moveAgent('architect', 'meeting', 'waiting'); });
+  scheduleAt(1840, () => { addLog('Architect', '❓ Confirming shaft shift impact on layout'); addLog('PM', '→ Approved. Update drawings.'); moveAgent('architect', 'design', 'working'); });
+
+  scheduleAt(1880, () => { sendToQA('structure', 'Structural Schema v1'); moveAgent('structural', 'qa', 'qa'); });
+  scheduleAt(1940, () => { qaApprove('structure', 'Structural Schema v1'); addLog('QA', 'Structural Schema — APPROVED'); });
+  scheduleAt(1980, () => { sendToQA('mep', 'MEP Layout v2'); moveAgent('mep', 'qa', 'qa'); });
+  scheduleAt(2060, () => { qaApprove('mep', 'MEP Layout v2'); addLog('QA', 'MEP Layout v2 — APPROVED'); });
+  scheduleAt(2100, () => { moveAgent('pm', 'milestone', 'waiting'); milestoneWaiting = true; addLog('PM', '🚦 M3: Awaiting user approval'); });
+  scheduleAt(2220, () => { milestoneWaiting = false; currentMilestone = 3; addLog('PM', '✅ M3 approved — building IFC model'); moveAgent('pm', 'meeting', 'working'); updateMilestoneUI(); });
 
   // M4: IFC Build
-  scheduleAt(1940, () => { moveAgent('ifc', 'ifc', 'working'); addLog('IFC Builder', 'Generating IFC4 entities...'); });
-  scheduleAt(2020, () => { addLog('IFC Builder', 'Creating IfcSpace relationships'); });
-  scheduleAt(2100, () => { sendToQA('ifc', 'IFC Model v1'); moveAgent('ifc', 'qa', 'qa'); });
-  scheduleAt(2180, () => { qaApprove('ifc', 'IFC Model v1'); addLog('QA', 'IFC Model v1 — APPROVED'); });
-  scheduleAt(2220, () => { moveAgent('pm', 'milestone', 'waiting'); milestoneWaiting = true; addLog('PM', '🚦 M4: Full model — awaiting approval'); });
-  scheduleAt(2340, () => { milestoneWaiting = false; currentMilestone = 4; addLog('PM', '✅ M4 approved — final export'); updateMilestoneUI(); });
+  scheduleAt(2260, () => { moveAgent('ifc', 'ifc', 'working'); addLog('IFC Builder', 'Generating IFC4 entities...'); });
+  scheduleAt(2320, () => { addLog('IFC Builder', 'Creating IfcSpace relationships'); });
+
+  // IFC visits PM
+  scheduleAt(2360, () => { moveAgent('ifc', 'meeting', 'waiting'); addLog('IFC Builder', '❓ IfcZone assignment — merge clean/dirty zones?'); });
+  scheduleAt(2420, () => { addLog('PM', '→ Keep separate. Tag with Pset_SpaceCommon.'); moveAgent('ifc', 'ifc', 'working'); });
+
+  scheduleAt(2460, () => { sendToQA('ifc', 'IFC Model v1'); moveAgent('ifc', 'qa', 'qa'); });
+  scheduleAt(2540, () => { qaApprove('ifc', 'IFC Model v1'); addLog('QA', 'IFC Model v1 — APPROVED'); });
+  scheduleAt(2580, () => { moveAgent('pm', 'milestone', 'waiting'); milestoneWaiting = true; addLog('PM', '🚦 M4: Full model — awaiting approval'); });
+  scheduleAt(2700, () => { milestoneWaiting = false; currentMilestone = 4; addLog('PM', '✅ M4 approved — final export'); moveAgent('pm', 'meeting', 'working'); updateMilestoneUI(); });
 
   // M5: Export
-  scheduleAt(2380, () => { moveAgent('ifc', 'ifc', 'working'); addLog('IFC Builder', 'Exporting building.ifc (IFC4)'); });
-  scheduleAt(2460, () => { moveAgent('pm', 'milestone', 'approved'); addLog('PM', '🎉 PROJECT COMPLETE — IFC exported!'); currentMilestone = 5; updateMilestoneUI(); });
+  scheduleAt(2740, () => { moveAgent('ifc', 'ifc', 'working'); addLog('IFC Builder', 'Exporting building.ifc (IFC4)'); });
+  scheduleAt(2820, () => { moveAgent('pm', 'milestone', 'approved'); addLog('PM', '🎉 PROJECT COMPLETE — IFC exported!'); currentMilestone = 5; updateMilestoneUI(); });
 
-  // Loop: restart after 2600
-  scheduleAt(2600, () => { resetSim(); });
+  // Loop
+  scheduleAt(3000, () => { resetSim(); });
 }
 
 function resetSim() {
@@ -422,6 +462,57 @@ function getAgentSlotInStation(agentId, stId) {
 function drawStation(st) {
   const { x, y, w, h } = getStationRect(st);
   ctx.save();
+
+  // Meeting Room special style
+  if (st.isMeeting) {
+    // Golden glow border
+    ctx.shadowColor = '#FFD700';
+    ctx.shadowBlur = 14;
+    ctx.strokeStyle = '#FFD70088';
+    ctx.lineWidth = 2;
+    ctx.fillStyle = '#1A1700';
+    roundRect(ctx, x, y, w, h, 6);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Label
+    ctx.fillStyle = '#FFD700';
+    ctx.font = `bold ${Math.max(9, W * 0.009)}px Courier New`;
+    ctx.textAlign = 'center';
+    ctx.fillText(st.label, x + w/2, y + 14);
+
+    // Round table in center
+    const cx = x + w/2, cy = y + h/2 + 8;
+    const tr = Math.min(w, h) * 0.22;
+    ctx.strokeStyle = '#B8860B';
+    ctx.lineWidth = 2;
+    ctx.fillStyle = '#2A1F00';
+    ctx.beginPath();
+    ctx.arc(cx, cy, tr, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Chairs around table
+    const chairs = 6;
+    for (let i = 0; i < chairs; i++) {
+      const angle = (i / chairs) * Math.PI * 2;
+      const cx2 = cx + Math.cos(angle) * (tr + 6);
+      const cy2 = cy + Math.sin(angle) * (tr + 6);
+      ctx.fillStyle = '#3D2B00';
+      ctx.beginPath();
+      ctx.arc(cx2, cy2, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // "PM always here" hint
+    ctx.fillStyle = '#FFD70055';
+    ctx.font = `${Math.max(7, W * 0.007)}px Courier New`;
+    ctx.fillText('PM permanent', x + w/2, y + h - 8);
+
+    ctx.restore();
+    return;
+  }
 
   // glow for milestone when waiting
   if (st.id === 'milestone' && milestoneWaiting) {
@@ -562,6 +653,9 @@ function roundRect(ctx, x, y, w, h, r) {
 
 function drawConnectors() {
   const pairs = [
+    ['meeting','input'], ['meeting','brief'], ['meeting','compliance'],
+    ['meeting','design'], ['meeting','structure'], ['meeting','mep'],
+    ['meeting','ifc'], ['meeting','milestone'],
     ['input','brief'], ['brief','compliance'], ['compliance','qa'],
     ['brief','design'], ['design','structure'], ['structure','mep'],
     ['mep','qa'], ['design','qa'], ['qa','milestone'],
