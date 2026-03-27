@@ -246,6 +246,30 @@
   .milestone.done { background: #1A3C2A; border-color: #2ECC71; color: #2ECC71; }
   @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
+  /* WebSocket connection status indicator */
+  .ws-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid #30363D;
+    user-select: none;
+    cursor: default;
+  }
+  .ws-status.ws-connected  { color: #2ECC71; border-color: #2ECC7144; background: #0A1F0E; }
+  .ws-status.ws-disconnected { color: #8B949E; border-color: #30363D;   background: #21262D; }
+  .ws-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .ws-dot.ws-live { background: #2ECC71; animation: wsPulse 1.2s ease-in-out infinite; }
+  .ws-dot.ws-sim  { background: #8B949E; }
+  @keyframes wsPulse {
+    0%,100% { opacity:1; box-shadow: 0 0 5px #2ECC71; }
+    50%      { opacity:0.4; box-shadow: none; }
+  }
+
   .main {
     display: flex;
     flex: 1;
@@ -356,7 +380,10 @@
     <h1>⬛ ARCHITECTAI DASHBOARD</h1>
     <div class="subtitle">Multi-Agent Building Design System — Live Simulation</div>
   </div>
-  <div class="milestone-bar" id="milestoneBar"></div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div id="wsStatus" class="ws-status ws-disconnected" title="WebSocket connection status"><span class="ws-dot ws-sim"></span>SIM</div>
+    <div class="milestone-bar" id="milestoneBar"></div>
+  </div>
 </header>
 
 <div class="tab-bar">
@@ -434,6 +461,7 @@ let W, H;
 let currentMilestone = 0;
 let milestoneWaiting = false;
 let tick = 0;
+let simPaused = false;
 const logs = [];
 const qaQueue = [];
 
@@ -918,11 +946,13 @@ const SPEED = 0.04;
 
 function update() {
   tick++;
-  simTime++;
 
-  // Process scheduled events
-  while (simEvents.length > 0 && simEvents[0].t <= simTime) {
-    simEvents.shift().fn();
+  // Advance simulation only when not connected to live server
+  if (!simPaused) {
+    simTime++;
+    while (simEvents.length > 0 && simEvents[0].t <= simTime) {
+      simEvents.shift().fn();
+    }
   }
 
   // Update agent positions
@@ -1296,6 +1326,115 @@ function renderAgentCards() {
       † May be downgraded to Haiku for repetitive templated tasks
     </div>`);
 }
+
+// ============================================================
+// WEBSOCKET LIVE CONNECTION
+// ============================================================
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const PROJECT_ID = params.get('project') || 'test-01';
+  const WS_URL = `ws://localhost:8765/ws/${PROJECT_ID}`;
+
+  let ws = null;
+  let _reconnectTimer = null;
+
+  // Server agent ID → dashboard agent ID
+  const AGENT_MAP = {
+    input_parser:      'parser',
+    ifc_builder:       'ifc',
+    component_library: null,  // not visualised on canvas
+  };
+
+  // Server output key → dashboard doc ID
+  const OUTPUT_MAP = {
+    room_program:      'room_program',
+    spatial_layout:    'spatial_layout',
+    structural_schema: 'structural',
+    mep_schema:        'mep',
+    ifc_model:         'ifc_model',
+  };
+
+  function connect() {
+    if (ws) { try { ws.close(); } catch (_) {} }
+    try { ws = new WebSocket(WS_URL); } catch (_) { scheduleReconnect(); return; }
+
+    ws.onopen = () => {
+      simPaused = true;
+      setStatus(true);
+    };
+    ws.onclose = () => {
+      simPaused = false;
+      setStatus(false);
+      scheduleReconnect();
+    };
+    ws.onerror = () => { /* onclose fires next */ };
+    ws.onmessage = (e) => {
+      try { handle(JSON.parse(e.data)); } catch (_) {}
+    };
+  }
+
+  function scheduleReconnect() {
+    clearTimeout(_reconnectTimer);
+    _reconnectTimer = setTimeout(connect, 5000);
+  }
+
+  function handle(msg) {
+    if (msg.type === 'state_update') applyState(msg);
+    else if (msg.type === 'log')    addLog(msg.agent || 'server', msg.message || msg.text || '');
+  }
+
+  function applyState(s) {
+    // Milestone
+    if (typeof s.milestone === 'number') {
+      currentMilestone = s.milestone;
+      updateMilestoneUI();
+    }
+    // Phase → milestone gate indicator
+    if (s.phase) milestoneWaiting = s.phase.includes('awaiting');
+
+    // Agent statuses
+    if (s.agents) {
+      const STATUS = { working:'working', done:'approved', waiting:'waiting', qa:'qa', blocked:'blocked' };
+      Object.entries(s.agents).forEach(([sid, status]) => {
+        const did = AGENT_MAP.hasOwnProperty(sid) ? AGENT_MAP[sid] : sid;
+        if (!did || !agentState[did]) return;
+        agentState[did].status = STATUS[status] || 'waiting';
+      });
+    }
+
+    // Outputs
+    if (s.outputs) {
+      Object.entries(s.outputs).forEach(([key, out]) => {
+        const docId = OUTPUT_MAP[key];
+        if (!docId || !out) return;
+        const docStatus = out.status === 'approved' ? 'done' : out.status === 'draft' ? 'active' : 'pending';
+        setDocStatus(docId, docStatus, out.version || null);
+      });
+      renderOutputs();
+    }
+
+    // Log the newest incoming message (avoid flooding)
+    if (s.recent_messages && s.recent_messages.length > 0) {
+      const m = s.recent_messages[0];
+      const text = (m.payload && (m.payload.text || m.payload.message)) || '';
+      if (text) addLog(m.from || 'server', text.slice(0, 80));
+    }
+  }
+
+  function setStatus(connected) {
+    const el = document.getElementById('wsStatus');
+    if (!el) return;
+    if (connected) {
+      el.className = 'ws-status ws-connected';
+      el.innerHTML = '<span class="ws-dot ws-live"></span>LIVE';
+    } else {
+      el.className = 'ws-status ws-disconnected';
+      el.innerHTML = '<span class="ws-dot ws-sim"></span>SIM';
+    }
+  }
+
+  connect();
+})();
 
 // ============================================================
 // INIT

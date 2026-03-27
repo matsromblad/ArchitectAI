@@ -158,6 +158,7 @@ else:
                 "milestones": summary.get("milestones", {}),
                 "jurisdiction": summary.get("jurisdiction"),
                 "building_type": summary.get("building_type"),
+                "timestamp": _now_iso(),
             }
         except Exception as exc:
             logger.error(f"[ws_server] Failed to build state for {project_id}: {exc}")
@@ -229,10 +230,11 @@ else:
             status_code=200,
         )
 
-    # Mount static files if directory exists
+    # Mount static files if directory exists — available at both /static and /dashboard
     _dashboard_path = Path(DASHBOARD_DIR)
     if _dashboard_path.exists():
-        app.mount("/static", StaticFiles(directory=str(_dashboard_path)), name="static")
+        app.mount("/static",    StaticFiles(directory=str(_dashboard_path)), name="static")
+        app.mount("/dashboard", StaticFiles(directory=str(_dashboard_path)), name="dashboard")
 
     @app.websocket("/ws/{project_id}")
     async def websocket_endpoint(websocket: WebSocket, project_id: str):
