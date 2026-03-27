@@ -1274,7 +1274,7 @@ function renderAgentCards() {
         <div class="agent-card-header">
           <div class="agent-card-avatar" style="background:${color}">${a.emoji}</div>
           <div class="agent-card-title">
-            <h4>${a.name}</h4>
+            <h4>${a.name} <span style="font-size:10px;color:#6E7681;font-weight:normal">· shown as <span style="color:${color};font-weight:bold">${agent ? agent.abbr : ''}</span> in Live View</span></h4>
             <span class="model-badge ${a.modelType}">${a.model}</span>
           </div>
         </div>
