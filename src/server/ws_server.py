@@ -1,0 +1,350 @@
+"""
+WebSocket server — live dashboard bridge for ArchitectAI.
+
+Watches project state.json for changes and broadcasts updates to all
+connected dashboard clients. Also accepts user approvals from the dashboard.
+
+Endpoints:
+    GET  /                         → serve dashboard/index.html
+    GET  /static/{path}            → serve dashboard/ files
+    WS   /ws/{project_id}          → live state updates
+    POST /approve/{project_id}     → accept user approval
+"""
+
+import asyncio
+import json
+import os
+from pathlib import Path
+from typing import Any
+
+from loguru import logger
+
+try:
+    from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+    from fastapi.responses import FileResponse, JSONResponse
+    from fastapi.staticfiles import StaticFiles
+    from pydantic import BaseModel
+    import uvicorn
+    _FASTAPI_AVAILABLE = True
+except ImportError:
+    _FASTAPI_AVAILABLE = False
+    logger.warning(
+        "[ws_server] fastapi/uvicorn not installed — "
+        "run: pip install fastapi uvicorn  to enable the dashboard server."
+    )
+
+try:
+    from watchfiles import awatch
+    _WATCHFILES_AVAILABLE = True
+except ImportError:
+    _WATCHFILES_AVAILABLE = False
+    logger.warning(
+        "[ws_server] watchfiles not installed — falling back to polling. "
+        "Install with: pip install watchfiles"
+    )
+
+from src.memory.project_memory import ProjectMemory
+
+
+PROJECTS_DIR = os.getenv("PROJECTS_DIR", "./projects")
+DASHBOARD_DIR = os.getenv("DASHBOARD_DIR", "./dashboard")
+POLL_INTERVAL_S = float(os.getenv("WS_POLL_INTERVAL", "2.0"))
+
+# Known agent IDs — used to build the agents status map
+ALL_AGENTS = [
+    "pm", "brief", "input_parser", "compliance",
+    "architect", "structural", "mep",
+    "component_library", "ifc_builder", "qa",
+]
+
+# Schema types that appear in the Outputs tab
+OUTPUT_SCHEMAS = [
+    "room_program", "spatial_layout", "structural_schema",
+    "mep_schema", "ifc_model",
+]
+
+
+if not _FASTAPI_AVAILABLE:
+    # Provide a stub so the module is importable
+    app = None  # type: ignore
+else:
+    app = FastAPI(title="ArchitectAI Dashboard Server", version="1.0.0")
+
+    # ------------------------------------------------------------------ #
+    # Connection manager                                                   #
+    # ------------------------------------------------------------------ #
+
+    class ConnectionManager:
+        """Manages active WebSocket connections per project."""
+
+        def __init__(self):
+            # project_id → list of WebSocket connections
+            self._connections: dict[str, list[WebSocket]] = {}
+
+        async def connect(self, project_id: str, ws: WebSocket):
+            await ws.accept()
+            self._connections.setdefault(project_id, []).append(ws)
+            logger.info(f"[ws_server] Client connected: project={project_id}, total={self.count(project_id)}")
+
+        def disconnect(self, project_id: str, ws: WebSocket):
+            connections = self._connections.get(project_id, [])
+            if ws in connections:
+                connections.remove(ws)
+            logger.info(f"[ws_server] Client disconnected: project={project_id}")
+
+        async def broadcast(self, project_id: str, message: dict):
+            connections = self._connections.get(project_id, [])
+            dead: list[WebSocket] = []
+            payload = json.dumps(message, ensure_ascii=False)
+            for ws in connections:
+                try:
+                    await ws.send_text(payload)
+                except Exception:
+                    dead.append(ws)
+            for ws in dead:
+                self.disconnect(project_id, ws)
+
+        def count(self, project_id: str) -> int:
+            return len(self._connections.get(project_id, []))
+
+    manager = ConnectionManager()
+
+    # ------------------------------------------------------------------ #
+    # State snapshot builder                                               #
+    # ------------------------------------------------------------------ #
+
+    def _build_state_broadcast(project_id: str) -> dict:
+        """
+        Build the full state broadcast payload for a project.
+
+        Reads state.json + schema versions + recent messages.
+        """
+        try:
+            mem = ProjectMemory(project_id, base_dir=PROJECTS_DIR)
+            summary = mem.get_project_summary()
+            recent_messages = mem.get_recent_messages(20)
+
+            # Build per-agent status from recent messages
+            agents: dict[str, str] = {agent_id: "waiting" for agent_id in ALL_AGENTS}
+            for msg in recent_messages:
+                from_agent = msg.get("from", "")
+                if from_agent in agents:
+                    payload = msg.get("payload", {})
+                    status = payload.get("status", "")
+                    if status in ("working", "done"):
+                        agents[from_agent] = status
+
+            # Build outputs map
+            outputs: dict[str, dict] = {}
+            for schema_type in OUTPUT_SCHEMAS:
+                versions = mem.list_schema_versions(schema_type)
+                if versions:
+                    latest = versions[-1]
+                    approved = summary.get("approved_schemas", {}).get(schema_type)
+                    outputs[schema_type] = {
+                        "version": latest,
+                        "status": "approved" if approved else "draft",
+                        "versions": versions,
+                    }
+
+            return {
+                "type": "state_update",
+                "project_id": project_id,
+                "phase": summary.get("phase", "init"),
+                "milestone": summary.get("milestone", 0),
+                "agents": agents,
+                "outputs": outputs,
+                "recent_messages": recent_messages,
+                "milestones": summary.get("milestones", {}),
+                "jurisdiction": summary.get("jurisdiction"),
+                "building_type": summary.get("building_type"),
+            }
+        except Exception as exc:
+            logger.error(f"[ws_server] Failed to build state for {project_id}: {exc}")
+            return {
+                "type": "error",
+                "project_id": project_id,
+                "error": str(exc),
+            }
+
+    # ------------------------------------------------------------------ #
+    # Background watchers                                                  #
+    # ------------------------------------------------------------------ #
+
+    async def _watch_project_watchfiles(project_id: str):
+        """Watch project directory for changes using watchfiles (inotify-based)."""
+        project_dir = Path(PROJECTS_DIR) / project_id
+        project_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"[ws_server] Watching (watchfiles): {project_dir}")
+        async for changes in awatch(str(project_dir)):
+            if manager.count(project_id) > 0:
+                payload = _build_state_broadcast(project_id)
+                await manager.broadcast(project_id, payload)
+
+    async def _watch_project_poll(project_id: str):
+        """Watch project directory by polling state.json mtime."""
+        state_path = Path(PROJECTS_DIR) / project_id / "state.json"
+        last_mtime: float = 0.0
+        logger.info(f"[ws_server] Polling (interval={POLL_INTERVAL_S}s): {state_path}")
+        while True:
+            await asyncio.sleep(POLL_INTERVAL_S)
+            try:
+                if state_path.exists():
+                    mtime = state_path.stat().st_mtime
+                    if mtime != last_mtime:
+                        last_mtime = mtime
+                        if manager.count(project_id) > 0:
+                            payload = _build_state_broadcast(project_id)
+                            await manager.broadcast(project_id, payload)
+            except Exception as exc:
+                logger.warning(f"[ws_server] Poll error for {project_id}: {exc}")
+
+    # Track per-project background tasks
+    _watcher_tasks: dict[str, asyncio.Task] = {}
+
+    def _ensure_watcher(project_id: str):
+        """Start a background watcher task for a project if not already running."""
+        if project_id in _watcher_tasks and not _watcher_tasks[project_id].done():
+            return
+        if _WATCHFILES_AVAILABLE:
+            coro = _watch_project_watchfiles(project_id)
+        else:
+            coro = _watch_project_poll(project_id)
+        task = asyncio.create_task(coro)
+        _watcher_tasks[project_id] = task
+        logger.info(f"[ws_server] Started watcher for project: {project_id}")
+
+    # ------------------------------------------------------------------ #
+    # Routes                                                               #
+    # ------------------------------------------------------------------ #
+
+    @app.get("/")
+    async def serve_dashboard():
+        """Serve the main dashboard HTML file."""
+        index = Path(DASHBOARD_DIR) / "index.html"
+        if index.exists():
+            return FileResponse(str(index))
+        return JSONResponse(
+            {"message": "ArchitectAI Dashboard Server — no dashboard/index.html found"},
+            status_code=200,
+        )
+
+    # Mount static files if directory exists
+    _dashboard_path = Path(DASHBOARD_DIR)
+    if _dashboard_path.exists():
+        app.mount("/static", StaticFiles(directory=str(_dashboard_path)), name="static")
+
+    @app.websocket("/ws/{project_id}")
+    async def websocket_endpoint(websocket: WebSocket, project_id: str):
+        """Live state updates for a project."""
+        await manager.connect(project_id, websocket)
+        _ensure_watcher(project_id)
+
+        # Send current state immediately on connect
+        try:
+            initial = _build_state_broadcast(project_id)
+            await websocket.send_text(json.dumps(initial, ensure_ascii=False))
+        except Exception as exc:
+            logger.warning(f"[ws_server] Failed to send initial state: {exc}")
+
+        try:
+            while True:
+                # Listen for incoming messages from dashboard (e.g., approvals, pings)
+                raw = await websocket.receive_text()
+                try:
+                    msg = json.loads(raw)
+                    await _handle_client_message(project_id, msg)
+                except json.JSONDecodeError:
+                    logger.warning(f"[ws_server] Non-JSON message from client: {raw[:100]}")
+        except WebSocketDisconnect:
+            manager.disconnect(project_id, websocket)
+
+    async def _handle_client_message(project_id: str, msg: dict):
+        """Handle messages sent from the dashboard over WebSocket."""
+        msg_type = msg.get("type", "")
+        if msg_type == "approval":
+            _write_approval(project_id, msg.get("response", "approved"))
+            logger.info(f"[ws_server] Approval via WS for {project_id}: {msg.get('response')}")
+        elif msg_type == "ping":
+            pass  # silently ignore pings
+        else:
+            logger.debug(f"[ws_server] Unknown client message type: {msg_type}")
+
+    class ApprovalRequest(BaseModel):
+        response: str = "approved"
+        notes: str = ""
+
+    @app.post("/approve/{project_id}")
+    async def approve_project(project_id: str, body: ApprovalRequest):
+        """
+        Accept a user approval decision from the dashboard (REST endpoint).
+
+        Writes the response to a file that the pipeline reads.
+        Also broadcasts an immediate state update.
+        """
+        _write_approval(project_id, body.response, body.notes)
+        logger.info(f"[ws_server] Approval received for {project_id}: {body.response}")
+
+        # Broadcast updated state
+        payload = _build_state_broadcast(project_id)
+        await manager.broadcast(project_id, payload)
+
+        return {"status": "ok", "project_id": project_id, "response": body.response}
+
+    @app.get("/state/{project_id}")
+    async def get_state(project_id: str):
+        """Return the current project state as JSON (for polling clients)."""
+        return _build_state_broadcast(project_id)
+
+    # ------------------------------------------------------------------ #
+    # Approval file helper                                                 #
+    # ------------------------------------------------------------------ #
+
+    def _write_approval(project_id: str, response: str, notes: str = ""):
+        """
+        Write the user approval response to a file so the pipeline can read it.
+
+        The pipeline's user_approval_node checks for this file.
+        """
+        project_dir = Path(PROJECTS_DIR) / project_id
+        project_dir.mkdir(parents=True, exist_ok=True)
+        approval_path = project_dir / "user_approval.json"
+        approval_path.write_text(
+            json.dumps({
+                "response": response,
+                "notes": notes,
+                "timestamp": _now_iso(),
+            }, indent=2),
+            encoding="utf-8",
+        )
+
+    def _now_iso() -> str:
+        from datetime import datetime, timezone
+        return datetime.now(timezone.utc).isoformat()
+
+
+# --------------------------------------------------------------------------- #
+# Entry point                                                                   #
+# --------------------------------------------------------------------------- #
+
+def serve(host: str = "0.0.0.0", port: int = 8765, reload: bool = False):
+    """Start the WebSocket/HTTP server."""
+    if not _FASTAPI_AVAILABLE:
+        raise ImportError(
+            "fastapi and uvicorn are required. "
+            "Install with: pip install fastapi uvicorn"
+        )
+    logger.info(f"[ws_server] Starting ArchitectAI server on {host}:{port}")
+    uvicorn.run(
+        "src.server.ws_server:app",
+        host=host,
+        port=port,
+        reload=reload,
+        log_level="info",
+    )
+
+
+if __name__ == "__main__":
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8765"))
+    serve(host=host, port=port)
