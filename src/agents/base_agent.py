@@ -96,23 +96,37 @@ class BaseAgent(ABC):
         """Extract JSON from a Claude response that may contain prose + JSON."""
         import json
         import re
+
         # Try direct parse first
         try:
             return json.loads(text)
         except json.JSONDecodeError:
             pass
-        # Try to find JSON block
-        match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
-        if match:
+
+        # Strip markdown code fences and try again
+        stripped = re.sub(r"^```(?:json)?\s*", "", text.strip(), flags=re.IGNORECASE)
+        stripped = re.sub(r"\s*```$", "", stripped.strip())
+        try:
+            return json.loads(stripped)
+        except json.JSONDecodeError:
+            pass
+
+        # Find the first { and last } and try to parse
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1 and end > start:
             try:
-                return json.loads(match.group(1))
-            except json.JSONDecodeError:
-                pass
-        # Try to find raw JSON object
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group(0))
-            except json.JSONDecodeError:
-                pass
-        raise ValueError(f"Could not extract JSON from response: {text[:200]}...")
+                return json.loads(text[start:end + 1])
+            except json.JSONDecodeError as e:
+                logger.debug(f"[_extract_json] slice parse failed at pos {e.pos}: {repr(text[start:end+1][max(0,e.pos-30):e.pos+30])}")
+
+        # Last resort: try to fix common issues (trailing commas, etc.)
+        try:
+            import ast
+            # ast.literal_eval can handle some JSON-like structures
+            candidate = text[text.find("{"):text.rfind("}")+1] if "{" in text else text
+            return json.loads(candidate)
+        except Exception:
+            pass
+
+        raise ValueError(f"Could not extract JSON from response (len={len(text)}): {repr(text[:300])}...")

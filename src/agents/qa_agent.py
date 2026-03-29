@@ -92,10 +92,19 @@ Perform a thorough QA review and output your verdict as JSON."""
         response = self.chat(
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_message}],
-            max_tokens=3000,
+            max_tokens=8000,
         )
 
-        verdict = self._extract_json(response)
+        try:
+            verdict = self._extract_json(response)
+        except ValueError:
+            # If QA response itself is truncated, return a safe fallback
+            logger.warning(f"[{self.AGENT_ID}] Could not parse QA response — using fallback CONDITIONAL verdict")
+            verdict = {
+                "verdict": "CONDITIONAL",
+                "issues": ["QA response was truncated — manual review recommended"],
+                "fix_instructions": "Resubmit for QA review",
+            }
         verdict["schema_type"] = schema_type
         verdict["version_reviewed"] = version
         verdict["reviewed_at"] = datetime.now(timezone.utc).isoformat()
