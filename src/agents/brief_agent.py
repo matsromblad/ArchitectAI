@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from loguru import logger
 
 from src.agents.base_agent import BaseAgent
+from src.tools.se_dimensions import SE, snap_mm, room_dims_snapped
 
 
 # System prompt for initial generation
@@ -227,10 +228,12 @@ class BriefAgent(BaseAgent):
             size = project_brief.get("size", {})
             standards = project_brief.get("applicable_standards", ["SS 91 42 21", "BBR 2023"])
             constraints = project_brief.get("constraints", {})
+            building_type = project_brief.get("building_type", "healthcare")
+            se_dims = SE.prompt_block(building_type)
             user_message = (
                 f'User request: "{prompt}"\n\n'
                 f"Project parameters (from Client Agent):\n"
-                f"- Building type: {project_brief.get('building_type', 'healthcare')}\n"
+                f"- Building type: {building_type}\n"
                 f"- Jurisdiction: {jurisdiction} ({project_brief.get('jurisdiction_name', 'Sweden')})\n"
                 f"- Target net area: {size.get('target_net_area_m2', 280)} m²\n"
                 f"- Target gross area: {size.get('target_gross_area_m2', 420)} m²\n"
@@ -239,7 +242,9 @@ class BriefAgent(BaseAgent):
                 f"- Isolation rooms: {constraints.get('isolation_rooms_required', 1)}\n"
                 f"- Standards: {', '.join(standards[:3])}\n"
                 f"- Min corridor width: {constraints.get('min_corridor_width_m', 2.4)} m\n\n"
-                f"Generate compact room program JSON. Max 25 rooms. Short strings. No corridors."
+                f"{se_dims}\n\n"
+                f"Generate compact room program JSON. Max 25 rooms. Short strings. No corridors.\n"
+                f"Use width_hint_m and depth_hint_m snapped to multiples of 0.1 m (= 100 mm)."
             )
             response = self.chat(
                 system=SYSTEM_PROMPT,
@@ -252,16 +257,41 @@ class BriefAgent(BaseAgent):
 
         # ── Code-level sanitisation (fixes common LLM inconsistencies) ──────
         rooms = room_program.get("rooms", [])
+        building_type_for_snap = room_program.get("building_type", "healthcare")
         for r in rooms:
-            # Ensure min_area >= width_hint * depth_hint
-            w = float(r.get("width_hint_m") or 0)
-            d = float(r.get("depth_hint_m") or 0)
-            if w > 0 and d > 0:
-                hint_area = round(w * d, 2)
-                if hint_area < float(r.get("min_area_m2", 0)):
-                    # Fix dims to match area
-                    target = float(r["min_area_m2"])
-                    r["depth_hint_m"] = round(target / w, 2)
+            # Snap width/depth hints to nearest 100 mm (0.1 m)
+            # This enforces SE planning module discipline regardless of what the LLM said.
+            w_raw = float(r.get("width_hint_m") or 0)
+            d_raw = float(r.get("depth_hint_m") or 0)
+            area  = float(r.get("min_area_m2") or 0)
+
+            if w_raw > 0:
+                w_snapped = snap_mm(w_raw * 1000, 100) / 1000  # snap to 100 mm
+                r["width_hint_m"] = w_snapped
+            else:
+                w_snapped = 0
+
+            if d_raw > 0:
+                d_snapped = snap_mm(d_raw * 1000, 100) / 1000
+                r["depth_hint_m"] = d_snapped
+            else:
+                d_snapped = 0
+
+            # If both dims available: ensure product >= min_area_m2
+            if w_snapped > 0 and d_snapped > 0:
+                hint_area = round(w_snapped * d_snapped, 2)
+                if hint_area < area:
+                    # Extend depth to meet area requirement, then re-snap
+                    new_d = snap_mm((area / w_snapped) * 1000, 100) / 1000
+                    r["depth_hint_m"] = new_d
+            elif w_snapped > 0 and area > 0:
+                # Only width given — derive snapped depth
+                r["depth_hint_m"] = snap_mm((area / w_snapped) * 1000, 100) / 1000
+
+            # Snap min_area_m2 to nearest 0.5 m² (no fractional mm nonsense)
+            if area > 0:
+                r["min_area_m2"] = round(area * 2) / 2  # nearest 0.5
+
             # Remove duplicate area fields — keep only min_area_m2
             r.pop("area_m2", None)
             # Ensure zone is valid

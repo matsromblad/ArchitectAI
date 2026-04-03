@@ -7,6 +7,7 @@ import json
 from datetime import datetime, timezone
 from loguru import logger
 from src.agents.base_agent import BaseAgent
+from src.tools.se_dimensions import SE, snap_mm
 
 
 class ArchitectAgent(BaseAgent):
@@ -40,9 +41,11 @@ class ArchitectAgent(BaseAgent):
         site_w  = float(pb_size.get("site_width_m") or site_data.get("boundary", {}).get("width_m") or 30)
         site_d  = float(pb_size.get("site_depth_m") or site_data.get("boundary", {}).get("depth_m") or 20)
 
-        WALL   = 0.20   # structural wall thickness
-        CORR_W = 2.70   # corridor width (HTM min 2.4m, 2.7m recommended geriatric)
-        CORE_W = 3.20   # primary stair+lift core width (east end)
+        # All layout constants in metres but derived from SE mm constants.
+        # snap_mm(x*1000, 100)/1000 ensures values are multiples of 100 mm.
+        WALL   = SE.WALL_INTERNAL_LOADBEARING / 1000          # 0.200 m
+        CORR_W = SE.CORRIDOR_HEALTHCARE_REC  / 1000           # 0.270 m → 2.700 m
+        CORE_W = snap_mm(SE.COLUMN_SIZE_TYPICAL * 8, 100) / 1000  # 3200 mm → 3.200 m
 
         # ── 1. Filter corridor-named rooms ────────────────────────────────────
         def _is_corr(r):
@@ -104,36 +107,45 @@ class ArchitectAgent(BaseAgent):
         # Leaves CORE_W + 1.0m gap on the east side for the stair/lift core
         ROW_MAX_X = site_w - CORE_W - 1.0
 
+        def _snap(val_m: float, grid_mm: int = 100) -> float:
+            """Snap a metre value to the nearest grid_mm boundary."""
+            return snap_mm(val_m * 1000, grid_mm) / 1000
+
         def pack_row(room_list: list, y0: float) -> tuple[list, float]:
-            """Pack rooms left→right, wrap if needed. Returns (placed, y_bottom)."""
+            """Pack rooms left→right, wrap if needed. Returns (placed, y_bottom).
+            All x/y/width/depth values are snapped to 100 mm grid (SE standard).
+            """
             placed = []
             x, y, row_max_d = 0.0, y0, 0.0
             for r in room_list:
                 area = float(r.get("min_area_m2") or 12)
-                w    = float(r.get("width_hint_m") or max(3.0, round(area ** 0.5, 2)))
-                d    = float(r.get("depth_hint_m") or round(area / max(w, 0.1), 2))
-                # Ensure hint dimensions actually satisfy min_area
+                # Use snapped hint dims from BriefAgent; fall back to computed square
+                w_hint = r.get("width_hint_m")
+                d_hint = r.get("depth_hint_m")
+                w = _snap(float(w_hint) if w_hint else max(3.0, area ** 0.5))
+                d = _snap(float(d_hint) if d_hint else area / max(w, 0.1))
+                # Ensure snapped dims satisfy min_area (extend depth if needed)
                 if w * d < area:
-                    d = round(area / w + 0.05, 2)
+                    d = _snap(area / w + 0.05)
                 # Wrap to next sub-row?
                 if x + w > ROW_MAX_X and placed:
-                    y       += row_max_d + WALL
-                    x       = 0.0
+                    y         = _snap(y + row_max_d + WALL)
+                    x         = 0.0
                     row_max_d = 0.0
                 placed.append({
                     "room_id":   r.get("room_id", f"R{len(placed)+1:02d}"),
                     "name":      (r.get("room_name") or r.get("name") or "Room")[:50],
-                    "x_m":       round(x, 2),
-                    "y_m":       round(y, 2),
-                    "width_m":   round(w, 2),
-                    "depth_m":   round(d, 2),
-                    "area_m2":   round(w * d, 1),
+                    "x_m":       _snap(x),
+                    "y_m":       _snap(y),
+                    "width_m":   w,
+                    "depth_m":   d,
+                    "area_m2":   round(w * d, 2),
                     "zone":      r.get("zone", "staff"),
                     "access":    r.get("access_type", "staff"),
                 })
-                x += w + WALL
+                x = _snap(x + w + WALL)
                 row_max_d = max(row_max_d, d)
-            return placed, round(y + row_max_d, 2)
+            return placed, _snap(y + row_max_d)
 
         # ── 4. Place the three rows with corridors between them ───────────────
         # Clean row starts at y=0
