@@ -125,7 +125,7 @@ Flag any spans > {self.MAX_SPAN_M}m and cantilevers > {self.MAX_CANTILEVER_M}m."
         response = self.chat(
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_message}],
-            max_tokens=6000,
+            max_tokens=2500,
         )
 
         structural_schema = self._extract_json(response)

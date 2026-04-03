@@ -7,10 +7,26 @@ import os
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-import anthropic
 from loguru import logger
+from openai import OpenAI
 
 from src.memory.project_memory import ProjectMemory
+
+# ---------------------------------------------------------------------------
+# Runtime: OpenClaw Gateway proxy (OpenAI-compatible endpoint)
+#
+# The gateway proxies requests via its own OAuth token to Anthropic —
+# no separate ANTHROPIC_API_KEY credits needed.
+#
+# Config (env or .env):
+#   OPENCLAW_GATEWAY_URL   default: http://127.0.0.1:18789
+#   OPENCLAW_GATEWAY_TOKEN gateway auth token
+#   OPENCLAW_MODEL         override model (default: openclaw, uses gateway default)
+# ---------------------------------------------------------------------------
+
+_GATEWAY_URL   = os.getenv("OPENCLAW_GATEWAY_URL",   "http://127.0.0.1:18789")
+_GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN", "cab520cf9a791d18bb18246f58e8dc8e89624944f3915e5c")
+_OPENCLAW_MODEL = os.getenv("OPENCLAW_MODEL",        "openclaw")
 
 
 class BaseAgent(ABC):
@@ -18,7 +34,7 @@ class BaseAgent(ABC):
     Base class for all ArchitectAI agents.
 
     Provides:
-    - Anthropic client setup
+    - OpenClaw Gateway client (OpenAI-compat, proxied via OAuth)
     - Shared message logging via ProjectMemory
     - Standard call() interface
     - Structured response parsing helpers
@@ -31,8 +47,11 @@ class BaseAgent(ABC):
     def __init__(self, memory: ProjectMemory, model: str = None):
         self.memory = memory
         self.model = model or os.getenv(f"{self.AGENT_ID.upper()}_MODEL", self.DEFAULT_MODEL)
-        self.client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-        logger.info(f"[{self.AGENT_ID}] Initialized with model: {self.model}")
+        self.client = OpenAI(
+            base_url=f"{_GATEWAY_URL}/v1",
+            api_key=_GATEWAY_TOKEN,
+        )
+        logger.info(f"[{self.AGENT_ID}] Initialized → OpenClaw gateway ({_GATEWAY_URL}) model hint: {self.model}")
 
     def chat(
         self,
@@ -41,17 +60,32 @@ class BaseAgent(ABC):
         max_tokens: int = 4096,
         temperature: float = 0.2,
     ) -> str:
-        """Send a chat request to Claude. Returns the text response."""
-        logger.debug(f"[{self.AGENT_ID}] → Claude ({self.model}), {len(messages)} messages")
-        response = self.client.messages.create(
-            model=self.model,
+        """Send a chat request via OpenClaw gateway. Returns the text response."""
+        logger.debug(f"[{self.AGENT_ID}] → gateway ({_OPENCLAW_MODEL}), {len(messages)} messages")
+
+        # Prepend system message as OpenAI-style system role
+        full_messages = [{"role": "system", "content": system}] + messages
+
+        response = self.client.chat.completions.create(
+            model=_OPENCLAW_MODEL,
             max_tokens=max_tokens,
             temperature=temperature,
-            system=system,
-            messages=messages,
+            messages=full_messages,
+            extra_headers={"x-openclaw-model": f"anthropic/{self.model}"},
         )
-        content = response.content[0].text
-        logger.debug(f"[{self.AGENT_ID}] ← {len(content)} chars")
+        content = response.choices[0].message.content
+
+        # TOKEN-OPT: Log per-call token usage for cost visibility
+        usage = getattr(response, "usage", None)
+        if usage:
+            in_tok  = getattr(usage, "prompt_tokens", 0)
+            out_tok = getattr(usage, "completion_tokens", 0)
+            logger.info(
+                f"[{self.AGENT_ID}] ← {len(content)} chars | "
+                f"tokens: {in_tok} in / {out_tok} out (model: {self.model})"
+            )
+        else:
+            logger.debug(f"[{self.AGENT_ID}] ← {len(content)} chars")
         return content
 
     def send_message(

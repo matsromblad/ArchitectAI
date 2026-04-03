@@ -127,7 +127,7 @@ What should happen next? Provide your decision as JSON."""
             "payload": {
                 "prompt": user_prompt,
                 "jurisdiction": jurisdiction,
-                "site_area_m2": site_data.get("boundary", {}).get("area_m2"),
+                "site_area_m2": (site_data.get("boundary", {}) if isinstance(site_data.get("boundary"), dict) else {}).get("area_m2") or site_data.get("area_m2"),
             },
         })
 

@@ -165,7 +165,7 @@ Output a complete mep_schema.json:
         response = self.chat(
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_message}],
-            max_tokens=8000,
+            max_tokens=3000,
         )
 
         mep_schema = self._extract_json(response)

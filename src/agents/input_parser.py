@@ -103,18 +103,19 @@ class InputParserAgent(BaseAgent):
 
 Output ONLY valid JSON, no markdown."""
 
-        response = self.client.messages.create(
-            model=self.model,
+        response = self.client.chat.completions.create(
+            model="openclaw",
             max_tokens=2048,
             messages=[{
                 "role": "user",
                 "content": [
-                    {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": image_data}},
+                    {"type": "image_url", "image_url": {"url": f"data:{media_type};base64,{image_data}"}},
                     {"type": "text", "text": prompt},
                 ]
-            }]
+            }],
+            extra_headers={"x-openclaw-model": f"anthropic/{self.model}"},
         )
-        return self._extract_json(response.content[0].text)
+        return self._extract_json(response.choices[0].message.content)
 
     def _parse_pdf(self, path: Path, jurisdiction: Optional[str]) -> dict:
         """Extract site data from a PDF (convert first page to image, then vision)."""

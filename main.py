@@ -56,24 +56,75 @@ def main():
     from src.memory.project_memory import ProjectMemory
     from src.agents.pm_agent import PMAgent
     from src.agents.input_parser import InputParserAgent
+    from src.agents.client_agent import ClientAgent
     from src.agents.brief_agent import BriefAgent
     from src.agents.compliance_agent import ComplianceAgent
     from src.agents.qa_agent import QAAgent
+    import subprocess, json as _json
+
+    def run_qa(schema_type, schema_data, version, prior_rejections, timeout=90):
+        """Run QA as an isolated subprocess with timeout. Returns verdict dict."""
+        payload = {
+            "project_id": args.project_id,
+            "base_dir": args.projects_dir,
+            "schema_type": schema_type,
+            "schema_data": schema_data,
+            "version": version,
+            "prior_rejections": prior_rejections,
+        }
+        venv_python = str(Path(args.projects_dir).parent / ".venv" / "bin" / "python3")
+        if not Path(venv_python).exists():
+            venv_python = sys.executable
+        try:
+            result = subprocess.run(
+                [venv_python, "scripts/run_qa.py"],
+                input=_json.dumps(payload),
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                cwd=Path(__file__).parent,
+                env={**os.environ, "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "dummy")},
+            )
+            if result.returncode != 0:
+                logger.warning(f"[qa-subprocess] exit {result.returncode}: {result.stderr[:200]}")
+            out = result.stdout.strip()
+            if out:
+                return _json.loads(out)
+            return {"verdict": "REJECTED", "issues": ["QA subprocess returned no output"]}
+        except subprocess.TimeoutExpired:
+            logger.error(f"[qa-subprocess] Timed out after {timeout}s")
+            return {"verdict": "CONDITIONAL", "issues": [f"QA timed out after {timeout}s — proceeding with caution"]}
+        except Exception as e:
+            logger.error(f"[qa-subprocess] Error: {e}")
+            return {"verdict": "REJECTED", "issues": [str(e)]}
 
     # Initialize project memory
     memory = ProjectMemory(project_id=args.project_id, base_dir=args.projects_dir)
     logger.info(f"Project memory initialized at: {memory.root}")
 
     # Initialize agents
-    pm         = PMAgent(memory)
+    pm           = PMAgent(memory)
     parser_agent = InputParserAgent(memory)
-    brief      = BriefAgent(memory)
-    compliance = ComplianceAgent(memory)
-    qa         = QAAgent(memory)
+    client       = ClientAgent(memory)
+    brief        = BriefAgent(memory)
+    compliance   = ComplianceAgent(memory)
+    qa           = QAAgent(memory)
 
     console.print("[green]✓ Agents initialized[/green]")
     console.print(f"  PM:         {pm.model}")
     console.print(f"  Others:     {brief.model}")
+
+    # ---- PHASE 0: Client Agent — interpret brief, set realistic project parameters ----
+    console.print("\n[bold]Phase 0: Client Agent interpreting brief...[/bold]")
+    project_brief = client.run({"prompt": args.prompt, "jurisdiction": args.jurisdiction})
+    size = project_brief.get("size", {})
+    prog = project_brief.get("programme", {})
+    console.print(
+        f"[green]✓ Project brief: {project_brief.get('project_name','?')} | "
+        f"{size.get('target_gross_area_m2','?')}m² gross | "
+        f"{size.get('site_width_m','?')}×{size.get('site_depth_m','?')}m site | "
+        f"{prog.get('patient_beds','?')} beds[/green]"
+    )
 
     # ---- PHASE 1: Parse site input ----
     console.print("\n[bold]Phase 1: Parsing site input...[/bold]")
@@ -85,12 +136,14 @@ def main():
         site_data = site_data or {}
         site_data.setdefault("boundary", {"points": [], "area_m2": None})
         site_data.setdefault("jurisdiction", args.jurisdiction)
-    area = (site_data.get("boundary") or {}).get("area_m2", "unknown")
+    # boundary may be a list of points or a dict with area_m2
+    _boundary = site_data.get("boundary") or {}
+    area = _boundary.get("area_m2", "unknown") if isinstance(_boundary, dict) else site_data.get("area_m2", "unknown")
     console.print(f"[green]✓ Site parsed: {area} m²[/green]")
 
     # ---- PHASE 2: Generate room program (with QA retry loop) ----
     console.print("\n[bold]Phase 2: Generating room program...[/bold]")
-    MAX_RETRIES = 2
+    MAX_RETRIES = 4
     qa_feedback = None
     room_program = None
 
@@ -99,19 +152,15 @@ def main():
             "prompt": args.prompt,
             "site_data": site_data,
             "jurisdiction": args.jurisdiction,
-            "qa_feedback": qa_feedback,  # None on first attempt, issues on retry
+            "qa_feedback": qa_feedback,
+            "project_brief": project_brief,  # client agent output
         })
         n_rooms = len(room_program.get("rooms", []))
         total_area = room_program.get("total_net_area_m2", room_program.get("total_area_m2", "?"))
         console.print(f"[green]  Attempt {attempt+1}: {n_rooms} rooms, {total_area} m²[/green]")
 
-        # QA review
-        qa_verdict = qa.run({
-            "schema_type": "room_program",
-            "schema_data": room_program,
-            "version": f"v{attempt+1}",
-            "prior_rejections": attempt,
-        })
+        # QA review (isolated subprocess with 90s timeout)
+        qa_verdict = run_qa("room_program", room_program, f"v{attempt+1}", attempt)
         verdict = qa_verdict.get("verdict", "?")
         if verdict == "APPROVED":
             console.print("[green]✓ Room program QA: APPROVED[/green]")
@@ -155,17 +204,13 @@ def main():
             "site_data": site_data_full,
             "component_templates": {},
             "qa_feedback": layout_qa_feedback,
+            "project_brief": project_brief,  # for site dimensions
         })
         floors = spatial_layout.get("floors", [])
         total_rooms = sum(len(fl.get("rooms", [])) for fl in floors)
         console.print(f"[green]  Attempt {attempt+1}: {total_rooms} rooms across {len(floors)} floor(s)[/green]")
 
-        qa_layout_verdict = qa.run({
-            "schema_type": "spatial_layout",
-            "schema_data": spatial_layout,
-            "version": f"v{attempt+1}",
-            "prior_rejections": attempt,
-        })
+        qa_layout_verdict = run_qa("spatial_layout", spatial_layout, f"v{attempt+1}", attempt)
         layout_verdict = qa_layout_verdict.get("verdict", "?")
         if layout_verdict == "APPROVED":
             console.print("[green]✓ Spatial layout QA: APPROVED[/green]")

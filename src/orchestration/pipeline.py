@@ -121,11 +121,22 @@ def generate_brief_node(state: PipelineState) -> dict:
     mem = _memory(state)
     agent = BriefAgent(memory=mem)
 
+    # TOKEN-OPT: Pass QA feedback (if any) so BriefAgent can use compact delta-prompt.
+    qa_results = state.get("qa_results") or {}
+    last_qa = qa_results.get("room_program", {})
+    qa_feedback = None
+    if last_qa.get("verdict") in ("REJECTED", "CONDITIONAL"):
+        qa_feedback = {
+            "issues": last_qa.get("issues", []),
+            "fix_instructions": last_qa.get("fix_instructions", ""),
+        }
+
     try:
         room_program = agent.run({
             "prompt": state.get("user_prompt", ""),
             "site_data": state.get("site_data", {}),
             "jurisdiction": state.get("jurisdiction", "SE"),
+            "qa_feedback": qa_feedback,  # TOKEN-OPT: structured feedback for delta-prompt
         })
         mem.update_phase("components")
         return {
@@ -421,7 +432,8 @@ def _route_after_qa(state: PipelineState) -> str:
         return "pm_decision"
     else:
         target = state.get("_qa_target_node", "architect")
-        logger.info(f"[pipeline] QA REJECTED {schema_type} (attempt {rejections}) → {target}")
+        # TOKEN-OPT: Log iteration depth so we can spot runaway loops in production
+        logger.info(f"[pipeline] QA REJECTED {schema_type} (attempt {rejections}/{QAAgent.MAX_REJECTIONS}) → {target}")
         return target
 
 

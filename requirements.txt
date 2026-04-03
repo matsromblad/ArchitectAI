@@ -41,3 +41,4 @@ aiofiles>=24.1.0
 # Dev/test
 pytest>=8.3.0
 pytest-asyncio>=0.24.0
+openai>=1.0.0

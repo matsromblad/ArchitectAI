@@ -19,9 +19,10 @@ class ArchitectAgent(BaseAgent):
                          "airlock", "buffer", "pass-through", "pass-thro", "circulation"}
 
     def run(self, inputs: dict) -> dict:
-        room_program   = inputs["room_program"]
-        site_data      = inputs.get("site_data", {})
-        qa_feedback    = inputs.get("qa_feedback")
+        room_program    = inputs["room_program"]
+        site_data       = inputs.get("site_data", {})
+        qa_feedback     = inputs.get("qa_feedback")
+        project_brief   = inputs.get("project_brief", {})
 
         rooms_input    = room_program.get("rooms", [])
         building_type  = room_program.get("building_type", "healthcare")
@@ -34,8 +35,10 @@ class ArchitectAgent(BaseAgent):
             "task": f"Spatial layout ({attempt_label}) — {len(rooms_input)} rooms",
         })
 
-        site_w = float(site_data.get("boundary", {}).get("width_m") or 60)
-        site_d = float(site_data.get("boundary", {}).get("depth_m") or 40)
+        # Prefer project_brief dimensions (realistic), fall back to site_data, then defaults
+        pb_size = project_brief.get("size", {})
+        site_w  = float(pb_size.get("site_width_m") or site_data.get("boundary", {}).get("width_m") or 30)
+        site_d  = float(pb_size.get("site_depth_m") or site_data.get("boundary", {}).get("depth_m") or 20)
 
         WALL   = 0.20   # structural wall thickness
         CORR_W = 2.70   # corridor width (HTM min 2.4m, 2.7m recommended geriatric)
@@ -70,9 +73,10 @@ class ArchitectAgent(BaseAgent):
 
         # Interleave bedrooms with their ensuites so they end up adjacent
         # Pattern: bedroom, ensuite, bedroom, ensuite, ...  then other clean rooms
+        BED_KW = {"bedroom", "patient room", "patientrum", "ward room", "patient bed", "inpatient"}
         bedrooms = [r for r in all_clean if not _is_ensuite(r) and
                     any(kw in (r.get("room_name") or r.get("name") or "").lower()
-                        for kw in {"bedroom", "patient room", "patientrum", "ward room"})]
+                        for kw in BED_KW)]
         ensuites = [r for r in all_clean if _is_ensuite(r)]
         other_clean = [r for r in all_clean if r not in bedrooms and r not in ensuites]
 
@@ -152,6 +156,23 @@ class ArchitectAgent(BaseAgent):
         # ── 5. Stair/lift core (east end, no collision guaranteed) ──────────
         core_x = round(site_w - CORE_W, 2)
 
+        # Fill gap between last clean room and stair core with entrance/reception
+        if p_clean:
+            last_clean_x = max(r["x_m"] + r["width_m"] for r in p_clean)
+            gap = round(core_x - last_clean_x - WALL, 2)
+            if gap > 1.0:
+                all_rooms.append({
+                    "room_id": "R_ENT",
+                    "name": "Ward Entrance / Reception",
+                    "x_m": round(last_clean_x + WALL, 2),
+                    "y_m": 0.0,
+                    "width_m": round(gap, 2),
+                    "depth_m": round(y_c01, 2),
+                    "area_m2": round(gap * y_c01, 1),
+                    "zone": "public",
+                    "access": "public",
+                })
+
         # ST01: primary stair spans from C01 southward (clear of C01 top = y_c01)
         # Place it ABOVE clean row so it doesn't touch corridors
         y_st01 = 0.0          # top of site, above the clean row
@@ -162,9 +183,13 @@ class ArchitectAgent(BaseAgent):
         d_lf01 = round(y_c02 - y_staff0, 2)  # flush with C02 start — no gap
         y_lf01 = lf_y0
 
-        # ST02: secondary egress — placed BELOW the dirty row (never overlaps anything above)
-        y_st02  = round(y_dirty_bot + WALL, 2)
-        d_st02  = 4.0
+        # ST02: secondary egress — placed alongside dirty row at west end
+        # Shares the dirty row y-band but at x=0 (west, outside room pack area)
+        y_st02 = y_dirty0   # aligned with dirty row start
+        d_st02 = round(y_dirty_bot - y_dirty0, 2) if y_dirty_bot > y_dirty0 else CORR_W + 1.0
+        # Safety: must fit within site depth
+        if y_st02 + d_st02 > site_d:
+            y_st02 = round(site_d - d_st02 - WALL, 2)
 
         stairs = [
             {
@@ -174,8 +199,9 @@ class ArchitectAgent(BaseAgent):
             },
             {
                 "stair_id": "ST02", "name": "Secondary Stair", "zone": "staff",
-                "x_m": 0.0, "y_m": y_st02, "width_m": 2.8, "depth_m": d_st02,
-                "note": f"West-end second egress, below dirty row. y={y_st02}–{round(y_st02+d_st02,2)}",
+                "x_m": round(site_w - CORE_W - 3.5, 1),  # west of ST01 core, avoids dirty rooms at x=0
+                "y_m": y_st02, "width_m": 2.8, "depth_m": d_st02,
+                "note": f"Second egress at dirty zone level. y={y_st02}–{round(y_st02+d_st02,2)}, fits within site depth {site_d}m",
             },
         ]
         lifts = [
