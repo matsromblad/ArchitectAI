@@ -12,6 +12,9 @@ from typing import Any
 from loguru import logger
 
 from src.agents.base_agent import BaseAgent
+from src.tools.ifc_codes import IFC
+from src.tools.se_dimensions import SE
+from src.tools.se_room_types import SE_ROOMS
 
 try:
     import ifcopenshell
@@ -332,14 +335,23 @@ class IFCBuilderAgent(BaseAgent):
         storey_placement,
         geom_context,
     ):
-        """Create IfcSpace + boundary walls + door for a single room."""
-        name = room.get("name", room.get("room_type", "Room"))
+        """Create IfcSpace + boundary walls + door for a single room.
+
+        IfcSpace.PredefinedType and ObjectType come from ifc_codes.IFC lookup —
+        never from LLM output — to guarantee IFC4 validity.
+        """
+        name = room.get("name", room.get("room_name", room.get("room_type", "Room")))
         x = float(room.get("x_m", 0.0))
         y = float(room.get("y_m", 0.0))
         w = float(room.get("width_m", 4.0))
         d = float(room.get("depth_m", 3.0))
         area = float(room.get("area_m2", w * d))
-        height = float(room.get("height_m", 3.0))
+        # Use SE storey height if not specified
+        height = float(room.get("height_m", SE.FLOOR_HEIGHT_HEALTHCARE / 1000))
+
+        # Look up IFC classification from room name (deterministic, not LLM)
+        room_type_def = SE_ROOMS.match_name(name)
+        ifc_mapping   = IFC.space_mapping(room_type_def.key)
 
         room_placement = ifc.createIfcLocalPlacement(
             PlacementRelTo=storey_placement,
@@ -382,22 +394,38 @@ class IFCBuilderAgent(BaseAgent):
             GlobalId=self._guid(),
             OwnerHistory=owner_history,
             Name=name,
-            Description=room.get("room_type", ""),
+            Description=ifc_mapping.object_type,   # e.g. "PATIENT_BEDROOM"
             ObjectPlacement=room_placement,
             Representation=product_rep,
-            LongName=name,
+            LongName=ifc_mapping.long_name,         # e.g. "Patient Bedroom"
+            PredefinedType=ifc_mapping.predefined_type,   # "USERDEFINED"
+            ObjectType=ifc_mapping.object_type,
         )
 
-        # Property set: area
-        area_prop = ifc.createIfcPropertySingleValue(
-            Name="GrossFloorArea",
-            NominalValue=ifc.createIfcAreaMeasure(area),
-        )
+        # Property set: area + BSAB code
+        props = [
+            ifc.createIfcPropertySingleValue(
+                Name="GrossFloorArea",
+                NominalValue=ifc.createIfcAreaMeasure(area),
+            ),
+            ifc.createIfcPropertySingleValue(
+                Name="NetFloorArea",
+                NominalValue=ifc.createIfcAreaMeasure(area),
+            ),
+            ifc.createIfcPropertySingleValue(
+                Name="BSABCode",
+                NominalValue=ifc.createIfcLabel(ifc_mapping.bsab_code),
+            ),
+            ifc.createIfcPropertySingleValue(
+                Name="Zone",
+                NominalValue=ifc.createIfcLabel(room.get("zone", room_type_def.zone)),
+            ),
+        ]
         ifc.createIfcPropertySet(
             GlobalId=self._guid(),
             OwnerHistory=owner_history,
             Name="Pset_SpaceCommon",
-            HasProperties=[area_prop],
+            HasProperties=props,
         )
 
         # Boundary walls (4 sides, simplified thin walls)
@@ -430,13 +458,16 @@ class IFCBuilderAgent(BaseAgent):
                 Location=ifc.createIfcCartesianPoint([x + w / 2, y, 0.0])
             ),
         )
+        # Door width from SE room type definition, height from clear height + frame
+        door_w = room_type_def.min_width_m if hasattr(room_type_def, 'min_width_m') else SE.DOOR_MIN_ACCESSIBILITY / 1000
+        door_h = (SE.CLEAR_HEIGHT_HEALTHCARE - 200) / 1000   # frame ≈ 200 mm below clear height
         door = ifc.createIfcDoor(
             GlobalId=self._guid(),
             OwnerHistory=owner_history,
             Name=f"Door-{room.get('room_id', 'R')}",
             ObjectPlacement=door_placement,
-            OverallHeight=2.1,
-            OverallWidth=0.9,
+            OverallHeight=door_h,
+            OverallWidth=door_w,
         )
 
         return space, walls, door

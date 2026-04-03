@@ -193,6 +193,18 @@ class SE_HVAC:
     """Swedish HVAC/ventilation rules — query interface for ArchitectAI agents."""
 
     @staticmethod
+    def min_shaft_size_m() -> float:
+        """Minimum shaft clear dimension in metres (smallest practical riser)."""
+        return SHAFT_MIN_WIDTH_MM / 1000
+
+    @staticmethod
+    def max_duct_velocity_m_s(duct_type: str = "supply") -> float:
+        """Max duct air velocity (m/s) for occupied zones."""
+        if duct_type == "return":
+            return DUCT_VELOCITY_EXHAUST_MAX
+        return DUCT_VELOCITY_SUPPLY_MAX
+
+    @staticmethod
     def spec_for(room_type_key: str) -> RoomVentSpec:
         """
         Return the ventilation spec for a room type key.

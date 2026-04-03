@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from loguru import logger
 
 from src.agents.base_agent import BaseAgent
+from src.tools.se_fire import SE_FIRE
+from src.tools.se_hvac import SE_HVAC
 
 
 SYSTEM_PROMPT = """You are the MEP Agent (Mechanical, Electrical, Plumbing) for ArchitectAI,
@@ -22,15 +24,19 @@ Healthcare rules (critical):
 - Medical gas risers (O2, vacuum) must not share shaft with waste/soil pipes
 - Plant rooms must be accessible without passing through clinical areas
 
-Fire compartmentation (Swedish BBR / EN 1365):
-- Max 1250 m² per fire compartment in healthcare occupancy
-- Compartment boundaries must align with structural elements
-- Shafts penetrating compartments need fire-dampers and fire-stopping
+Fire compartmentation (Swedish BBR 2023 avsnitt 5 / EN 1365):
+{se_fire_block}
 
 Shaft placement rules:
 - Shafts should not break structural cores or remove columns
 - Wet rooms (WC, sluice) should stack vertically for drainage
 - Prefer compact, accessible shaft positions at core perimeters
+- Shaft sizing per SS-EN ISO 5806: min cross-section {shaft_min_m}×{shaft_min_m}m
+
+Ventilation rules (Swedish BBR 6 / SS 25268):
+- See HVAC spec per room type for l/s/m², ACH, pressure regime
+- Isolation rooms: negative pressure, H14 filter, anteroom as airlock
+- Max duct velocity: {duct_vel_m_s}m/s in occupied zones, {duct_vel_return}m/s in return
 
 Flag spatial conflicts (shaft collides with room, plant room too small, etc.).
 
@@ -42,15 +48,42 @@ class MEPAgent(BaseAgent):
     Places vertical shafts, plant rooms, and defines MEP zones.
 
     Separates clean/dirty utilities for healthcare.
-    Subdivides floors into fire compartments (max 1250 m² in SE healthcare).
+    Subdivides floors into fire compartments using SE_FIRE rules.
     Outputs mep_schema.json.
     """
 
     AGENT_ID = "mep"
     DEFAULT_MODEL = "claude-sonnet-4-6"
 
-    # Healthcare fire compartment max area (m²) per BBR
-    HEALTHCARE_MAX_COMPARTMENT_M2 = 1250.0
+    # Dynamic system prompt with SE_FIRE and SE_HVAC rules
+    def __init__(self, memory, model=None):
+        super().__init__(memory, model)
+        self._refresh_system_prompt()
+
+    def _refresh_system_prompt(self):
+        """Build the system prompt with current SE rules."""
+        # Get fire compartment max area for healthcare
+        max_comp = SE_FIRE.max_compartment_area_m2("Vk3C", "Br1")  # Healthcare default
+        travel_dist = SE_FIRE.max_travel_distance_m("Vk3C")
+        stair_width = SE_FIRE.min_stair_width_mm("Vk3C")
+        shaft_min = SE_HVAC.min_shaft_size_m()
+        duct_vel = SE_HVAC.max_duct_velocity_m_s("supply")
+        duct_vel_return = SE_HVAC.max_duct_velocity_m_s("return")
+
+        self._se_fire_block = f"""
+- Max {max_comp:.0f} m² per fire compartment in healthcare (Vk3C+Br1)
+- Max travel distance to exit: {travel_dist}m
+- Min stair width for bed evacuation: {stair_width}mm
+- Shafts penetrating compartments need fire-dampers (EI90) and fire-stopping
+- Compartment boundaries must align with structural elements (load-bearing walls)
+- Fire resistance: R90 for load-bearing structures in Br1 buildings
+"""
+        self._sys_prompt_template = SYSTEM_PROMPT.format(
+            se_fire_block=self._se_fire_block,
+            shaft_min=shaft_min,
+            duct_vel_m_s=duct_vel,
+            duct_vel_return=duct_vel_return,
+        )
 
     def run(self, inputs: dict) -> dict:
         """
@@ -69,6 +102,7 @@ class MEPAgent(BaseAgent):
         structural_schema = inputs["structural_schema"]
         building_type = spatial_layout.get("building_type", "unknown")
         is_healthcare = "health" in building_type.lower()
+        jurisdiction = inputs.get("jurisdiction", "SE")
 
         floors = spatial_layout.get("floors", [])
         cores = structural_schema.get("cores", [])
@@ -88,7 +122,14 @@ class MEPAgent(BaseAgent):
             "task": "MEP schema — shafts, compartments, plant rooms",
         })
 
-        max_compartment = self.HEALTHCARE_MAX_COMPARTMENT_M2 if is_healthcare else 2500.0
+        # Use SE_FIRE for deterministic max compartment area
+        if is_healthcare:
+            # Healthcare defaults to Vk3C + Br1 in SE
+            fire_class = inputs.get("fire_class", "Br1")
+            building_class = inputs.get("building_class", "Vk3C")
+            max_compartment = SE_FIRE.max_compartment_area_m2(building_class, fire_class)
+        else:
+            max_compartment = SE_FIRE.max_compartment_area_m2("Vk2", "Br2")  # Default office/commercial
 
         user_message = f"""Generate a complete MEP schema for this {building_type} building.
 
@@ -160,10 +201,14 @@ Output a complete mep_schema.json:
     }}
   ],
   "notes": []
-}}"""
+}}
+
+HVAC specs per room type (BBR 6 / SS 25268):
+{SE_HVAC.prompt_block(building_type)}
+"""
 
         response = self.chat(
-            system=SYSTEM_PROMPT,
+            system=self._sys_prompt_template,
             messages=[{"role": "user", "content": user_message}],
             max_tokens=3000,
         )

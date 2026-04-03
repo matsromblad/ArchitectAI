@@ -199,7 +199,7 @@ class SE_FIRE:
     def building_class_for(building_type: str) -> str:
         """Return the most appropriate Verksamhetsklass for a building type."""
         bt = building_type.lower()
-        if "ward" in bt or "inpatient" in bt or "hospital" in bt:
+        if "ward" in bt or "inpatient" in bt or "hospital" in bt or "health" in bt or "care" in bt:
             return BUILDING_CLASS_HEALTHCARE_WARD   # Vk3C
         if "nursing" in bt or "care home" in bt or "äldreboende" in bt:
             return BUILDING_CLASS_NURSING_HOME      # Vk3B

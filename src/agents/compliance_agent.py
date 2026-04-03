@@ -1,6 +1,7 @@
 """
 Compliance Agent — regulatory expert.
 Self-sources documents, answers compliance queries, escalates unknown rules to PM.
+Uses deterministic rule lookups from SE_FIRE, SE_HVAC, SE_LIGHTING modules.
 """
 
 import json
@@ -12,9 +13,13 @@ from typing import Optional
 from loguru import logger
 
 from src.agents.base_agent import BaseAgent
+from src.tools.se_fire import SE_FIRE
+from src.tools.se_hvac import SE_HVAC
+from src.tools.se_lighting import SE_LIGHTING
 
 
-SYSTEM_PROMPT = """You are the Compliance Agent for ArchitectAI, a multi-agent building design system.
+_SYSTEM_PROMPT_TEMPLATE = """\
+You are the Compliance Agent for ArchitectAI, a multi-agent building design system.
 
 You are the ONLY agent with jurisdiction-specific regulatory knowledge. You are the expert on:
 - Building codes (BBR in Sweden, UAE Civil Defence codes, etc.)
@@ -22,6 +27,15 @@ You are the ONLY agent with jurisdiction-specific regulatory knowledge. You are 
 - Fire safety regulations
 - Accessibility standards (ADA, EN 17210)
 - Any other applicable local regulations
+
+You have deterministic rule lookups injected below.
+Use these for Swedish rules — do NOT rely solely on LLM training for BBR values.
+
+{se_fire_block}
+
+{hvac_block}
+
+{lighting_block}
 
 Rules you MUST follow:
 1. NEVER invent a regulation. If you don't know, say so.
@@ -32,17 +46,17 @@ Rules you MUST follow:
 6. Output ONLY valid JSON.
 
 Output format:
-{
+{{
   "verdict": "PASS|FAIL|CONDITIONAL|UNKNOWN",
   "rule_ref": "BBR 3:412 — Gangbredd i vårdutrymmen",
   "rule_text": "...",
   "proposed_value": "...",
   "required_value": "...",
-  "fix": "...",  // only for FAIL/CONDITIONAL
+  "fix": "...",
   "confidence": "high|medium|low",
   "source_status": "verified|inferred|source_needed",
   "notes": "..."
-}
+}}
 """
 
 
@@ -53,6 +67,12 @@ class ComplianceAgent(BaseAgent):
     def __init__(self, memory, model=None):
         super().__init__(memory, model)
         self.kb_dir = Path(os.getenv("COMPLIANCE_KB_DIR", "./compliance_kb"))
+        # Build system prompt with deterministic SE rule blocks
+        self._sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
+            se_fire_block=SE_FIRE.prompt_block(),
+            hvac_block=SE_HVAC.prompt_block(),
+            lighting_block=SE_LIGHTING.prompt_block(),
+        )
 
     def run(self, inputs: dict) -> dict:
         """
@@ -71,14 +91,23 @@ class ComplianceAgent(BaseAgent):
         Returns:
             compliance response dict
         """
-        query = inputs["query"]
-        jurisdiction = inputs.get("jurisdiction", "SE")
+        query         = inputs["query"]
+        jurisdiction  = inputs.get("jurisdiction", "SE")
         building_type = inputs.get("building_type", "general")
 
         logger.info(f"[{self.AGENT_ID}] Query [{jurisdiction}/{building_type}]: {query}")
-        self.send_message("pm", "status_update", {"status": "working", "task": f"Compliance check: {query[:60]}"})
+        self.send_message("pm", "status_update", {
+            "status": "working",
+            "task": f"Compliance check: {query[:60]}",
+        })
 
-        # Check if we need to source documents first
+        # Optionally rebuild prompt with building-type-specific blocks
+        sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
+            se_fire_block=SE_FIRE.prompt_block(building_type),
+            hvac_block=SE_HVAC.prompt_block(building_type),
+            lighting_block=SE_LIGHTING.prompt_block(building_type),
+        )
+
         kb_context = self._get_kb_context(jurisdiction, building_type, query)
 
         user_message = f"""Compliance query:
@@ -97,72 +126,86 @@ Knowledge base context:
 Provide your compliance verdict as JSON."""
 
         response = self.chat(
-            system=SYSTEM_PROMPT,
+            system=sys_prompt,
             messages=[{"role": "user", "content": user_message}],
             max_tokens=2048,
         )
 
         result = self._extract_json(response)
-        result["query"] = query
+        result["query"]        = query
         result["jurisdiction"] = jurisdiction
-        result["timestamp"] = datetime.now(timezone.utc).isoformat()
+        result["timestamp"]    = datetime.now(timezone.utc).isoformat()
 
-        # If source is needed, escalate to PM
+        # Escalate if source needed
         if result.get("source_status") == "source_needed":
             logger.warning(f"[{self.AGENT_ID}] Source needed for: {result.get('rule_ref', query)}")
             self.escalate_to_pm(
                 question=f"Need regulatory document: {result.get('rule_ref', query)} for {jurisdiction}",
-                context={"query": query, "jurisdiction": jurisdiction, "building_type": building_type}
+                context={"query": query, "jurisdiction": jurisdiction, "building_type": building_type},
             )
 
         self.send_message("pm", "compliance_response", {
-            "verdict": result.get("verdict"),
-            "query": query,
+            "verdict":  result.get("verdict"),
+            "query":    query,
             "rule_ref": result.get("rule_ref"),
         })
 
         return result
 
     def _get_kb_context(self, jurisdiction: str, building_type: str, query: str) -> str:
-        """Try to retrieve relevant context from local knowledge base."""
+        """Retrieve context from local knowledge base, if available."""
         kb_path = self.kb_dir / jurisdiction
         if not kb_path.exists():
-            return f"No local knowledge base found for {jurisdiction}. Relying on training knowledge."
-
-        # List available documents
+            return (
+                f"No local knowledge base found for {jurisdiction}. "
+                "Using deterministic SE rule modules + LLM training knowledge."
+            )
         docs = list(kb_path.glob("*.pdf")) + list(kb_path.glob("*.txt"))
         if not docs:
-            return f"Knowledge base directory exists for {jurisdiction} but contains no documents."
-
+            return (
+                f"Knowledge base directory exists for {jurisdiction} but contains no documents. "
+                "Using deterministic SE rule modules."
+            )
         doc_list = "\n".join(f"- {d.name}" for d in docs)
-        return f"Available regulatory documents for {jurisdiction}:\n{doc_list}\n\n(ChromaDB RAG integration pending — use training knowledge for now)"
+        return (
+            f"Available regulatory documents for {jurisdiction}:\n{doc_list}\n\n"
+            "(ChromaDB RAG integration pending — using training knowledge for now)"
+        )
 
     def check_room_program(self, room_program: dict) -> dict:
         """Validate an entire room program against regulations."""
-        jurisdiction = room_program.get("jurisdiction", "SE")
+        jurisdiction  = room_program.get("jurisdiction", "SE")
         building_type = room_program.get("building_type", "general")
         results = []
 
         for room in room_program.get("rooms", []):
             if room.get("min_area_m2"):
                 result = self.run({
-                    "query": f"Minimum area for {room['name']} in {building_type} facility",
-                    "jurisdiction": jurisdiction,
-                    "building_type": building_type,
+                    "query":          f"Minimum area for {room.get('room_name', room.get('name', '?'))} in {building_type} facility",
+                    "jurisdiction":   jurisdiction,
+                    "building_type":  building_type,
                     "proposed_value": room["min_area_m2"],
-                    "unit": "m²",
-                    "context": {"room_type": room.get("room_type"), "access_type": room.get("access_type")},
+                    "unit":           "m²",
+                    "context": {
+                        "room_id":    room.get("room_id"),
+                        "zone":       room.get("zone"),
+                        "access":     room.get("access_type"),
+                    },
                 })
-                results.append({"room_id": room["id"], "room_name": room["name"], **result})
+                results.append({
+                    "room_id":   room.get("room_id"),
+                    "room_name": room.get("room_name", room.get("name")),
+                    **result,
+                })
 
         return {
             "jurisdiction": jurisdiction,
             "building_type": building_type,
             "checks": results,
             "summary": {
-                "pass": sum(1 for r in results if r.get("verdict") == "PASS"),
-                "fail": sum(1 for r in results if r.get("verdict") == "FAIL"),
+                "pass":        sum(1 for r in results if r.get("verdict") == "PASS"),
+                "fail":        sum(1 for r in results if r.get("verdict") == "FAIL"),
                 "conditional": sum(1 for r in results if r.get("verdict") == "CONDITIONAL"),
-                "unknown": sum(1 for r in results if r.get("verdict") == "UNKNOWN"),
-            }
+                "unknown":     sum(1 for r in results if r.get("verdict") == "UNKNOWN"),
+            },
         }
