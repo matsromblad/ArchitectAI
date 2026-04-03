@@ -121,22 +121,28 @@ def generate_brief_node(state: PipelineState) -> dict:
     mem = _memory(state)
     agent = BriefAgent(memory=mem)
 
-    # TOKEN-OPT: Pass QA feedback (if any) so BriefAgent can use compact delta-prompt.
+    # TOKEN-OPT: Pass QA feedback + prior version so BriefAgent can use patch mode.
+    # Patch mode: LLM outputs only changed rooms (modified/added/removed), not full JSON.
+    # Expected savings: ~70% fewer output tokens on revision calls.
     qa_results = state.get("qa_results") or {}
     last_qa = qa_results.get("room_program", {})
     qa_feedback = None
+    prior_room_program = None
     if last_qa.get("verdict") in ("REJECTED", "CONDITIONAL"):
         qa_feedback = {
             "issues": last_qa.get("issues", []),
             "fix_instructions": last_qa.get("fix_instructions", ""),
         }
+        # Pass the current room_program as the base for patching
+        prior_room_program = state.get("room_program")
 
     try:
         room_program = agent.run({
             "prompt": state.get("user_prompt", ""),
             "site_data": state.get("site_data", {}),
             "jurisdiction": state.get("jurisdiction", "SE"),
-            "qa_feedback": qa_feedback,  # TOKEN-OPT: structured feedback for delta-prompt
+            "qa_feedback": qa_feedback,          # TOKEN-OPT: structured feedback
+            "prior_room_program": prior_room_program,  # TOKEN-OPT: base for patch
         })
         mem.update_phase("components")
         return {

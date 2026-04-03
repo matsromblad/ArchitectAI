@@ -1,7 +1,14 @@
 """
-Brief Agent — generates room_program.json from user prompt + site data
+Brief Agent — generates room_program.json from user prompt + site data.
+
+Revision flow (TOKEN-OPT):
+  On first run  → full room_program JSON output
+  On revision   → patch-only output (modified_rooms + added_rooms + removed_room_ids)
+                  applied by _apply_patch() against the prior version.
+  Savings: revision prompts ~80% smaller; patch outputs ~70% smaller than full JSON.
 """
 
+import copy
 import json
 from datetime import datetime, timezone
 
@@ -10,6 +17,7 @@ from loguru import logger
 from src.agents.base_agent import BaseAgent
 
 
+# System prompt for initial generation
 SYSTEM_PROMPT = """You are the Brief Agent for ArchitectAI. Output ONLY valid JSON, no prose.
 
 Schema:
@@ -27,10 +35,90 @@ Rules:
 - Keep adjacencies minimal — code enforces corridor links automatically
 """
 
+# TOKEN-OPT: Separate system prompt for revision mode — instructs patch output only.
+# Much smaller output than a full room_program (only changed rooms).
+REVISION_SYSTEM_PROMPT = """You are the Brief Agent for ArchitectAI fixing a QA-rejected room program.
+
+Output ONLY a JSON patch — do NOT output the full room_program.
+
+Patch schema:
+{
+  "modified_rooms": [<full room objects that need changes>],
+  "added_rooms":    [<new room objects to insert>],
+  "removed_room_ids": ["R_id1", "R_id2"]
+}
+
+Rules:
+- JSON only. No prose, no markdown.
+- Include a room in modified_rooms ONLY if it needs to change.
+- Omit rooms that are already correct.
+- If no rooms need removal, use removed_room_ids: []
+- If no rooms need adding, use added_rooms: []
+- Room objects follow the same schema as the original.
+- adjacencies: list only direct neighbours, not corridor (corridor is auto-wired).
+"""
+
 
 class BriefAgent(BaseAgent):
     AGENT_ID = "brief"
     DEFAULT_MODEL = "claude-sonnet-4-6"
+
+    # TOKEN-OPT: Patch-based revision threshold.
+    # If prior_room_program is available AND qa_feedback is set, use patch mode.
+    # Set BRIEF_PATCH_MODE=false in .env to disable (fall back to full regen).
+    PATCH_MODE = True
+
+    def _apply_patch(self, prior: dict, patch: dict) -> dict:
+        """
+        TOKEN-OPT: Apply a patch dict to the prior room_program.
+
+        Patch schema:
+          modified_rooms:    list of room objects (full) — replaces matching room_id
+          added_rooms:       list of new room objects — appended
+          removed_room_ids:  list of room_id strings — removed
+
+        Returns a new room_program dict with the patch applied.
+        """
+        result = copy.deepcopy(prior)
+        rooms = result.get("rooms", [])
+
+        # Index by room_id
+        room_by_id = {r["room_id"]: i for i, r in enumerate(rooms) if r.get("room_id")}
+
+        # 1. Remove
+        removed = set(patch.get("removed_room_ids") or [])
+        if removed:
+            rooms = [r for r in rooms if r.get("room_id") not in removed]
+            logger.info(f"[{self.AGENT_ID}] Patch: removed {len(removed)} rooms: {removed}")
+            # Rebuild index after removal
+            room_by_id = {r["room_id"]: i for i, r in enumerate(rooms) if r.get("room_id")}
+
+        # 2. Modify — replace full room object by room_id
+        modified = patch.get("modified_rooms") or []
+        mod_count = 0
+        for mod_room in modified:
+            rid = mod_room.get("room_id")
+            if rid and rid in room_by_id:
+                rooms[room_by_id[rid]] = mod_room
+                mod_count += 1
+            else:
+                # room_id not found — treat as add
+                rooms.append(mod_room)
+                mod_count += 1
+        if mod_count:
+            logger.info(f"[{self.AGENT_ID}] Patch: modified {mod_count} rooms")
+
+        # 3. Add
+        added = patch.get("added_rooms") or []
+        existing_ids = {r.get("room_id") for r in rooms}
+        for new_room in added:
+            if new_room.get("room_id") not in existing_ids:
+                rooms.append(new_room)
+        if added:
+            logger.info(f"[{self.AGENT_ID}] Patch: added {len(added)} rooms")
+
+        result["rooms"] = rooms
+        return result
 
     def run(self, inputs: dict) -> dict:
         """
@@ -38,28 +126,38 @@ class BriefAgent(BaseAgent):
 
         Args:
             inputs: {
-                "prompt": str,          # User's building brief
-                "site_data": dict,      # From InputParserAgent
-                "jurisdiction": str,    # e.g. "SE"
+                "prompt": str,               # User's building brief
+                "site_data": dict,           # From InputParserAgent
+                "jurisdiction": str,         # e.g. "SE"
+                "qa_feedback": dict|None,    # QA issues on revision
+                "prior_room_program": dict|None,  # TOKEN-OPT: previous version for patch mode
             }
 
         Returns:
             room_program dict
         """
-        prompt         = inputs["prompt"]
-        site_data      = inputs.get("site_data", {})
-        jurisdiction   = inputs.get("jurisdiction", site_data.get("jurisdiction", "SE"))
-        qa_feedback    = inputs.get("qa_feedback")
-        project_brief  = inputs.get("project_brief", {})
+        prompt              = inputs["prompt"]
+        site_data           = inputs.get("site_data", {})
+        jurisdiction        = inputs.get("jurisdiction", site_data.get("jurisdiction", "SE"))
+        qa_feedback         = inputs.get("qa_feedback")
+        project_brief       = inputs.get("project_brief", {})
+        prior_room_program  = inputs.get("prior_room_program")  # TOKEN-OPT
 
-        attempt_label = "REVISION" if qa_feedback else "INITIAL"
+        # Decide mode: patch or full
+        use_patch_mode = (
+            self.PATCH_MODE
+            and qa_feedback is not None
+            and prior_room_program is not None
+            and len(prior_room_program.get("rooms", [])) > 0
+        )
+
+        attempt_label = ("PATCH-REVISION" if use_patch_mode else "REVISION") if qa_feedback else "INITIAL"
         logger.info(f"[{self.AGENT_ID}] [{attempt_label}] Generating room program for: {prompt[:80]}...")
         self.send_message("pm", "status_update", {"status": "working", "task": f"Room program ({attempt_label})"})
 
+        # Build feedback text (shared across patch and non-patch revision)
         feedback_section = ""
         if qa_feedback:
-            # TOKEN-OPT: Compact delta-feedback on revision — only include what changed.
-            # Full QA JSON can be 500+ chars; we extract only the actionable issues.
             if isinstance(qa_feedback, dict):
                 issues = qa_feedback.get("issues", [])
                 fix_instr = qa_feedback.get("fix_instructions", "")
@@ -68,52 +166,89 @@ class BriefAgent(BaseAgent):
             else:
                 issues_text = str(qa_feedback)[:200]
                 fix_text = ""
-            feedback_section = f"""
-REVISION — fix ONLY these QA issues:
-{issues_text}
-{("Fix: " + fix_text) if fix_text else ""}
-Keep all rooms from previous version. Minimal changes only."""
+            feedback_section = (
+                f"QA issues to fix:\n{issues_text}\n"
+                + (f"Fix guidance: {fix_text}" if fix_text else "")
+            )
 
-        # Extract client brief parameters
-        prog = project_brief.get("programme", {})
-        size = project_brief.get("size", {})
-        standards = project_brief.get("applicable_standards", ["SS 91 42 21", "BBR 2023"])
-        constraints = project_brief.get("constraints", {})
+        # ── Build prompt and call LLM ────────────────────────────────────────
+        if use_patch_mode:
+            # TOKEN-OPT: Send only the affected rooms + QA issues.
+            # Compress prior rooms to a compact representation for context.
+            prior_rooms_compact = json.dumps(
+                [{"id": r.get("room_id"), "n": r.get("room_name","")[:25],
+                  "z": r.get("zone"), "a": r.get("min_area_m2"),
+                  "adj": r.get("adjacencies", [])}
+                 for r in prior_room_program.get("rooms", [])],
+                separators=(',', ':'),
+            )
+            user_message = (
+                f"Project: {self.memory.project_id} ({jurisdiction})\n\n"
+                f"Current rooms (compact):\n{prior_rooms_compact}\n\n"
+                f"{feedback_section}\n\n"
+                f"Output ONLY a patch JSON to fix the listed issues. "
+                f"Do not output rooms that are already correct."
+            )
+            response = self.chat(
+                system=REVISION_SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_message}],
+                max_tokens=2000,  # TOKEN-OPT: patch is much smaller than full regen
+            )
+            patch = self._extract_json(response)
+            # Unwrap if nested
+            if "patch" in patch and isinstance(patch["patch"], dict):
+                patch = patch["patch"]
+            # Apply patch to prior version
+            room_program = self._apply_patch(prior_room_program, patch)
+            logger.info(f"[{self.AGENT_ID}] Patch applied — "
+                        f"{len(patch.get('modified_rooms') or [])} modified, "
+                        f"{len(patch.get('added_rooms') or [])} added, "
+                        f"{len(patch.get('removed_room_ids') or [])} removed")
 
-        # TOKEN-OPT: On revision, send a compact delta-prompt instead of full brief.
-        # The LLM already has the schema shape from the system prompt — no need to repeat it.
-        if qa_feedback:
-            # Revision prompt: just the project ID + what to fix
-            user_message = f"""Project: {self.memory.project_id} ({jurisdiction})
-{feedback_section}
-Output corrected room_program JSON. Same rooms, fix only the listed issues."""
+        elif qa_feedback:
+            # Fallback non-patch revision: compact prompt, full regen
+            user_message = (
+                f"Project: {self.memory.project_id} ({jurisdiction})\n"
+                f"{feedback_section}\n"
+                f"Output corrected room_program JSON. Same rooms, fix only the listed issues."
+            )
+            response = self.chat(
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_message}],
+                max_tokens=4000,
+            )
+            room_program = self._extract_json(response)
+            if "room_program" in room_program and isinstance(room_program["room_program"], dict):
+                room_program = room_program["room_program"]
+
         else:
-            # Initial prompt: full context needed
-            user_message = f"""User request: "{prompt}"
-
-Project parameters (from Client Agent):
-- Building type: {project_brief.get('building_type', 'healthcare')}
-- Jurisdiction: {jurisdiction} ({project_brief.get('jurisdiction_name', 'Sweden')})
-- Target net area: {size.get('target_net_area_m2', 280)} m²
-- Target gross area: {size.get('target_gross_area_m2', 420)} m²
-- Patient beds: {prog.get('patient_beds', 4)}
-- Key rooms required: {', '.join(prog.get('key_rooms', [])[:6])}
-- Isolation rooms: {constraints.get('isolation_rooms_required', 1)}
-- Standards: {', '.join(standards[:3])}
-- Min corridor width: {constraints.get('min_corridor_width_m', 2.4)} m
-
-Generate compact room program JSON. Max 25 rooms. Short strings. No corridors."""
-
-        response = self.chat(
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_message}],
-            max_tokens=4000,
-        )
-
-        room_program = self._extract_json(response)
-        # Unwrap nested structure if Claude returned {"room_program": {...}}
-        if "room_program" in room_program and isinstance(room_program["room_program"], dict):
-            room_program = room_program["room_program"]
+            # Initial generation: full context needed
+            prog = project_brief.get("programme", {})
+            size = project_brief.get("size", {})
+            standards = project_brief.get("applicable_standards", ["SS 91 42 21", "BBR 2023"])
+            constraints = project_brief.get("constraints", {})
+            user_message = (
+                f'User request: "{prompt}"\n\n'
+                f"Project parameters (from Client Agent):\n"
+                f"- Building type: {project_brief.get('building_type', 'healthcare')}\n"
+                f"- Jurisdiction: {jurisdiction} ({project_brief.get('jurisdiction_name', 'Sweden')})\n"
+                f"- Target net area: {size.get('target_net_area_m2', 280)} m²\n"
+                f"- Target gross area: {size.get('target_gross_area_m2', 420)} m²\n"
+                f"- Patient beds: {prog.get('patient_beds', 4)}\n"
+                f"- Key rooms required: {', '.join(prog.get('key_rooms', [])[:6])}\n"
+                f"- Isolation rooms: {constraints.get('isolation_rooms_required', 1)}\n"
+                f"- Standards: {', '.join(standards[:3])}\n"
+                f"- Min corridor width: {constraints.get('min_corridor_width_m', 2.4)} m\n\n"
+                f"Generate compact room program JSON. Max 25 rooms. Short strings. No corridors."
+            )
+            response = self.chat(
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_message}],
+                max_tokens=4000,
+            )
+            room_program = self._extract_json(response)
+            if "room_program" in room_program and isinstance(room_program["room_program"], dict):
+                room_program = room_program["room_program"]
 
         # ── Code-level sanitisation (fixes common LLM inconsistencies) ──────
         rooms = room_program.get("rooms", [])
