@@ -1211,7 +1211,20 @@
     showToast();
 
     // Future: replace with real POST
-    // fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    fetch('http://127.0.0.1:8000/launch', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(payload) 
+    })
+    .then(async res => {
+      if(res.ok) {
+        showToast('System Launched!', 'A terminal should pop up to run your architecture. You can close this tab and open the dashboard.');
+        setTimeout(() => { window.location.href = 'http://127.0.0.1:8000/'; }, 3000);
+      } else {
+        showToast('Error', await res.text());
+      }
+    })
+    .catch(e => showToast('Network error', e.message));
   });
 
   // ── Save draft ──

@@ -20,12 +20,14 @@ from typing import Any
 from loguru import logger
 
 try:
-    from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+    from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
     from fastapi.responses import FileResponse, JSONResponse
     from fastapi.staticfiles import StaticFiles
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
     import uvicorn
+    import subprocess
+    import sys
     _FASTAPI_AVAILABLE = True
 except ImportError:
     _FASTAPI_AVAILABLE = False
@@ -318,6 +320,46 @@ else:
                 if d.is_dir() and (d / "state.json").exists():
                     projects.append(d.name)
         return {"projects": projects}
+
+    class LaunchPayload(BaseModel):
+        projectName: str
+        jurisdiction: str
+        buildingType: str
+        prompt: str
+        siteDrawings: list
+        governingDocs: list
+
+    @app.post("/launch")
+    async def launch_project(payload: LaunchPayload):
+        """Stub for launching a project from the Web UI."""
+        project_id = payload.projectName.lower().replace(" ", "-")
+        
+        # We need a dummy site file if none uploaded
+        site_file = "inputs/floorplan.png"
+        if payload.siteDrawings and len(payload.siteDrawings) > 0:
+            # In a real app we'd upload the file; here we just fake the path
+            site_file = f"inputs/{payload.siteDrawings[0].get('name', 'floorplan.png')}"
+            
+        cmd = [
+            sys.executable, "main.py",
+            "--project-id", project_id,
+            "--prompt", payload.prompt,
+            "--site-file", site_file,
+            "--jurisdiction", payload.jurisdiction
+        ]
+        
+        # Launch in new console on Windows so human-in-the-loop works
+        creationflags = 0
+        if sys.platform == "win32":
+            creationflags = subprocess.CREATE_NEW_CONSOLE
+            
+        try:
+            cwd = Path(__file__).parent.parent.parent
+            subprocess.Popen(cmd, cwd=cwd, creationflags=creationflags)
+            return {"status": "ok", "project_id": project_id}
+        except Exception as e:
+            logger.error(f"Failed to launch main.py: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
 
     # ------------------------------------------------------------------ #
     # Approval file helper                                                 #

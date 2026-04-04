@@ -24,9 +24,9 @@ from src.memory.project_memory import ProjectMemory
 #   OPENCLAW_MODEL         override model (default: openclaw, uses gateway default)
 # ---------------------------------------------------------------------------
 
-_GATEWAY_URL   = os.getenv("OPENCLAW_GATEWAY_URL",   "http://127.0.0.1:18789")
-_GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN", "cab520cf9a791d18bb18246f58e8dc8e89624944f3915e5c")
-_OPENCLAW_MODEL = os.getenv("OPENCLAW_MODEL",        "openclaw")
+_GATEWAY_URL   = os.getenv("OLLAMA_URL",   "http://127.0.0.1:11434")
+_GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN", "dummy")
+_OPENCLAW_MODEL = os.getenv("OPENCLAW_MODEL",        "glm-4.7-flash:latest")
 
 
 class BaseAgent(ABC):
@@ -49,9 +49,9 @@ class BaseAgent(ABC):
         self.model = model or os.getenv(f"{self.AGENT_ID.upper()}_MODEL", self.DEFAULT_MODEL)
         self.client = OpenAI(
             base_url=f"{_GATEWAY_URL}/v1",
-            api_key=_GATEWAY_TOKEN,
+            api_key=_GATEWAY_TOKEN or "dummy",
         )
-        logger.info(f"[{self.AGENT_ID}] Initialized → OpenClaw gateway ({_GATEWAY_URL}) model hint: {self.model}")
+        logger.info(f"[{self.AGENT_ID}] Initialized → Ollama ({_GATEWAY_URL}) model: {_OPENCLAW_MODEL}")
 
     def chat(
         self,
