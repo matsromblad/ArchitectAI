@@ -1211,7 +1211,7 @@
     showToast();
 
     // Future: replace with real POST
-    fetch('http://127.0.0.1:8000/launch', { 
+    fetch('http://127.0.0.1:8765/launch', { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' }, 
       body: JSON.stringify(payload) 
@@ -1219,7 +1219,7 @@
     .then(async res => {
       if(res.ok) {
         showToast('System Launched!', 'A terminal should pop up to run your architecture. You can close this tab and open the dashboard.');
-        setTimeout(() => { window.location.href = 'http://127.0.0.1:8000/'; }, 3000);
+        setTimeout(() => { window.location.href = 'http://127.0.0.1:8765/'; }, 3000);
       } else {
         showToast('Error', await res.text());
       }
