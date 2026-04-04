@@ -56,8 +56,10 @@ class ProjectMemory:
                 },
                 "current_schemas": {},   # schema_type → latest approved version
                 "decisions": [],         # log of PM decisions
+                "reflections": [],       # log of agent learnings
                 "jurisdiction": None,
                 "building_type": None,
+                "total_cost_usd": 0.0,
             }
             self._save_state()
 
@@ -86,6 +88,19 @@ class ProjectMemory:
             "agent": agent,
             "decision": decision,
             "context": context,
+        })
+        self._save_state()
+
+    def log_cost(self, amount: float):
+        self.state["total_cost_usd"] = self.state.get("total_cost_usd", 0.0) + amount
+        self._save_state()
+
+    def log_reflection(self, agent: str, milestone: str, content: str):
+        self.state.setdefault("reflections", []).append({
+            "timestamp": self._now(),
+            "agent": agent,
+            "milestone": milestone,
+            "content": content
         })
         self._save_state()
 
@@ -189,4 +204,6 @@ class ProjectMemory:
             "approved_schemas": self.state["current_schemas"],
             "jurisdiction": self.state.get("jurisdiction"),
             "building_type": self.state.get("building_type"),
+            "total_cost_usd": self.state.get("total_cost_usd", 0.0),
+            "reflections": self.state.get("reflections", []),
         }

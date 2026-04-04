@@ -384,6 +384,9 @@
     <select id="projectSelector" style="background:#21262D; color:#8B949E; border:1px solid #30363D; border-radius:3px; padding:3px; font-size:10px; font-family:'Courier New', monospace; outline:none;">
       <option value="">-- select project --</option>
     </select>
+    <div id="costTracker" title="Total API Cost" style="font-size:12px; font-weight:bold; color:var(--gold); display:flex; align-items:center; gap:6px; background:rgba(255,215,0,0.1); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,215,0,0.2);">
+      <span>💰</span> $<span id="costAmount">0.000</span>
+    </div>
     <div id="wsStatus" class="ws-status ws-disconnected" title="WebSocket connection status"><span class="ws-dot ws-sim"></span>SIM</div>
     <div class="milestone-bar" id="milestoneBar"></div>
   </div>
@@ -1414,6 +1417,12 @@ function renderAgentCards() {
         setDocStatus(docId, docStatus, out.version || null);
       });
       renderOutputs();
+    }
+    
+    // Update cost
+    if (s.hasOwnProperty('total_cost_usd')) {
+      const el = document.getElementById('costAmount');
+      if (el) el.textContent = parseFloat(s.total_cost_usd).toFixed(3);
     }
 
     // Log the newest incoming message (avoid flooding)

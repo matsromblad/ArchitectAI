@@ -80,9 +80,21 @@ class BaseAgent(ABC):
         if usage:
             in_tok  = getattr(usage, "prompt_tokens", 0)
             out_tok = getattr(usage, "completion_tokens", 0)
+            
+            # Simple cost model per 1M tokens
+            model_name = self.model.lower()
+            if "opus" in model_name:
+                cost = (in_tok / 1_000_000) * 15.0 + (out_tok / 1_000_000) * 75.0
+            elif "sonnet" in model_name:
+                cost = (in_tok / 1_000_000) * 3.0 + (out_tok / 1_000_000) * 15.0
+            else:
+                cost = (in_tok / 1_000_000) * 1.0 + (out_tok / 1_000_000) * 5.0
+                
+            self.memory.log_cost(cost)
+            
             logger.info(
                 f"[{self.AGENT_ID}] ← {len(content)} chars | "
-                f"tokens: {in_tok} in / {out_tok} out (model: {self.model})"
+                f"tokens: {in_tok} in / {out_tok} out | cost: ${cost:.4f} (model: {self.model})"
             )
         else:
             logger.debug(f"[{self.AGENT_ID}] ← {len(content)} chars")
@@ -112,6 +124,14 @@ class BaseAgent(ABC):
             msg_type="escalation",
             payload={"question": question, "context": context or {}},
         )
+
+    def reflect(self, milestone: str, context: dict) -> str:
+        """Have the agent reflect on the recent tasks and store learnings."""
+        system_msg = "You are a professional architectural agent. Reflect on what went well and what could be improved in this recent milestone, given the context. Keep it short (2-3 sentences)."
+        logger.info(f"[{self.AGENT_ID}] Reflecting on milestone {milestone}...")
+        reflection = self.chat(system_msg, [{"role": "user", "content": str(context)}], max_tokens=150)
+        self.memory.log_reflection(self.AGENT_ID, milestone, reflection)
+        return reflection
 
     @abstractmethod
     def run(self, inputs: dict) -> dict:

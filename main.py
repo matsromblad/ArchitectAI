@@ -100,6 +100,32 @@ def main():
             logger.error(f"[qa-subprocess] Error: {e}")
             return {"verdict": "REJECTED", "issues": [str(e)]}
 
+    def milestone_gate(memory, milestone_name: str, reflecting_agents: list, context_data: dict, schemas: list):
+        cost = memory.state.get("total_cost_usd", 0.0)
+        console.print(Panel(
+            Text.assemble(
+                (f"Milestone: {milestone_name}\n", "bold cyan"),
+                (f"Cost so far: ${cost:.3f}\n", "bold green"),
+                (f"Outputs: {', '.join(schemas)}", "white"),
+            ),
+            title="🛑 Milestone Reached", border_style="cyan"
+        ))
+        
+        # Agent reflection
+        if reflecting_agents:
+            console.print("[dim]Agents are reflecting on their work...[/dim]")
+            for agent in reflecting_agents:
+                try:
+                    agent.reflect(milestone_name, context_data)
+                except Exception as e:
+                    logger.warning(f"Reflection failed for {agent.AGENT_ID}: {e}")
+                    
+        # Pause for Human-in-the-loop
+        console.print("[bold yellow]System paused for human review.[/bold yellow]")
+        input(f"Press [ENTER] to approve {milestone_name} and continue...")
+        memory.approve_milestone(milestone_name, "Approved via CLI")
+        console.print(f"[green]✓ {milestone_name} Approved[/green]\n")
+
     # Initialize project memory
     memory = ProjectMemory(project_id=args.project_id, base_dir=args.projects_dir)
     logger.info(f"Project memory initialized at: {memory.root}")
@@ -191,6 +217,12 @@ def main():
     else:
         summary_txt = "completed"
     console.print(f"[green]✓ Compliance: {summary_txt}[/green]")
+    
+    # --- MILESTONE 1 (M1) ---
+    milestone_gate(memory, "M1", 
+                   reflecting_agents=[brief, compliance], 
+                   context_data={"room_program": room_program, "compliance": comp_results},
+                   schemas=["site_data.json", "room_program.json", "compliance_brief.json"])
 
     # ---- PHASE 5: Architect Agent — spatial layout (with retry) ----
     console.print("\n[bold]Phase 5: Architect laying out rooms...[/bold]")
@@ -236,6 +268,12 @@ def main():
             console.print(f"[{color2}]  Layout QA {layout_verdict} — retry with feedback[/{color2}]")
             if attempt == MAX_RETRIES:
                 console.print("[yellow]  Max retries reached — proceeding with best attempt[/yellow]")
+
+    # --- MILESTONE 2 (M2) ---
+    milestone_gate(memory, "M2", 
+                   reflecting_agents=[architect], 
+                   context_data={"spatial_layout": spatial_layout, "qa_feedback": layout_qa_feedback},
+                   schemas=["spatial_layout.json"])
 
     # ---- PHASE 6: Structural Agent ----
     console.print("\n[bold]Phase 6: Structural Agent proposing grid...[/bold]")
@@ -314,10 +352,18 @@ def main():
     })
     console.print(f"[green]✓ IFC Model generated: {ifc_result.get('entity_count', 0)} entities ({ifc_path.name})[/green]")
 
-    # ---- PHASE 9: Milestone M1 Approval ----
+    # --- MILESTONE 3 & 4/5 (M3-M5) ---
+    # Simplified here to just approve M3 and M5 at the end, along with reflections for structural and MEP.
+    milestone_gate(memory, "M3", 
+                   reflecting_agents=[structural, mep], 
+                   context_data={"structural": structural_schema, "mep": mep_schema},
+                   schemas=["structural_schema.json", "mep_schema.json"])
+
+    # ---- PHASE 9: Final Approval ----
     memory.update_phase("complete")
-    memory.approve_milestone("M1", notes=f"Pipeline completed structure, MEP and IFC output. File: {ifc_path.name}")
-    console.print("\n[bold]Phase 9: Milestone M1 Approved[/bold]")
+    memory.approve_milestone("M4", notes="IFC Base Model generated")
+    memory.approve_milestone("M5", notes=f"Final export approved: {ifc_path.name}")
+    console.print("\n[bold]Phase 9: Project milestones all approved[/bold]")
 
     # ---- Summary ----
     console.print(Panel(

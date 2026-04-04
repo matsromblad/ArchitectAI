@@ -167,6 +167,7 @@ else:
                 "milestones": summary.get("milestones", {}),
                 "jurisdiction": summary.get("jurisdiction"),
                 "building_type": summary.get("building_type"),
+                "total_cost_usd": summary.get("total_cost_usd", 0.0),
                 "timestamp": _now_iso(),
             }
         except Exception as exc:
