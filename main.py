@@ -53,13 +53,15 @@ def main():
     ))
 
     # Import here to avoid slow startup if just checking --help
-    from src.memory.project_memory import ProjectMemory
     from src.agents.pm_agent import PMAgent
     from src.agents.input_parser import InputParserAgent
     from src.agents.client_agent import ClientAgent
     from src.agents.brief_agent import BriefAgent
     from src.agents.compliance_agent import ComplianceAgent
     from src.agents.qa_agent import QAAgent
+    from src.agents.structural_agent import StructuralAgent
+    from src.agents.mep_agent import MEPAgent
+    from src.agents.ifc_builder_agent import IFCBuilderAgent
     import subprocess, json as _json
 
     def run_qa(schema_type, schema_data, version, prior_rejections, timeout=90):
@@ -181,6 +183,15 @@ def main():
     pm_decision = pm.kickoff(args.prompt, site_data, args.jurisdiction)
     console.print(f"[green]✓ PM decision: {pm_decision.get('action', '?')}[/green]")
 
+    # ---- PHASE 4: Compliance Validation ----
+    console.print("\n[bold]Phase 4: Compliance Validation of Room Program...[/bold]")
+    comp_results = compliance.check_room_program(room_program)
+    if "summary" in comp_results:
+        summary_txt = f"{comp_results['summary'].get('pass', 0)} pass, {comp_results['summary'].get('fail', 0)} fail, {comp_results['summary'].get('conditional', 0)} cond, {comp_results['summary'].get('unknown', 0)} unknown"
+    else:
+        summary_txt = "completed"
+    console.print(f"[green]✓ Compliance: {summary_txt}[/green]")
+
     # ---- PHASE 5: Architect Agent — spatial layout (with retry) ----
     console.print("\n[bold]Phase 5: Architect laying out rooms...[/bold]")
     from src.agents.architect_agent import ArchitectAgent
@@ -226,6 +237,88 @@ def main():
             if attempt == MAX_RETRIES:
                 console.print("[yellow]  Max retries reached — proceeding with best attempt[/yellow]")
 
+    # ---- PHASE 6: Structural Agent ----
+    console.print("\n[bold]Phase 6: Structural Agent proposing grid...[/bold]")
+    structural = StructuralAgent(memory)
+    structural_schema = None
+    struct_qa_feedback = None
+    struct_verdict = "?"
+    
+    for attempt in range(MAX_RETRIES + 1):
+        structural_schema = structural.run({
+            "spatial_layout": spatial_layout,
+            "qa_feedback": struct_qa_feedback,
+        })
+        
+        qa_struct_verdict = run_qa("structural_schema", structural_schema, f"v{attempt+1}", attempt)
+        struct_verdict = qa_struct_verdict.get("verdict", "?")
+        
+        if struct_verdict == "APPROVED":
+            console.print("[green]✓ Structural QA: APPROVED[/green]")
+            break
+        elif struct_verdict == "CONDITIONAL" and attempt >= 1:
+            console.print("[yellow]✓ Structural QA: CONDITIONAL — proceeding[/yellow]")
+            break
+        else:
+            issues = qa_struct_verdict.get("issues", [])
+            struct_qa_feedback = qa_struct_verdict.get("fix_instructions") or "; ".join(issues[:3])
+            color = "yellow" if struct_verdict == "CONDITIONAL" else "red"
+            console.print(f"[{color}]  Structural QA {struct_verdict} — retry with feedback[/{color}]")
+            if attempt == MAX_RETRIES:
+                console.print("[yellow]  Max retries reached — proceeding with best attempt[/yellow]")
+
+    # ---- PHASE 7: MEP Agent ----
+    console.print("\n[bold]Phase 7: MEP Agent designing systems...[/bold]")
+    mep = MEPAgent(memory)
+    mep_schema = None
+    mep_qa_feedback = None
+    mep_verdict = "?"
+    
+    for attempt in range(MAX_RETRIES + 1):
+        mep_schema = mep.run({
+            "spatial_layout": spatial_layout,
+            "structural_schema": structural_schema,
+            "qa_feedback": mep_qa_feedback,
+        })
+        
+        qa_mep_verdict = run_qa("mep_schema", mep_schema, f"v{attempt+1}", attempt)
+        mep_verdict = qa_mep_verdict.get("verdict", "?")
+        
+        if mep_verdict == "APPROVED":
+            console.print("[green]✓ MEP QA: APPROVED[/green]")
+            break
+        elif mep_verdict == "CONDITIONAL" and attempt >= 1:
+            console.print("[yellow]✓ MEP QA: CONDITIONAL — proceeding[/yellow]")
+            break
+        else:
+            issues = qa_mep_verdict.get("issues", [])
+            mep_qa_feedback = qa_mep_verdict.get("fix_instructions") or "; ".join(issues[:3])
+            color = "yellow" if mep_verdict == "CONDITIONAL" else "red"
+            console.print(f"[{color}]  MEP QA {mep_verdict} — retry with feedback[/{color}]")
+            if attempt == MAX_RETRIES:
+                console.print("[yellow]  Max retries reached — proceeding with best attempt[/yellow]")
+
+    # ---- PHASE 8: IFC Builder Agent ----
+    console.print("\n[bold]Phase 8: IFC Builder generating model...[/bold]")
+    ifc_builder = IFCBuilderAgent(memory)
+    
+    output_dir = Path(args.projects_dir) / args.project_id / "outputs"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    ifc_path = output_dir / "model_M1.ifc"
+    
+    ifc_result = ifc_builder.run({
+        "spatial_layout": spatial_layout,
+        "structural_schema": structural_schema,
+        "mep_schema": mep_schema,
+        "output_path": str(ifc_path),
+    })
+    console.print(f"[green]✓ IFC Model generated: {ifc_result.get('entity_count', 0)} entities ({ifc_path.name})[/green]")
+
+    # ---- PHASE 9: Milestone M1 Approval ----
+    memory.update_phase("complete")
+    memory.approve_milestone("M1", notes=f"Pipeline completed structure, MEP and IFC output. File: {ifc_path.name}")
+    console.print("\n[bold]Phase 9: Milestone M1 Approved[/bold]")
+
     # ---- Summary ----
     console.print(Panel(
         Text.assemble(
@@ -233,13 +326,15 @@ def main():
             (f"Phase: {memory.state['phase']}\n", "cyan"),
             (f"Files saved to: {memory.root}\n", "green"),
             (f"Room program QA: {verdict}\n", "bold"),
-            (f"Layout QA: {layout_verdict}", "bold"),
+            (f"Layout QA: {layout_verdict}\n", "bold"),
+            (f"Structural QA: {struct_verdict}\n", "bold"),
+            (f"MEP QA: {mep_verdict}", "bold"),
         ),
-        title="✅ Phase 1–2 Complete",
-        border_style="green" if layout_verdict == "APPROVED" else "yellow",
+        title="✅ Pipeline end-to-end Complete",
+        border_style="green" if all(v in ("APPROVED", "CONDITIONAL") for v in (verdict, layout_verdict, struct_verdict, mep_verdict)) else "yellow",
     ))
 
-    console.print("\n[dim]Next steps: run dashboard/server.py to see live state in browser[/dim]")
+    console.print("\n[dim]Next steps: run src/server/ws_server.py to see live state in browser[/dim]")
 
 
 if __name__ == "__main__":

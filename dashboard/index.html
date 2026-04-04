@@ -381,6 +381,9 @@
     <div class="subtitle">Multi-Agent Building Design System — Live Simulation</div>
   </div>
   <div style="display:flex;align-items:center;gap:14px;">
+    <select id="projectSelector" style="background:#21262D; color:#8B949E; border:1px solid #30363D; border-radius:3px; padding:3px; font-size:10px; font-family:'Courier New', monospace; outline:none;">
+      <option value="">-- select project --</option>
+    </select>
     <div id="wsStatus" class="ws-status ws-disconnected" title="WebSocket connection status"><span class="ws-dot ws-sim"></span>SIM</div>
     <div class="milestone-bar" id="milestoneBar"></div>
   </div>
@@ -1433,6 +1436,30 @@ function renderAgentCards() {
     }
   }
 
+  async function loadProjects() {
+    try {
+      const res = await fetch('http://localhost:8765/projects');
+      if (!res.ok) return;
+      const data = await res.json();
+      const sel = document.getElementById('projectSelector');
+      if (data.projects && data.projects.length > 0) {
+        sel.innerHTML = data.projects.map(p => `<option value="${p}">${p}</option>`).join('');
+        if (data.projects.includes(PROJECT_ID)) {
+          sel.value = PROJECT_ID;
+        } else if (!params.get('project')) {
+          // If no project specified, redirect to the first available project
+          window.location.href = `?project=${data.projects[0]}`;
+        }
+        sel.addEventListener('change', (e) => {
+          window.location.href = `?project=${e.target.value}`;
+        });
+      }
+    } catch (err) {
+      console.log("[dashboard] Could not load projects API");
+    }
+  }
+
+  loadProjects();
   connect();
 })();
 

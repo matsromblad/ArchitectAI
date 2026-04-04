@@ -23,6 +23,7 @@ try:
     from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
     from fastapi.responses import FileResponse, JSONResponse
     from fastapi.staticfiles import StaticFiles
+    from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
     import uvicorn
     _FASTAPI_AVAILABLE = True
@@ -69,6 +70,14 @@ if not _FASTAPI_AVAILABLE:
     app = None  # type: ignore
 else:
     app = FastAPI(title="ArchitectAI Dashboard Server", version="1.0.0")
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     # ------------------------------------------------------------------ #
     # Connection manager                                                   #
@@ -297,6 +306,17 @@ else:
     async def get_state(project_id: str):
         """Return the current project state as JSON (for polling clients)."""
         return _build_state_broadcast(project_id)
+
+    @app.get("/projects")
+    async def list_projects():
+        """List available project directories."""
+        projects_dir = Path(PROJECTS_DIR)
+        projects = []
+        if projects_dir.exists():
+            for d in projects_dir.iterdir():
+                if d.is_dir() and (d / "state.json").exists():
+                    projects.append(d.name)
+        return {"projects": projects}
 
     # ------------------------------------------------------------------ #
     # Approval file helper                                                 #
