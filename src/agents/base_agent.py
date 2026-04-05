@@ -26,7 +26,7 @@ from src.memory.project_memory import ProjectMemory
 
 _GATEWAY_URL   = os.getenv("OLLAMA_URL",   "http://127.0.0.1:11434")
 _GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN", "dummy")
-_OPENCLAW_MODEL = os.getenv("OPENCLAW_MODEL",        "glm-4.7-flash:latest")
+_OLLAMA_MODEL  = os.getenv("OLLAMA_MODEL", "gemma")
 
 
 class BaseAgent(ABC):
@@ -51,7 +51,7 @@ class BaseAgent(ABC):
             base_url=f"{_GATEWAY_URL}/v1",
             api_key=_GATEWAY_TOKEN or "dummy",
         )
-        logger.info(f"[{self.AGENT_ID}] Initialized → Ollama ({_GATEWAY_URL}) model: {_OPENCLAW_MODEL}")
+        logger.info(f"[{self.AGENT_ID}] Initialized → Model pref: {self.model} (Ollama fallback: {_OLLAMA_MODEL})")
 
     def chat(
         self,
@@ -60,18 +60,54 @@ class BaseAgent(ABC):
         max_tokens: int = 4096,
         temperature: float = 0.2,
     ) -> str:
-        """Send a chat request via OpenClaw gateway. Returns the text response."""
-        logger.debug(f"[{self.AGENT_ID}] → gateway ({_OPENCLAW_MODEL}), {len(messages)} messages")
+        """Send a chat request. If model is Claude, tries OpenClaw first, then falls back to Ollama."""
+        
+        # 1. Try OpenClaw if model is Claude
+        if self.model.startswith("claude"):
+            try:
+                openclaw_url = os.getenv("OPENCLAW_GATEWAY_URL", "http://127.0.0.1:18789")
+                # Fallback to the known user hardcoded token if missing
+                openclaw_token = os.getenv("OPENCLAW_GATEWAY_TOKEN", "cab520cf9a791d18bb18246f58e8dc8e89624944f3915e5c")
+                
+                openclaw_client = OpenAI(
+                    base_url=f"{openclaw_url}/v1",
+                    api_key=openclaw_token,
+                )
+                logger.debug(f"[{self.AGENT_ID}] → OpenClaw API ({self.model})")
+                
+                full_messages = [{"role": "system", "content": system}] + messages
+                
+                response = openclaw_client.chat.completions.create(
+                    model="openclaw",
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    messages=full_messages,
+                    extra_headers={"x-openclaw-model": f"anthropic/{self.model}"},
+                )
+                content = response.choices[0].message.content
+                
+                usage = getattr(response, "usage", None)
+                in_tok = getattr(usage, "prompt_tokens", 0) if usage else 0
+                out_tok = getattr(usage, "completion_tokens", 0) if usage else 0
+                
+                cost = (in_tok / 1_000_000) * 15.0 + (out_tok / 1_000_000) * 75.0
+                self.memory.log_cost(cost)
+                logger.info(f"[{self.AGENT_ID}] ← {len(content)} chars | tokens: {in_tok} in / {out_tok} out | cost: ${cost:.4f} (OpenClaw: {self.model})")
+                return content
+            except Exception as e:
+                logger.warning(f"[{self.AGENT_ID}] OpenClaw failed: {e}. Falling back to Ollama.")
+
+        # 2. Ollama Request (Default or Fallback)
+        logger.debug(f"[{self.AGENT_ID}] → Ollama ({_OLLAMA_MODEL}), {len(messages)} messages")
 
         # Prepend system message as OpenAI-style system role
         full_messages = [{"role": "system", "content": system}] + messages
 
         response = self.client.chat.completions.create(
-            model=_OPENCLAW_MODEL,
+            model=_OLLAMA_MODEL,
             max_tokens=max_tokens,
             temperature=temperature,
             messages=full_messages,
-            extra_headers={"x-openclaw-model": f"anthropic/{self.model}"},
         )
         content = response.choices[0].message.content
 
