@@ -342,6 +342,14 @@ else:
             _process_logs[project_id].append(text)
             if len(_process_logs[project_id]) > 200:
                 _process_logs[project_id].pop(0)
+                
+            # Stream directly to dashboard without waiting for watchfiles
+            if manager.count(project_id) > 0:
+                try:
+                    payload = _build_state_broadcast(project_id)
+                    await manager.broadcast(project_id, payload)
+                except Exception as e:
+                    logger.debug(f"[_read_stream] broadcast failed: {e}")
 
     class LaunchPayload(BaseModel):
         projectName: str
@@ -356,11 +364,14 @@ else:
         """Stub for launching a project from the Web UI."""
         project_id = payload.projectName.lower().replace(" ", "-")
         
-        # We need a dummy site file if none uploaded
-        site_file = "inputs/floorplan.png"
+        # We need a fallback site file since the web ui currently simulates uploads
+        site_file = "inputs/site-plan-simple.png"
+        cwd = Path(__file__).parent.parent.parent
+        
         if payload.siteDrawings and len(payload.siteDrawings) > 0:
-            # In a real app we'd upload the file; here we just fake the path
-            site_file = f"inputs/{payload.siteDrawings[0].get('name', 'floorplan.png')}"
+            requested = f"inputs/{payload.siteDrawings[0].get('name', '')}"
+            if (cwd / requested).exists():
+                site_file = requested
             
         cmd = [
             sys.executable, "main.py",
