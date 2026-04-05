@@ -14,8 +14,12 @@ Endpoints:
 import asyncio
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Any
+
+# Ensure project root is in PYTHONPATH so 'src' imports work when run as script
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from loguru import logger
 
@@ -170,6 +174,7 @@ else:
                 "jurisdiction": summary.get("jurisdiction"),
                 "building_type": summary.get("building_type"),
                 "total_cost_usd": summary.get("total_cost_usd", 0.0),
+                "console_output": _process_logs.get(project_id, []),
                 "timestamp": _now_iso(),
             }
         except Exception as exc:
@@ -321,6 +326,21 @@ else:
                     projects.append(d.name)
         return {"projects": projects}
 
+    _active_processes: dict[str, asyncio.subprocess.Process] = {}
+    _process_logs: dict[str, list[str]] = {}
+
+    async def _read_stream(stream, project_id):
+        while True:
+            line = await stream.readline()
+            if not line:
+                break
+            text = line.decode('utf-8', errors='replace').rstrip()
+            if project_id not in _process_logs:
+                _process_logs[project_id] = []
+            _process_logs[project_id].append(text)
+            if len(_process_logs[project_id]) > 200:
+                _process_logs[project_id].pop(0)
+
     class LaunchPayload(BaseModel):
         projectName: str
         jurisdiction: str
@@ -348,17 +368,41 @@ else:
             "--jurisdiction", payload.jurisdiction
         ]
         
-        # Launch in new console on Windows so human-in-the-loop works
-        creationflags = 0
-        if sys.platform == "win32":
-            creationflags = subprocess.CREATE_NEW_CONSOLE
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
+        env["NO_COLOR"] = "1"
+        env["FORCE_COLOR"] = "0"
             
         try:
             cwd = Path(__file__).parent.parent.parent
-            subprocess.Popen(cmd, cwd=cwd, creationflags=creationflags)
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                cwd=str(cwd),
+                env=env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT,
+                stdin=asyncio.subprocess.PIPE
+            )
+            _active_processes[project_id] = proc
+            _process_logs[project_id] = []
+            asyncio.create_task(_read_stream(proc.stdout, project_id))
+            
             return {"status": "ok", "project_id": project_id}
         except Exception as e:
             logger.error(f"Failed to launch main.py: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+            
+    @app.post("/approve/{project_id}")
+    async def approve_milestone(project_id: str):
+        proc = _active_processes.get(project_id)
+        if not proc or proc.returncode is not None:
+            raise HTTPException(status_code=400, detail="No active process or process already exited.")
+        
+        try:
+            proc.stdin.write(b'\n')
+            await proc.stdin.drain()
+            return {"status": "approved"}
+        except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     # ------------------------------------------------------------------ #

@@ -398,8 +398,8 @@
   <button class="tab" onclick="switchTab('outputs')">📁 OUTPUTS</button>
 </div>
 
-<div id="tab-live" class="tab-content active">
-<div class="main" style="flex:1;display:flex;overflow:hidden;">
+<div id="tab-live" class="tab-content active" style="flex-direction:column;">
+<div class="main" style="flex:1;display:flex;overflow:hidden;min-height:0;">
   <canvas id="worldCanvas"></canvas>
   <div class="sidebar">
     <div class="sidebar-section">
@@ -415,6 +415,13 @@
       <div id="activityLog"></div>
     </div>
   </div>
+</div>
+<div class="terminal-panel" style="height:200px; min-height:200px; background:#0D1117; color:#E6EDF3; font-family:monospace; font-size:11px; border-top:2px solid #30363D; display:flex; flex-direction:column;">
+  <div style="padding:4px 10px; background:#161B22; border-bottom:1px solid #30363D; display:flex; justify-content:space-between; align-items:center;">
+    <span style="color:#7EE787; font-weight:bold;">>_ SYSTEM TERMINAL (LIVE)</span>
+    <button id="btnApprove" disabled style="background:#2EA043; color:white; border:none; border-radius:4px; padding:4px 12px; font-weight:bold; font-size:11px; cursor:not-allowed;" onclick="approveMilestone()">APPROVE MILESTONE</button>
+  </div>
+  <div id="terminalContent" style="flex:1; padding:10px; overflow-y:auto; white-space:pre-wrap; line-height:1.4;"></div>
 </div>
 </div><!-- end tab-live -->
 
@@ -1425,6 +1432,36 @@ function renderAgentCards() {
       if (el) el.textContent = parseFloat(s.total_cost_usd).toFixed(3);
     }
 
+    // Update Terminal
+    if (s.hasOwnProperty('console_output')) {
+      const term = document.getElementById('terminalContent');
+      const atBottom = term.scrollHeight - term.scrollTop - term.clientHeight < 20;
+      
+      const newText = s.console_output.join('\n');
+      if (term.textContent !== newText) {
+         term.textContent = newText;
+         if (atBottom) {
+            term.scrollTop = term.scrollHeight;
+         }
+      }
+      
+      // Determine if waiting for approval
+      const btn = document.getElementById('btnApprove');
+      if (newText.includes('System paused for human review.')) {
+         btn.disabled = false;
+         btn.style.cursor = 'pointer';
+         btn.style.opacity = '1';
+         btn.textContent = '▶ ACTION REQUIRED: APPROVE MILESTONE';
+         btn.style.boxShadow = '0 0 10px rgba(46,160,67,0.8)';
+      } else {
+         btn.disabled = true;
+         btn.style.cursor = 'not-allowed';
+         btn.style.opacity = '0.5';
+         btn.textContent = 'WAITING FOR QUEUE...';
+         btn.style.boxShadow = 'none';
+      }
+    }
+
     // Log the newest incoming message (avoid flooding)
     if (s.recent_messages && s.recent_messages.length > 0) {
       const m = s.recent_messages[0];
@@ -1471,6 +1508,32 @@ function renderAgentCards() {
   loadProjects();
   connect();
 })();
+
+// ============================================================
+// API
+// ============================================================
+async function approveMilestone() {
+  const sel = document.getElementById('projectSelector');
+  if (!sel || !sel.value) return;
+  const project = sel.value;
+  
+  const btn = document.getElementById('btnApprove');
+  btn.textContent = 'APPROVING...';
+  btn.disabled = true;
+  
+  let origin = window.location.origin;
+  if (origin === 'null' || origin.includes('file://')) {
+    origin = 'http://127.0.0.1:8765';
+  }
+  
+  try {
+    const res = await fetch(`${origin}/approve/${project}`, { method: 'POST' });
+    if (!res.ok) alert('Failed to approve milestone');
+  } catch (e) {
+    alert('Network error: ' + e);
+  }
+}
+
 
 // ============================================================
 // INIT
