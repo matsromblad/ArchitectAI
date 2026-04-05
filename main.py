@@ -29,10 +29,9 @@ def main():
     parser.add_argument("--projects-dir",default="./projects", help="Root directory for project storage")
     args = parser.parse_args()
 
-    # Validate API key
+    # Make sure we have a fallback key so anthropic SDK doesn't crash if we ever use it
     if not os.getenv("ANTHROPIC_API_KEY"):
-        console.print("[red]Error: ANTHROPIC_API_KEY not set. Copy .env.example to .env and add your key.[/red]")
-        sys.exit(1)
+        os.environ["ANTHROPIC_API_KEY"] = "dummy_for_local_models"
 
     # Validate site file
     site_file = Path(args.site_file)

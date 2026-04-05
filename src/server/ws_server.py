@@ -71,6 +71,11 @@ OUTPUT_SCHEMAS = [
 ]
 
 
+# Module-level process tracking (must be before FastAPI app block)
+_active_processes: dict = {}
+_process_logs: dict = {}
+
+
 if not _FASTAPI_AVAILABLE:
     # Provide a stub so the module is importable
     app = None  # type: ignore
@@ -326,9 +331,6 @@ else:
                     projects.append(d.name)
         return {"projects": projects}
 
-    _active_processes: dict[str, asyncio.subprocess.Process] = {}
-    _process_logs: dict[str, list[str]] = {}
-
     async def _read_stream(stream, project_id):
         while True:
             line = await stream.readline()
@@ -375,6 +377,7 @@ else:
             
         try:
             cwd = Path(__file__).parent.parent.parent
+            logger.info(f"[ws_server] Launching: {' '.join(cmd)} in {cwd}")
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
                 cwd=str(cwd),
@@ -384,8 +387,9 @@ else:
                 stdin=asyncio.subprocess.PIPE
             )
             _active_processes[project_id] = proc
-            _process_logs[project_id] = []
+            _process_logs[project_id] = [f"[launcher] Process started (pid={proc.pid})"]
             asyncio.create_task(_read_stream(proc.stdout, project_id))
+            logger.info(f"[ws_server] main.py process started, pid={proc.pid}")
             
             return {"status": "ok", "project_id": project_id}
         except Exception as e:
