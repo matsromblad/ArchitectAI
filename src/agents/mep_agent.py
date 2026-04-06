@@ -53,7 +53,7 @@ class MEPAgent(BaseAgent):
     """
 
     AGENT_ID = "mep"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3.1-pro"
 
     # Dynamic system prompt with SE_FIRE and SE_HVAC rules
     def __init__(self, memory, model=None):

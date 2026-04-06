@@ -257,6 +257,10 @@ else:
     if _dashboard_path.exists():
         app.mount("/static",    StaticFiles(directory=str(_dashboard_path)), name="static")
         app.mount("/dashboard", StaticFiles(directory=str(_dashboard_path)), name="dashboard")
+        
+    _website_path = Path(__file__).parent.parent.parent / "website"
+    if _website_path.exists():
+        app.mount("/website", StaticFiles(directory=str(_website_path)), name="website")
 
     @app.websocket("/ws/{project_id}")
     async def websocket_endpoint(websocket: WebSocket, project_id: str):
@@ -385,6 +389,7 @@ else:
         env["PYTHONUNBUFFERED"] = "1"
         env["NO_COLOR"] = "1"
         env["FORCE_COLOR"] = "0"
+        env["PYTHONIOENCODING"] = "utf-8"
             
         try:
             cwd = Path(__file__).parent.parent.parent

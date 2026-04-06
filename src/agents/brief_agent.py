@@ -62,7 +62,7 @@ Rules:
 
 class BriefAgent(BaseAgent):
     AGENT_ID = "brief"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3-flash"
 
     # TOKEN-OPT: Patch-based revision threshold.
     # If prior_room_program is available AND qa_feedback is set, use patch mode.

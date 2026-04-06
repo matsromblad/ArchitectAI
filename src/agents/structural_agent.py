@@ -44,7 +44,7 @@ class StructuralAgent(BaseAgent):
     """
 
     AGENT_ID = "structural"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3.1-pro"
 
     # Thresholds that trigger engineering review flags (in mm)
     MAX_SPAN_MM       = 8000   # 8 000 mm = 8 m

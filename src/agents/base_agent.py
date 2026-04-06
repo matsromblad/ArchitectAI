@@ -42,7 +42,7 @@ class BaseAgent(ABC):
 
     # Override in subclass
     AGENT_ID: str = "base"
-    DEFAULT_MODEL: str = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3.1-pro"
 
     def __init__(self, memory: ProjectMemory, model: str = None):
         self.memory = memory
@@ -60,8 +60,49 @@ class BaseAgent(ABC):
         max_tokens: int = 4096,
         temperature: float = 0.2,
     ) -> str:
-        """Send a chat request. If model is Claude, tries OpenClaw first, then falls back to Ollama."""
+        """Send a chat request. If model is Gemini or Claude, routes to them first, then falls back to Ollama."""
         
+        if self.model.startswith("gemini"):
+            try:
+                gemini_key = os.getenv("GEMINI_API_KEY")
+                
+                # Map marketing names to actual API endpoints
+                api_model_name = self.model
+                if "3.1-pro" in self.model:
+                    api_model_name = "gemini-1.5-pro-latest"
+                elif "3-flash" in self.model:
+                    api_model_name = "gemini-1.5-flash-latest"
+                    
+                if gemini_key and gemini_key != "dummy":
+                    gemini_client = OpenAI(
+                        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+                        api_key=gemini_key,
+                    )
+                    logger.debug(f"[{self.AGENT_ID}] → Google Gemini API ({self.model} mapping to {api_model_name})")
+                    
+                    full_messages = [{"role": "system", "content": system}] + messages
+                    response = gemini_client.chat.completions.create(
+                        model=api_model_name,
+                        max_tokens=max_tokens,
+                        temperature=temperature,
+                        messages=full_messages,
+                    )
+                    content = response.choices[0].message.content
+                    
+                    usage = getattr(response, "usage", None)
+                    in_tok = getattr(usage, "prompt_tokens", 0) if usage else 0
+                    out_tok = getattr(usage, "completion_tokens", 0) if usage else 0
+                    
+                    # Rough cost tracking for Gemini 1.5 (varies by context length)
+                    cost = (in_tok / 1_000_000) * 1.25 + (out_tok / 1_000_000) * 5.00
+                    self.memory.log_cost(cost)
+                    logger.info(f"[{self.AGENT_ID}] ← {len(content)} chars | tokens: {in_tok} in / {out_tok} out | cost: ${cost:.4f} (Gemini: {self.model})")
+                    return content
+                else:
+                    logger.warning(f"[{self.AGENT_ID}] No valid GEMINI_API_KEY found, falling back to Ollama.")
+            except Exception as e:
+                logger.warning(f"[{self.AGENT_ID}] Gemini API failed: {e}. Falling back to Ollama.")
+                
         # 1. Try OpenClaw if model is Claude
         if self.model.startswith("claude"):
             try:

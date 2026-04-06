@@ -33,7 +33,7 @@ Output format: strict JSON only, no prose, no markdown.
 
 class InputParserAgent(BaseAgent):
     AGENT_ID = "input_parser"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3-flash"
 
     def run(self, inputs: dict) -> dict:
         """

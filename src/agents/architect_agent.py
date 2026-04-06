@@ -12,7 +12,7 @@ from src.tools.se_dimensions import SE, snap_mm
 
 class ArchitectAgent(BaseAgent):
     AGENT_ID = "architect"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3.1-pro"
 
     # Words that indicate a room is really a corridor — filter from rooms array
     CORRIDOR_KEYWORDS = {"corridor", "gang", "korridor", "hallway", "circulation",

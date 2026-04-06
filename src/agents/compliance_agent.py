@@ -23,6 +23,7 @@ You are the Compliance Agent for ArchitectAI, a multi-agent building design syst
 
 You are the ONLY agent with jurisdiction-specific regulatory knowledge. You are the expert on:
 - Building codes (BBR in Sweden, UAE Civil Defence codes, etc.)
+- Swedish PTS (Program för Teknisk Standard) for regional healthcare facilities.
 - Healthcare facility standards (Socialstyrelsen SOSFS in SE, JCI internationally)
 - Fire safety regulations
 - Accessibility standards (ADA, EN 17210)
@@ -62,7 +63,7 @@ Output format:
 
 class ComplianceAgent(BaseAgent):
     AGENT_ID = "compliance"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3-flash"
 
     def __init__(self, memory, model=None):
         super().__init__(memory, model)

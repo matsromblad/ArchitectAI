@@ -41,7 +41,7 @@ def main():
 
     console.print(Panel(
         Text.assemble(
-            ("⬛ ARCHITECTAI\n", "bold yellow"),
+            ("+ AI NIGHTINGALE\n", "bold yellow"),
             (f"Project: {args.project_id}\n", "white"),
             (f"Prompt:  {args.prompt[:80]}\n", "cyan"),
             (f"Site:    {site_file.name}\n", "green"),
@@ -52,6 +52,7 @@ def main():
     ))
 
     # Import here to avoid slow startup if just checking --help
+    from src.memory.project_memory import ProjectMemory
     from src.agents.pm_agent import PMAgent
     from src.agents.input_parser import InputParserAgent
     from src.agents.client_agent import ClientAgent

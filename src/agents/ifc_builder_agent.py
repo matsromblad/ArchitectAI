@@ -51,7 +51,7 @@ class IFCBuilderAgent(BaseAgent):
     """
 
     AGENT_ID = "ifc_builder"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3.1-pro"
 
     def run(self, inputs: dict) -> dict:
         """

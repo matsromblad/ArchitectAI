@@ -48,7 +48,7 @@ class ComponentLibraryAgent(BaseAgent):
     """
 
     AGENT_ID = "component_library"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3-flash"
 
     def __init__(self, memory, model: str = None):
         super().__init__(memory, model)
