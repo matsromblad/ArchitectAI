@@ -13,8 +13,9 @@ build/
 # Environment
 .env
 
-# Project data (large files, personal data)
+# Project data (large files, generated artifacts)
 projects/*/
+compliance_kb/vector_index/
 compliance_kb/*/chroma/
 *.ifc
 
