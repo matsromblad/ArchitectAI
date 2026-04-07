@@ -77,23 +77,37 @@ class ComplianceAgent(BaseAgent):
     def __init__(self, memory, model=None):
         super().__init__(memory, model)
         self.kb_dir = Path(os.getenv("COMPLIANCE_KB_DIR", "./compliance_kb"))
-        
-        # Load KB documents
+
+        # Load KB documents and store strings on self so run() can use them
+        # per-call when the building_type changes the SE rule blocks.
         kb_loader = get_loader()
         kb_docs = kb_loader.get_documents_for_agent("compliance")
-        
-        # Build system prompt with deterministic SE rule blocks + KB context
-        kb_tekniska = kb_docs.get("tekniska_krav", "")[:2500] if kb_docs.get("tekniska_krav") else ""
-        kb_miljö = kb_docs.get("miljokrav", "")[:1500] if kb_docs.get("miljokrav") else ""
-        kb_fire = kb_docs.get("brand", "")[:2000] if kb_docs.get("brand") else ""
-        
+
+        # Store KB strings — use the new larger limits from kb_loader
+        self._kb_tekniska = (
+            f"**TEKNISKA KRAV (Technical Requirements):**\n"
+            + kb_docs["tekniska_krav"][:10_000]
+            if kb_docs.get("tekniska_krav") else ""
+        )
+        self._kb_miljokrav = (
+            f"**MILJÖKRAV (Environmental Requirements):**\n"
+            + kb_docs["miljokrav"][:5_000]
+            if kb_docs.get("miljokrav") else ""
+        )
+        self._kb_brand = (
+            f"**BRAND (Fire Safety):**\n"
+            + kb_docs["brand"][:6_000]
+            if kb_docs.get("brand") else ""
+        )
+
+        # Pre-build default prompt (healthcare / no specific building_type yet)
         self._sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
             se_fire_block=SE_FIRE.prompt_block(),
             hvac_block=SE_HVAC.prompt_block(),
             lighting_block=SE_LIGHTING.prompt_block(),
-            kb_tekniska_krav=f"**TEKNISKA KRAV (Technical Requirements):**\n{kb_tekniska}" if kb_tekniska else "",
-            kb_miljokrav=f"**MILJÖKRAV (Environmental Requirements):**\n{kb_miljö}" if kb_miljö else "",
-            kb_brand=f"**BRAND (Fire Safety):**\n{kb_fire}" if kb_fire else "",
+            kb_tekniska_krav=self._kb_tekniska,
+            kb_miljokrav=self._kb_miljokrav,
+            kb_brand=self._kb_brand,
         )
 
     def run(self, inputs: dict) -> dict:
@@ -123,11 +137,16 @@ class ComplianceAgent(BaseAgent):
             "task": f"Compliance check: {query[:60]}",
         })
 
-        # Optionally rebuild prompt with building-type-specific blocks
+        # Rebuild prompt with building-type-specific SE rule blocks + KB context.
+        # Previously this was missing the kb_* variables, causing a KeyError crash
+        # or silently omitting the KB from every live query.
         sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
             se_fire_block=SE_FIRE.prompt_block(building_type),
             hvac_block=SE_HVAC.prompt_block(building_type),
             lighting_block=SE_LIGHTING.prompt_block(building_type),
+            kb_tekniska_krav=self._kb_tekniska,
+            kb_miljokrav=self._kb_miljokrav,
+            kb_brand=self._kb_brand,
         )
 
         kb_context = self._get_kb_context(jurisdiction, building_type, query)

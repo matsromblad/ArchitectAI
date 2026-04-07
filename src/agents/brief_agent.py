@@ -20,6 +20,9 @@ from src.memory.kb_loader import get_loader
 
 
 # Load KB documents for Brief Agent
+# typrum.txt is 339k chars; we load 30k (9%) which covers~30+ room types
+# funktionskrav.txt is 42k chars; we load 10k (24%)
+# Previously these were capped at 5000 and 3000 chars respectively
 _kb_loader = get_loader()
 _kb_context = _kb_loader.get_documents_for_agent("brief")
 
@@ -105,13 +108,23 @@ TYPRUM (Standard Room Types):
 ---
 """
 
-# Build dynamic system prompt with KB context
 def _build_system_prompt():
-    """Build system prompt with KB context."""
-    return SYSTEM_PROMPT.format(
-        funktionskrav=_kb_context.get("funktionskrav", "")[:3000] if _kb_context.get("funktionskrav") else "[Funktionskrav not loaded]",
-        typrum=_kb_context.get("typrum", "")[:5000] if _kb_context.get("typrum") else "[Typrum not loaded]"
-    )
+    """Build system prompt with KB context using larger, centrally-managed limits."""
+    # typrum: 30,000 chars (was 5,000 — now covers ~30+ room types instead of ~3)
+    # funktionskrav: 10,000 chars (was 3,000)
+    typrum_text = _kb_context.get("typrum", "")
+    funk_text   = _kb_context.get("funktionskrav", "")
+
+    typrum_excerpt = typrum_text[:30_000] if typrum_text else "[Typrum not loaded]"
+    funk_excerpt   = funk_text[:10_000]   if funk_text   else "[Funktionskrav not loaded]"
+
+    if len(typrum_text) > 30_000:
+        pct = int(30_000 / len(typrum_text) * 100)
+        typrum_excerpt += (
+            f"\n\n[... Typrum continues — showing first 30,000 of {len(typrum_text):,} chars ({pct}%) ...]"
+        )
+
+    return SYSTEM_PROMPT.format(funktionskrav=funk_excerpt, typrum=typrum_excerpt)
 
 # Build dynamic revision prompt too
 REVISION_SYSTEM_PROMPT_BASE = """You are the Brief Agent for ArchitectAI fixing a QA-rejected room program.

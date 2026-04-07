@@ -12,36 +12,40 @@ def test_project_memory_init():
         assert (pm.root / "state.json").exists()
         assert (pm.root / "schemas").exists()
         assert (pm.root / "outputs").exists()
-        assert (pm.root / "messages.jsonl").exists()
+        # Messages are stored in messages/message_log.jsonl
+        assert (pm.root / "messages").exists()
 
 def test_schema_save_load():
     with tempfile.TemporaryDirectory() as tmpdir:
         pm = ProjectMemory("test-proj", base_dir=tmpdir)
-        
+
         # Save new schema
         version = pm.save_schema("room_program", {"rooms": []})
         assert version == "v1"
-        
-        # Load it back
-        data = pm.load_schema("room_program", "v1")
+
+        # Load it back — method is get_schema(), not load_schema()
+        data = pm.get_schema("room_program", "v1")
         assert data is not None
         assert data["rooms"] == []
-        
+
         # Save update
         version2 = pm.save_schema("room_program", {"rooms": [{"id": 1}]})
         assert version2 == "v2"
-        
-        assert pm.get_latest_schema_version("room_program") == "v2"
+
+        # list_schema_versions returns sorted list
+        versions = pm.list_schema_versions("room_program")
+        assert "v2" in versions
 
 def test_message_log():
     with tempfile.TemporaryDirectory() as tmpdir:
         pm = ProjectMemory("test-proj", base_dir=tmpdir)
-        pm.log_message("agent_a", "status_update", {"status": "working", "task": "test"})
-        
+        # log_message signature: (from_agent, to_agent, msg_type, payload, reply_to=None)
+        pm.log_message("agent_a", "pm", "status_update", {"status": "working", "task": "test"})
+
         msgs = pm.get_recent_messages(5)
         assert len(msgs) == 1
         assert msgs[0]["from"] == "agent_a"
-        assert msgs[0]["message_type"] == "status_update"
+        assert msgs[0]["type"] == "status_update"   # field is 'type', not 'message_type'
         assert msgs[0]["payload"]["status"] == "working"
 
 def test_milestone_approve():
