@@ -1,0 +1,592 @@
+
+--- Page 1 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H1-1-5 Förorenad mark
+Aktörer Skede
+Projektledare Förstudie
+Beskrivning
+Byggnation i tidigare bebyggda områden ska bedömas så att marken inte är förorenad från tidigare
+verksamhet.
+Kravvärde
+Kravvärde: Ja
+Skeden: Förstudie
+Redovisning
+Om risk finns för förorenad mark ska tillämplig markundersökning genomföras och redovisas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 1 av 27
+
+--- Page 2 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H1-1-6 Hantering av förorenad mark
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+Om markundersökning visat på förorenad mark ska detta avhjälpas med en sanering.
+Kravvärde
+Kravvärde: Ja
+Skeden: Produktion
+Redovisning
+Redovisa plan för sanering, samt slutdokumentation av densamme.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 2 av 27
+
+--- Page 3 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H1-1-7 Bevara ekosystem
+Aktörer Skede
+Projektledare Förstudie
+Beskrivning
+Projektet ska tillse att bevara ekosystemen och träd, med extra fokus på ekologiskt värdefull natur.
+Platsen kan behöva studeras för att ge förståelse om förhållandena. Det kan röra sig om om
+naturanpassning där geografi, geologi, hydrologi, flora och fauna samt mikroklimat ger underlag för den
+fortsatta planeringen.
+Kravvärde
+Kravvärde: Ja
+Skeden: Förstudie
+Redovisning
+Ett sammanställt PM om hur projektet anpassas till befintligt ekosystem och hur byggnad och infrastruktur
+kan anpassas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 3 av 27
+
+--- Page 4 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H2-1-4 Skydd av yt- och grundvatten
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+Produktionen ska inte påverka yt- eller grundvatten negativt genom grumling eller föroreningar.
+Kravvärde
+Kravvärde: Ja
+Skeden: Produktion
+Redovisning
+Entreprenör ska redovisa rutiner vid spill och läckage och hur yt- och grundvatten ska skyddas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 4 av 27
+
+--- Page 5 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H2-2-1 Handfat
+Aktörer Skede
+Entreprenör Skede ej valt
+Beskrivning
+Handfat skall vara av sjukhustyp
+Uträkning
+Kravvärde
+Kravvärde: Nej
+Skeden: Skede ej valt
+Redovisning
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 5 av 27
+
+--- Page 6 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H2-2-2 Vattenbesparande teknik
+Aktörer Skede
+Entreprenör Skede ej valt
+Beskrivning
+Snålspolande armaturer och WC-stolar ska väljas i xxx
+Ej i befintliga byggnader
+Hygienriktlinjer för vårdlokaler medför att xxx
+T ex återvinna kondensvatten från kylanläggningar.
+Uträkning
+Kravvärde
+Kravvärde: Nej
+Skeden: Skede ej valt
+Redovisning
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 6 av 27
+
+--- Page 7 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H3-2-1 Energianvändning (ej eluppvärmda byggnader)
+Aktörer Skede
+VVS Projektering
+Beskrivning
+Byggnadens årliga energianvändning i kWh/m2, Atemp i förhållande till energikraven i Boverkets
+byggregler. Energianvändningen definieras som energibehov köpt energi inkl. varmvatten, fastighetsel
+men exklusive verksamhetsel.
+Uträkning
+Valt beräkningsprogram ska godkännas av byggherren innan beräkning påbörjas.
+Kravvärde
+Kravvärde: ≤ 60 % av BBR
+Skeden: Projektering
+Redovisning
+Kravuppfyllnad ska redovisas i projektering men krav ska beaktas redan i förstudie.
+Redovisa förutsättningar för beräkning, vilket beräkningsprogram som har använts och vilket företag som
+genomfört beräkningen. Redovisa beskrivning av byggnadens energitekniska egenskaper dvs indata till
+energiberäkning vad gäller klimatskal, stomme, installationer, inneklimat, användning, verksamhetstider,
+geografiskt läge, areor etc. Förslag på mallar och checklistor finns på SVEBY's webbsida.
+Beräkningsresultat som årlig energianvändning enligt BBR's definition i kWh/m2, Atemp med följande
+poster:
+Värme
+Varmvattenberedning inklusive VVC-förluster
+El till en eventuell värmepump för produktion av värme och varmvatten
+El som tillsatsvärme till en eventuell värmepump
+Komfortkyla; el till kylmaskin
+Komfortkyla; fjärrkyla
+Frikyla via bafflar eller liknande
+Fastighetsel
+Övrig fastighetsenergi
+Distributions- och reglerförluster för värme och kyla
+Redovisa resulterande verksamhetsenergi eller hushållsel (ingår dock inte i BBR-redovisningen)
+Värden på brukarindata
+Egenproducerad energi ska särredovisas
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 7 av 27
+
+--- Page 8 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H3-2-5 Värmeeffektbehov
+Aktörer Skede
+VVS Projektering
+Beskrivning
+Max energianvändning vid DVUT och en lufttemperatur på 22 grader.
+Kravvärde
+Kravvärde: ≤ 24 W/m2, Aom
+Skeden: Projektering
+Redovisning
+Kravuppfyllnad ska redovisas i projektering men krav ska beaktas redan i förstudie.
+Byggnadens totala värmeeffektbehov ska redovisas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 8 av 27
+
+--- Page 9 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H3-4-1 Solvärmelast
+Aktörer Skede
+VVS Projektering
+Beskrivning
+Hög inomhustemperatur påverkar såväl arbetsförmåga som patienters välbefinnande. Vi vill begränsa
+övertemperaturer och begränsa effektbehovet för komfortkyla under sommarhalvåret. Solvärmelasten
+(SVL) mäts i W/m2 golvarea.
+Kravvärde
+Kravvärde: ≤ 32 W/m2 golvarea
+Skeden: Projektering
+Redovisning
+Kravuppfyllnad ska redovisas i projektering men krav ska beaktas redan i förstudie.
+Redovisning av följande uppgifter:
+SVL för samtliga kritiska rum.
+Planritning med markering av bedömda kritiska rum för solvärmelast – valet ska motiveras
+kortfattat.
+För varje bedömt rum; beräkningsmetod, förutsättningar och resultat för beräknad SVL.
+Redovisa beräkning/simulering av gsyst
+Handling som visar g-värde på fönsterglas samt typ och g-värde för solskydd.
+Resultat från simulering av inomhustemperatur om SVL överskrids.
+Situationsplan som visar eventuellt skuggande objekt.
+Fasadritningar som visar fönsterstorlekar för bedömda rum.
+Redovisning av U- och LT-värde för fönsterglas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 9 av 27
+
+--- Page 10 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H3-5-3 U-värde för hela byggnadskroppen
+Aktörer Skede
+Projektledare Projektering
+Beskrivning
+Värmeförlusten anges i U-värde och visar hur väl byggnadsdelen isolerar.
+U-värdet ska redovisas för hela byggnadens klimatskal ovan mark, inklusive köldbryggor.
+Kravvärde
+Kravvärde: <0,35 W/(m2·oC)
+Skeden: Projektering
+Redovisning
+Definierat krav gäller som lägsta kravnivå för enskilda delar. Om Um-värde enligt ovan ej uppnås måste
+prestanda för enskilda delar skärpas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 10 av 27
+
+--- Page 11 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H3-6-1 Andel förnybar energi
+Aktörer Skede
+VVS Projektering
+Beskrivning
+Syftet är att minska regionens energibehov och på sikt bli koldioxidneutral. Koldioxidneutral innebär att
+med olika miljövänliga tekniker kompenserar för den koldioxid som huset/byggprocessen genererar.
+Ambitionen är att fastigheten skall producera en del egen energi men också minska koldioxid.
+Kravvärde
+Kravvärde: Ja
+Skeden: Projektering
+Redovisning
+Kravuppfyllnad ska redovisas i projektering men krav ska beaktas redan i förstudie.
+Redovisning av andel egenproducerad energi samt typ av energislag.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 11 av 27
+
+--- Page 12 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H3-6-2 Klimatavtryck
+Aktörer Skede
+Projektledare Projektering
+Beskrivning
+Bildtext: Byggnadens livscykelskeden och informationsmoduler enligt EN 15978, avgränsad till byggskedet
+och modul A1 till A5.
+Koldioxidneutral innebär att med olika miljövänliga tekniker minimera den klimatpåverkan i form av
+utsläpp av växthusgaser som byggnaden/byggprocessen genererar. Genom en hållbar byggprocess ska
+vi minska klimatpåverkan i om- och nybyggnationer. Ett steg närmare koldioxidneutral byggprocess är att
+mäta projektets klimatavtryck, uttryckt i kg koldioxidekvivalenter per m2 (BTA). Mätning av byggnadens
+klimatpåverkan är viktigt för att identifiera vilka delar av byggnaden som har störst påverkan på klimatet.
+Klimatberäkning ska omfatta klimatpåverkan för bärande konstruktioner, klimatskärm och innerväggar.
+Skeden som omfattas i klimatberäkningen är både produkt- och byggproduktionsskedet (dvs modul A1-
+A5 enligt definitioner i EN 15978).
+Uträkning
+Beräkning ska i första hand utgå från EPD:er (byggvarudeklarationer med EPD-klassning) och andra
+hand från generisk data från Boverkets klimatdatabas. Om annan klimatdata används i beräkningen ska
+det rapporteras som ett avsteg, enligt rutiner för avsteg i PTS.
+Klimatberäkning i tidigare skeden kan bygga mer på generiska data medan en slutlig klimatberäkning ska
+innehålla klimatdata med en övervägande del hämtad från EPD:er.
+Kravvärde
+Kravvärde: Ja
+Skeden: Projektering
+Redovisning
+Kravuppfyllnad ska redovisas i projektering men krav ska beaktas redan i förstudie.
+För godkännande ska klimatpåverkan för byggnaden redovisas omfattande byggskedet (modul A1-A5
+enligt EN 15978) för följande byggnadsdelar:
+Bärande konstruktionsdelar
+Klimatskärm
+Innerväggar
+Klimatpåverkan ska redovisas i kg koldioxidekvivalenter per m2 (CO e per A ) vilket kan innebära att
+2 BTA
+mängduppgifter från material behöver räknas om till kg.
+Uppgifter på klimatpåverkan ska i första hand hämtas ifrån tredjepartsgranskade EPD:er och i andra
+hand hämtas från generisk data från Boverkets klimatdatabas. Vid avsteg från detta ska vara tydligt
+redovisat.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 12 av 27
+
+--- Page 13 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H3-6-3 Andel trä i stomme
+Aktörer Skede
+Projektledare Projektering
+Beskrivning
+Att bygga i trä har betydande klimatfördelar då kol binds i konstruktionen under lång tid. Träbyggande ger
+även ekonomiska och sociala vinster, exempelvis genom att bibehålla och skapa sysselsättning lokalt
+och regionalt. 2030 ska länet tydligt kunna visa att mer byggnader har byggts i trä än tidigare.
+Uträkning
+Kravvärde
+Kravvärde: Ja
+Skeden: Projektering
+Redovisning
+Andel trä i stomme ska redovisas.
+Kravuppfyllnad ska redovisas i projektering men krav ska beaktas redan i förstudie.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 13 av 27
+
+--- Page 14 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H3-7-1 Luftläckage klimatskal
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+I projekteringsskedet skall samtliga professioner redovisa riskpunkter, som skall ligga till grund för de
+kontrollpunkter som skall kontrolleras under byggproduktion. Byggherren bör utse en ansvarig som
+sammanställer riskpunkterna, men förslag till kontroll, tex till en checklista. I byggproduktion skall
+entreprenören ta fram checklistor för kontrollpunkterna för riskpunkterna. Tryckprovningar skall ske dels
+sektionsvis och för hela byggnationen. Sektionsvis provtryckning skall genomföras efter genomföringar
+utförts i diffusionspärr, och fönster är på plats, men innan ytbeklädnad. Tryckprovning skall kunna
+användas dels för att i tidigt skede verifiera att tätningar genomförs på rätt sätt men även för att
+säkerställa en bra slutprodukt. Luftläckage q50 genom klimatskärmen får vara maximalt 0,30 l/s m²
+omslutande area vid en tryckdifferens på 50 Pa enligt SS-EN 13829.
+Kravvärde
+Kravvärde: ≤ 0,3 l/(s·m2)
+Skeden: Produktion
+Redovisning
+Redovisning av följande uppgifter:
+Respektive profession skall ta fram riskpunkter, avseende luftläckage.
+Sammanställning av riskpunkter med kontrollförslag.
+Redovisning av checklistor, samt provtryckningsdokument.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 14 av 27
+
+--- Page 15 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H4-1-1 Registrera material (projektering)
+Aktörer Skede
+Projektledare Projektering
+Beskrivning
+Att registrera ingående byggprodukter i ett bedömningssystem är ett sätt att möta BBR-kraven. Att nyttja
+ett sådant system ger ett bättre kunskapsunderlag och en ökad spårbarhet i samband med ändring,
+sanering eller rivning. Projektörer och andra som ansvarar för att välja och beställa byggprodukter inom
+uppdraget ska, innan produkten läggs in i handlingar, kontrollera dess miljöbedömning i miljödatabasen
+Sundahus. Alla valda produkter ska registreras i Sundahus.
+Kravvärde
+Kravvärde: ≥ 80 % A/B-produkter
+Skeden: Projektering
+Redovisning
+Alla byggprodukter ska registreras i Sundahus. 80 % av totala antalet produkter ska vara A eller B-
+klassade. D-klassade produkter ska inte användas. Väljs andra produkter än A och B ska dessa
+motiveras och avvikelsehanteras enligt uppsatta rutiner.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 15 av 27
+
+--- Page 16 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H4-1-2 Registrera material (produktion)
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+Att registrera ingående byggprodukter i ett bedömningssystem är ett sätt att möta BBR-kraven. Att nyttja
+ett sådant system ger ett bättre kunskapsunderlag och en ökad spårbarhet i samband med ändring,
+sanering eller rivning. Entreprenörer, projektörer och andra som ansvarar för att välja och beställa
+byggprodukter inom uppdraget ska innan produkten beställs kontrollera dess miljöbedömning i
+miljödatabasen Sundahus.
+Alla valda produkter ska registreras i Sundahus.
+Kravvärde
+Kravvärde: ≥ 80 % A/B-produkter
+Skeden: Produktion
+Redovisning
+Alla byggprodukter ska registreras i Sundahus. 80 % av totala antalet produkter ska vara A eller B-
+klassade. D-klassade produkter ska inte användas.
+Väljs andra produkter än A och B ska dessa motiveras och avvikelsehanteras enligt uppsatta rutiner.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 16 av 27
+
+--- Page 17 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H4-2-1 Kemikalieförteckning och utbytesprincipen
+Aktörer Skede
+Entreprenör Projektering
+Beskrivning
+Entreprenör ska i största möjliga mån undvika att använda kemiska produkter som innehåller
+utfasningsämnen enligt Kemikalieinspektionens PRIO-verktyg eller enligt REACH kandidatförteckning,
+detta i enlighet med Regionens kemikaliestrategi.
+Kravvärde
+Kravvärde: Ja
+Skeden: Projektering
+Redovisning
+Entreprenör ska vid anmodan av beställare visa upp aktuell kemikalieförteckning och likaså kunna
+uppvisa att produkterna följer kemikaliestrategin. Avvikelser gentemot denna ska aviseras projektledaren
+löpande.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 17 av 27
+
+--- Page 18 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H4-3-2 Byggavfall
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+Bygg- och anläggningsbranschen ger upphov till stor andel av samhällets avfall. Belastningen på klimat
+och miljö behöver minska. Vi ska säkerställa att allt avfall som uppstår inom projektets ramar hanteras på
+ett miljömässigt bra sätt och enligt gällande miljölagstiftning. Byggavfallet ska minst källsorteras enligt
+basnivån för byggproduktion, som finns i Byggföretagen "Resurs- och avfallsriktlinjer vid byggande och
+rivning"
+Entreprenören ska agera enligt branschnorm i denna riktlinje.
+Kravvärde
+Kravvärde: Ja
+Skeden: Produktion
+Redovisning
+Följande skall redovisas:
+- ange namn på person ansvarig för avfallshanteringen på arbetsplatsen, senast på startmöte.
+-upprätta ny eller komplettera befintlig material- och avfallshanteringsplan, så långt möjligt med hänsyn
+taget till olika skeden. Planen ska: Redovisa hur avfall ska sorteras och tas omhand, inklusive rutiner,
+logistik och typer av kärl. Motivera avsteg från basnivå.
+- upprätta beskrivning av avfallshantering i form av kärl och containrar på ritning, t.ex. på APD-plan
+- avfallsmängden skall redovisas månadsvis till projektledaren samt en totalsammanställning efter
+projektet skall redovisas enligt: avfallsslag/ fraktion, avfallskod, bedömd mängd, hantering/ förvaring,
+borttagen mängd, transportör, mottagare, mottagen mängd, verifiering, kommentar.
+- tydlig skyltning av containrar och förvaringsplatser ska finnas
+- vid beställarens anmodan ska entreprenör kunna visa att transportörers och avfallsmottagares tillstånd
+har kontrollerats.
+- transportdokument ska kunna uppvisas, t ex för borttransport av farligt avfall
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 18 av 27
+
+--- Page 19 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H4-3-3 Andel avfall
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+Andelen avfall som sorteras i dessa tre fraktioner: osorterat, brännbart restavfall och deponi ska
+minimeras i enlighet med avfallstrappans steg.
+Kravvärde
+Kravvärde: ≤ 30 % osorterat, brännbart och deponi.
+Skeden: Produktion
+Redovisning
+Löpande redovisa avfallsmängderna till projektledare. När projektet avslutas ska en sammanställning
+redovisas där andelen sorterat, brännbart restavfall och deponi (i % av totala mängden) redovisas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 19 av 27
+
+--- Page 20 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H4-3-5 Återbruk
+Aktörer Skede
+Projektledare Projektering
+Beskrivning
+Bygg- och rivningsavfall är en av samhällets största avfallsströmmar. Men mycket av det avfall som
+genereras håller så hög kvalitet att det kan fortsätta användas. Genom ha en strategi för återbruk i
+projektet blir möjligt att minimera avfallet, öka återbruket och materialåtervinningen.
+För identifiera möjliga återbruk i projektet ska en återbruksinventering göras. I denna inventering ska
+omfatta byggmaterial och inredning som i gränsdragningen ligger på fastighet, (verksamhetsrelaterat
+återbruk kan med fördel inventeras och planeras i PTS modulen PTS Inköp & Gränsdragning).
+Kravvärde
+Kravvärde: Ja
+Skeden: Projektering
+Redovisning
+För godkännande ska en återbruksinventering redovisas för byggmaterial och inredning (ej
+verksamhetsrelaterat) som har potential att återbrukas.
+Det ska tydligt framgå om inventerat material kan återbrukas
+i projektet men på ny plats
+i annat projekt i regionen och om behov av lagerhållning
+på annat sätt och behöver skickas vidare.
+Mängder ska finnas på varje och om mängden är uppskattad ska det anges tydligt. Mängder ska
+redovisas i styck, meter eller kg.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 20 av 27
+
+--- Page 21 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H5-1-1 Tillgång till dagsljus
+Aktörer Skede
+Arkitekt Programarbete
+Beskrivning
+Dagsljus är en viktig faktor för att vårdmiljöer ska upplevas som goda för både patienter och
+vårdpersonal.
+Stadigvarande arbetsplatser som är placerade i fasad har högre krav på dagsljus än de arbetsplatser
+som är placerade i mittenkärna.
+För att mäta tillgodoräknad dagsljus används dagsljusfaktor (DF), som är ett mått på hur ljusstyrkan
+inomhus förhåller sig till ljusstyrkan utomhus.
+Val av rum som ska beräknas och i vilken omfattning görs i samråd med projektledare, eller av denne
+utsedd representant. Val av rum och omfattning ska godkännas av beställaren innan beräkning utförs.
+Uträkning
+Uträkning av dagsljustillgång ska utgå från de metoder som finns hänvisade under indikator 11 Dagsljus i
+Miljöbyggnad 3.0. Avsteg ska rapporteras och motiveras.
+Kravvärde
+Kravvärde: DF ≥ 1,2 % och/eller minst 60 % av utblicksarean
+Skeden: Programarbete
+Redovisning
+För stadigvarande arbetsplatser i fasad ska kravvärde för dagsljusfaktor (DF) vara större än eller lika med
+1,2% (ref. Miljöbyggnad 3.0 Nivå Silver).
+För stadigvarande arbetsplatser i mittenkärna ska ett tillhörande pausrum finnas, som ligger nära
+anslutning till arbetsplatsen, med DF ≥ 1,2% (ref. Miljöbyggnad 3.0 Nivå Silver).
+Simulerad dagsljusfaktor får avvika med max 0,20 %-enheter mot kravet.
+För arbetsplatser med dålig tillgång till dagsljus kan även beräkning av utblicksarea genomföras. Minst 60
+% av utblicksarean (ref. Miljöbyggnad 3.0 Nivå Silver) ska uppfylla utblickskriteriet beskrivet i
+Miljöbyggnad 3.0.
+Uträkning ska följa metodik för uträkning beskrivet i Miljöbyggnad 3.0.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 21 av 27
+
+--- Page 22 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H5-4-1 Mätning av radon
+Aktörer Skede
+Projektledare Förstudie
+Beskrivning
+Innan projektet påbörjas kontrollera om tidigare mätvärden för radon finns alternativt tillse att nya
+mätningar av radon görs. Detta för att ha ett referensvärde att jämföra med senare.
+Kravvärde
+Kravvärde: Ja
+Skeden: Förstudie
+Redovisning
+Redovisa mätvärden.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 22 av 27
+
+--- Page 23 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H5-4-2 Verifiering av radonkrav
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+Entreprenör ska genom mätning säkerställa att uppmätta värden för radon ligger under tillåtna gräns -
+resp referensvärden.
+Kravvärde
+Kravvärde: Ja
+Skeden: Produktion
+Redovisning
+Resultat från mätning av radon ska redovisas. 200 Bq får ej överskridas (se strålskyddsförordning och
+BBR)
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 23 av 27
+
+--- Page 24 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H5-6-1 Fuktsäkerhet
+Aktörer Skede
+Projektledare Projektering
+Beskrivning
+För att säkerställa en fuktsäker byggnad ska fuktprojektering, i relevant omfattning för projektet,
+genomföras. Riskmoment avseende fukt ska sammanställas och åtgärdsförslag för att hantera riskerna
+ska redovisas och arbetas in i handlingarna.
+Om behovet finns ska projekterade handlingar granskas av fuktsakkunnig för att säkerställa att lösningar
+bidrar till en fuktsäker byggnad.
+Resultat av fuktprojektering ska kunna senare i processen användas som ett underlag i entreprenörens
+fuktplan.
+Kravvärde
+Kravvärde: Ja
+Skeden: Projektering
+Redovisning
+Redovisning av riskanalys avseende fuktrisker och åtgärdsförslag under bygg- och
+förvaltningsskedet.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 24 av 27
+
+--- Page 25 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H6-2-3 Långsiktigt hållbara trafiklösningar
+Aktörer Skede
+Projektledare Förstudie
+Beskrivning
+För att säkerställa att projektet bidrar till långsiktigt hållbara trafiklösningar behöver utredningar göras
+tidigt i projektet.
+Utredningar ska svara på hur projektet kan tillse att det finns god tillgång till cykelförvaring, närhet till
+kollektivtrafik samt på vilket sätt det är möjligt att gynna samåkning inom projektet och för brukarna av
+byggnaden. Projektet ska även utreda möjligheten till att gynna alternativa bränslefordon och på vilket
+sätt detta kan genomföras i projektet.
+Kravvärde
+Kravvärde: Ja
+Skeden: Förstudie
+Redovisning
+Redovisning av utredningar på:
+tillgång till cykelförvaring
+tillgång till kollektivtrafik
+strategi för att gynna samåkningsfordon
+strategi för att gynna alternativa bränslefordon
+Om någon av ovanstående punkter inte är tillämpliga för projektet ska detta tydligt motiveras i
+redovisningen.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 25 av 27
+
+--- Page 26 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H7-2-3 Genomförandeplan
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+För att lyckas handlar det om att kontinuerligt driva och följa upp miljöfrågorna genom hela projektet.
+Uträkning
+Kravvärde
+Kravvärde: Nej
+Skeden: Produktion
+Redovisning
+Planen ska visa hur arbetet med kraven är tänkt att göras, genom att t ex ange vilka forum frågorna
+hanteras i och hur ofta. Planen ska visa att det finns en ansvarig för frågorna och planen ska redovisa hur
+uppföljning och dokumentation längs vägen ska ske och hur och till vem det ska avrapporteras. Allt för att
+inte kraven ska tappas bort längs vägen.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 26 av 27
+
+--- Page 27 ---
+Hållbarhet
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+H7-2-4 Miljörond
+Aktörer Skede
+Entreprenör Produktion
+Beskrivning
+Miljöronden är entreprenörens verktyg för att se till att miljökrav och miljöaspekter inte försvinner under
+byggprocessen.
+Uträkning
+Kravvärde
+Kravvärde: Nej
+Skeden: Produktion
+Redovisning
+En plan för miljöronderna ska redovisas. Hur ofta den ska genomföras, vilka som deltar och vilka
+aspekter man avser kontrollera ska framgå av planen.
+Planen tas vid behov fram i samråd med beställaren och ska vara fastställd innan byggstart. Miljöronder
+ska dokumenteras i protokoll och delges beställaren enligt överenskommelse.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 27 av 27

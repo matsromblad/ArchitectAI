@@ -1,0 +1,14 @@
+{
+  "filename": "riktlinje-brand-gaevleborg.pdf",
+  "category": "brand",
+  "type": "fire_safety",
+  "title": "Riktlinje Brand Gävleborg",
+  "description": "Fire safety guidelines for Gävleborg region",
+  "relevant_agents": [
+    "compliance",
+    "architect"
+  ],
+  "extracted_at": "2026-04-07T14:30:39.445512+00:00",
+  "text_file": "brand.txt",
+  "char_count": 33127
+}

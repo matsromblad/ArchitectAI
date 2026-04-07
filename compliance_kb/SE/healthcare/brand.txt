@@ -1,0 +1,397 @@
+
+--- Page 1 ---
+Riktlinje Brand
+Dokumenttyp: Styrdokument Dokument skapat: 2019-12-06
+Version: 1.0 Versionsdatum: 2018-11-27
+Riktlinje Brand
+Upprättat av Upprättat datum Ändrat av Ändrat datum Godkänt av 
+Nationellt brukarråd 2018-11-15 PTS Forums
+Brand Styrelse
+Innehållsförteckning
+.1 .F . a. s.t i.g .h .e .t s. t.e .k .n .i s.k . s. t.r a. t.e .g .i . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .2 . . . . . . . . . . . . . . .
+.1 ..1 . L. ä. s.a .n .v .is .n .i n.g .a .r . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2. . . . . . . . . . . . . . . .
+.1 ..2 . A. l.l m. ä. n. t. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2. . . . . . . . . . . . . . . .
+.1 ..3 . A. v. s. te. g. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2. . . . . . . . . . . . . . . .
+.1 ..4 . B. e. s. k.r i.v .n .in .g . a. v. b. r.a .n .d .s .k y. d. d. e.t . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2. . . . . . . . . . . . . . . .
+.1 ..5 . A. r.b .e .t s. o.r .g a. n. i.s a. t.i o. n. .o c. h. .a .n s. v. a. r.s f.ö .r d. e. l.n .in .g . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2. . . . . . . . . . . . . . . .
+.1 ..6 . F. ö. r.v .a .lt n. i.n .g .d .r i.f t. o. c.h . u. n. d. e.r .h å. l.l . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3. . . . . . . . . . . . . . . .
+.2 .P . r.o .j e. k. t.a .n .v i.s .n .i n. g. a. r. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .3 . . . . . . . . . . . . . . .
+.2 ..1 . P. r.o .j e. k.t e. r.i n. g. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3. . . . . . . . . . . . . . . .
+.2 ..1 .. 1. B. e. s.t ä. l.ln .i n.g . a.v . b.r .a n. d. k.o .n s. u. lt.t j.ä n. s. t .i .p r.o .j e. k.t . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3. . . . . . . . . . . . . . . . .
+.2 ..1 .. 2. D. o. k.u .m . e.n .t a. ti.o .n . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3. . . . . . . . . . . . . . . . .
+.2 ..1 .. 3. G. r.a .n .s k. n. in. g. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3. . . . . . . . . . . . . . . . .
+.2 ..1 .. 4. R. i.t n.i n. g. s.u .n d. e. r.la .g . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3. . . . . . . . . . . . . . . . .
+.2 ..1 .. 5. U. t.r y. m. n. i.n g. s.s .t r.a t.e .g .i f.ö .r .s v. å.r f.l y.t t.a .d e. .p .a t.i e. n.t e. r. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3. . . . . . . . . . . . . . . . .
+.2 ..1 .. 6. F. a. s.a .d .m .a .t e.r i.a .l . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4. . . . . . . . . . . . . . . . .
+.2 ..1 .. 7. M. .ö j.l ig. h. e.t .t i.ll .r ä.d .d .n .in .g .s i.n s. a. ts. e. r. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4. . . . . . . . . . . . . . . . .
+.2 ..1 .. 8. R. o. b. u.s .t h.e .t . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4. . . . . . . . . . . . . . . . .
+.2 ..1 .. 9. K. u. n.s .k .a p. s.å .t e. r.fö .r i.n .g . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.0 . B. r.a n. d. k.r a. v. s. p. r.in .k .le .r . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.1 . B. r.a n. d. k.r a. v. b. r.a .n .d -. o. c.h . u.t r.y .m .n .i n.g .s .la .r m. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.2 . F. r.å n. g. ä.n .g .li g. h.e .t . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.3 . B. r.a n. d. k.r a. v. å. t.e .r in. r.y .m .n .in .g . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.4 . B. r.a n. d. k.r a. v. n. ö. d.b .e .l y.s .n i.n .g . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.5 . H. a. n.t e. r.i n.g . a.v . b.r .a n. d. fa. r.l ig. .v a. r.a . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.6 . I.n s. t.a l.l a.t i.o .n s. u.t r.y .m .m . e. n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.7 . I.s o. le. r.i n. g. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.8 . S. t.y r.n .i n.g .a .r . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6. . . . . . . . . . . . . . . . .
+.2 ..1 .. 1.9 . T. e.k .n .is .k t. b. y.t e. f.a .s .a d. b. e.k .lä .d .n .a d. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7. . . . . . . . . . . . . . . . .
+.2 ..1 .. 2.0 . B. ä.r v. e. r.k . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7. . . . . . . . . . . . . . . . .
+.2 ..2 . B. y. g. g. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7. . . . . . . . . . . . . . . .
+.2 ..2 .. 1. R. i.s k. k. ä.l l.o r. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7. . . . . . . . . . . . . . . . .
+.2 ..2 .. 2. B. r.a .n d. t.ä .t n.i n. g.a .r . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7. . . . . . . . . . . . . . . . .
+.2 ..2 .. 3. M. .ä r.k .n .in .g . a .v . b .r a. n. d.c .e l.l s.g .r ä. n.s .e .r . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7. . . . . . . . . . . . . . . . .
+.2 ..2 .. 4. A. v. s.t ä. n.g .n .in .g . b.r a. n. d.t e. k.n .i s.k . fu. n. k.t i.o .n . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7. . . . . . . . . . . . . . . . .
+.2 ..2 .. 5. B. r.a .n d. f.a .r li.g .a .h .e .ta . a. r.b e. t.e .n . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7. . . . . . . . . . . . . . . . .
+.2 ..2 .. 6. S. a. m. o. r.d .n a. d. .p r.o .v .n i.n .g . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8. . . . . . . . . . . . . . . . .
+.2 ..2 .. 7. P. l.a n. .f ö. r. b .r a. n.d .s .k y. d.d . u. n.d .e .r b. y. g.g .t i.d . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8. . . . . . . . . . . . . . . . .
+.2 ..3 . P. r.o .j e. k.t a. v. s.l u. t. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8. . . . . . . . . . . . . . . .
+.2 ..3 .. 1. R. e. l.a t.i o. n.s .h a. n. d.l i.n .g . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8. . . . . . . . . . . . . . . . .
+.2 ..3 .. 2. I.n .fo .r m. .a t.i o. n. t.i ll. h.y .r e. s.g .ä .s t.e .r . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8. . . . . . . . . . . . . . . . .
+.B .i la. g. o. r. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .8 . . . . . . . . . . . . . . .
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 1 av 8
+
+--- Page 2 ---
+Riktlinje Brand
+Dokumenttyp: Styrdokument Dokument skapat: 2019-12-06
+Version: 1.0 Versionsdatum: 2018-11-27
+1 Fastighetsteknisk strategi
+1.1 Läsanvisningar
+I denna riktlinje anges endast egen ambition, det vill säga krav som ska tillämpas utöver gällande myndig­-
+hetskrav såsom lagar, förordningar, föreskrifter etc. Utöver egen ambition anges även vissa för­tydliganden
+samt rekommendationer av ut­föranden.
+Avsnitt 2 ”Projekt­anvisningar” riktar sig främst till brandkonsulter som arbetar på uppdrag av projektledare,
+byggentre­prenörer och andra som arbetar med om-, till- eller nybyggnationer.
+1.2 Allmänt
+Denna riktlinje är framtagen av alla fastighetsförvaltningar eller motsvarande inom PTS-anslutna
+landsting/regioner och anger en gemensam syn på skälig nivå av byggnadstekniskt brandskydd samt
+brandskyddsarbete i förvaltningsskedet.
+Riktlinjen gäller för samtliga byggnader om inte annat specifikt anges. Riktlinjen ska tillämpas i kombination
+med övriga riktlinjer och objektanknuten byggnadsinformation.
+Vissa krav i riktlinjen berör andra discipliner t ex el, VVS och bygg. I denna riktlinje anges vilken skyddsnivå
+som gäller utifrån brandkrav. Detaljerade krav gällande utformning anges i riktlinje för respektive disciplin. I
+det fall högre krav förekommer i annan handling gäller det högre kravet.
+Det som anges under avsnitt 2 ”Projektanvisningar” gäller ej retroaktivt utan gäller för kommande projekt
+och kommande inhyrning av lokaler.
+Riktlinjen gäller generellt i egna fastigheter och då verksamhet är inhyrd i lokaler med en annan
+fastighetsägare.
+Vid inhyrning av lokaler med annan fastighetsägare gäller ej kraven i ”Bilaga - Förvaltning drift och
+underhåll”. Det är då hyresvärden som ansvarar för förvaltningen. Ansvarsfördelning som anger vad som
+åligger hyresgäst ska dock alltid framgå av gränsdragningslista, se ”Bilaga - Förvaltning drift och underhåll”.
+I övrigt gäller projektanvisningar (avsnitt 2), och krav gällande incidentrapportering vid inhyrning av lokaler
+med annan fastighetsägare.
+Vid inhyrning av lokaler med annan fastighetsägare kan vissa krav i projektanvisningar (avsnitt 2) vara
+svåra att uppnå. De avsteg som görs från föreliggande riktlinje vid inhyrning ska alltid dokumenteras och en
+värdering ska göras innan lokalerna tas i bruk.
+1.3 Avsteg
+Avsteg från föreliggande riktlinje ska alltid motiveras skriftligen i aktuell handling samt ske i enlighet med
+anvisningar från aktuell region/landsting.
+1.4 Beskrivning av brandskyddet
+För varje byggnad eller en grupp av byggnader ska det finnas en brandskyddsdokumentation som
+beskriver brandskyddet. Syftet med att ha en brandskyddsdokumentation för respektive byggnad är att få
+en helhetsbild över hur det byggnadstekniska brandskyddet är utformat, likrikta lösningar, spara tid och
+pengar i projekt samt att få ett mer enhetligt brandskydd inom fastigheterna. Brand-skyddsdokumentationen
+ska dels beskriva det befintliga brandskyddet och dels beskriva egen-ambitioner samt övriga förutsättningar
+och projekteringsanvisningar för framtida ombyggnader/ ändringar.
+Vid ändringar som görs i byggnaden som påverkar brandskyddet ska brandskyddsdokumentationen
+uppdateras med ny information.
+Finns ingen brandskyddsdokumentation för aktuell byggnad/byggnader bör dessa företrädesvis upprättas i
+samband med att om-, till- eller nybyggnader görs eftersom det blir mest kostnadseffektivt.
+Se även ”Bilaga - Brandskyddsdokumentation per byggnad”.
+1.5 Arbetsorganisation och ansvarsfördelning
+Varje verksamhet är unik och arbetsorganisation och ansvarsfördelning behöver anpassas för att fungera i
+varje specifik organisation. I ”Bilaga - Arbetsorganisation och ansvarsfördelning” ges ett förslag på en
+ansvarsfördelning som PTS anser vara lämplig inom fastighetsförvaltning eller motsvarande verksamhet.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 2 av 8
+
+--- Page 3 ---
+Riktlinje Brand
+Dokumenttyp: Styrdokument Dokument skapat: 2019-12-06
+Version: 1.0 Versionsdatum: 2018-11-27
+1.6 Förvaltning drift och underhåll
+Se ”Bilaga - Förvaltning drift och underhåll”. Bilagan gäller för samtliga byggnader där landstinget/regionen
+är fastighetsägare då riktlinjen är beslutad/antagen och riktar sig främst dem som förvaltar och sköter
+driften av fastigheterna.
+2 Projektanvisningar
+2.1 Projektering
+Brandskyddet som projekteras ska beakta både verksamhetsanknutna, organisatoriska och tekniska
+aspekter. Systemen som installeras, liksom planlösningar och andra påverkbara förutsättningar, ska göras
+ur ett långsiktigt perspektiv i syfte att hitta robusta och flexibla lösningar. Brandskyddet i fastigheterna ska
+utformas utifrån verksamheten och präglas av logik/enhetlighet och vara lätt att förstå.
+Om det råder osäkerheter om åtgärden är att betrakta som ombyggnad eller ändring/underhåll ska det alltid
+betraktas som ombyggnad och anvisningar enligt detta avsnitt (2) ska följas.
+Vid projektering av Br0-byggnader ska BIV:s (Föreningen för brandteknisk ingenjörsvetenskap) ”Stöd för
+tillämpning vid brandteknisk dimensionering av Br0-byggnader” följas.
+2.1.1 Beställning av brandkonsulttjänst i projekt
+Brandkonsulten ska redogöra för de underlag som ingår i brandkonsulttjänsten. I underlaget ska budget
+specificeras skedesvis och ska spegla projektet från projektstart till överlämning av relationshandling, om
+inte annat anges specifikt i projektet. I underlaget ska det också framgå vid vilka skeden som
+brandkonsulten ska kopplas in. Dessutom ska brandkonsulten ange specifik uppdragsorganisation i
+underlaget.
+2.1.2 Dokumentation
+I brandskyddshandlingen (brandskyddsbeskrivning, brandskyddsdokumentation, brandtekniskt utlåtande
+etc) ska det framgå vad som är berörd del, d v s vilka delar som omfattas av projektet.
+Brandkonsulten ska specificera vilka handlingar som ska tas fram i en handlingsförteckning, inklusive
+bilagor såsom analytisk dimensionering. Det ska även framgå i vilka skeden de olika handlingarna ska tas
+fram.
+Vid avslut av projekt ska brandskyddsdokumentationen för byggnaden upprättas eller vid behov uppdateras
+(se även ”Bilaga - brandskyddsdokumentation per byggnad”).
+2.1.3 Granskning
+Brandkonsulten i projektet bör alltid granska arkitektens planritningar innan planlösning fastställs. I övrigt
+sker granskning enligt projektets anvisningar.
+2.1.4 Ritningsunderlag
+Brandkonsult ska upprätta ritningsunderlag till övriga projektörer där väsentliga brandtekniska installationer
+och byggnadsdelar ska framgå.
+Efter genomförd slutkontroll av brandskyddet (enligt PBL i samband med slutbesiktningen) ska brand-
+ritningar, status relationshandling, tas fram. Vem som ansvarar för detta samt vilka symboler som ska
+användas ska vara tydligt i ansvarsfördelningen och organisationsbeskrivningen.
+2.1.5 Utrymningsstrategi för svårflyttade patienter
+Utrymningsstrategin ska utgå från och anpassas efter verksamheten som bedrivs. Utrymningsstrategin på
+sjukhus bygger på horisontell utrymning till intilliggande brandceller. För att ge personalen goda möjligheter
+att hjälpa patienterna i en brandutsatt avdelning att utrymma horisontellt ska antalet vårdrum i kombination
+med antal patienter per brandcell begränsas.
+I vissa verksamheter med svårflyttade patienter, d v s där förflyttning av patienter kan medföra risk för
+allvarliga personskador, bör brandcellsindelningen förtätas ytterligare. Detta för att ge verksamheten bättre
+möjligheter att ge adekvat vård i samband med brand/tillbud inom avdelningen.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 3 av 8
+
+--- Page 4 ---
+Riktlinje Brand
+Dokumenttyp: Styrdokument Dokument skapat: 2019-12-06
+Version: 1.0 Versionsdatum: 2018-11-27
+Där utrymningsstrategin bygger på horisontell utrymning ska dörrar och korridorer anpassas efter sängars
+bredd inkl. utrustning monterad på säng.
+2.1.6 Fasadmaterial
+Vid nybyggnad av byggnad som inrymmer verksamhet i Vk 5C ska ytskikt på fasaden utföras med
+obrännbart material. Observera att detta även gäller byggnader i byggnadsteknisk klass Br2.
+Vid nybyggnation som inte inrymmer verksamhet i Vk 5C bör en bedömning göras om det är lämpligt att
+ytskiktet på fasaden ska utföras av brännbart material trots att det är tillåtet enligt gällande lagstiftning.
+2.1.7 Möjlighet till räddningsinsatser
+Vid projektering ska hänsyn alltid tas till:
+Risker i samband med räddningsinsatser, t ex smittspridning och vattenskador.
+Placering och utformning av eventuella utrymningsplatser.
+Speciella insatsförhållanden (såsom inlåsta patienter etc).
+Angreppsvägar.
+Informationen ovan kan med fördel läggas in på insatsplan.
+I större projekt bör räddningstjänsten vara inkopplad i frågor som rör insatsförhållanden under byggtid samt
+vid färdigprojektering. Exempel på större projekt är tillbyggnad av ny huskropp eller omfattande ombyggnad
+av befintlig byggnad som innebär ändrade insatsförhållanden för räddningstjänsten.
+2.1.8 Robusthet
+Projekteringen ska alltid utgå från att skapa ändamålsenliga och funktionella lokaler med hög driftsäkerhet.
+Eventuella avbrott ska minimeras i skada och tid till återställning. Brandskyddet ska därför utformas på ett
+robust sätt som är enkelt för driftpersonal, fastighetsägare och räddningstjänst att förstå.
+Brandcellsgränser, släcksystem etc ska utformas utifrån skyddsbehov och möjlighet till återställning efter
+brand. Detta kan t ex innebära att alternativa släcksystem väljs för rum med extra känslig utrustning,
+bärverk utförs i högre klass eller att brandcellsindelningen görs tätare där det finns stora behov av att
+begränsa spridningen till andra lokaler.
+2.1.9 Kunskapsåterföring
+För att ta tillvara på bra lösningar och verifieringar som tagits fram ska rutiner finnas gällande samordning
+samt till vem speciallösningar och dylikt ska skickas. Den som har samordningsansvar ska också ansvara
+för att utvärdera, spara och förmedla denna kunskap inom fastighetsförvaltningen eller motsvarande inom
+regionen/landstinget.
+2.1.10 Brandkrav sprinkler
+Vid nybyggnation av sjukhusbyggnader (d v s byggnader som innehåller verksamheter där vård bedrivs, Vk
+5C) ska automatisk vattensprinkler eller likvärdigt släcksystem installeras i hela byggnaden. I utrymmen för
+känslig utrustning ska särskilda åtgärder vidtas, t ex gassläcksystem, pre-action sprinkler, etc. Exempel på
+denna typ av utrymmen är ställverksrum, elrum, datahallar, MR-rum och operationsrum.
+Vid ombyggnader i sjukhus som innebär att sprinkler installeras ska bedömning av omfattning göras utifrån
+en helhetssyn på sjukhuset. Kan större delar än den de¬l som omfattas av ombyggnaden sprinklas bör
+detta övervägas.
+Om inte särskilda skäl föreligger ska alla lokaler inom byggnader som inrymmer Vk 5C förses med sprinkler
+vid om- och nybyggnation.
+2.1.11 Brandkrav brand- och utrymningslarm
+Brandlarmssignalering till personal, d v s larmsignal till verksamhet, ska installeras i sådan omfattning att
+personal på aktuell avdelning och minst en intilliggande avdelning, snabbt kan uppfatta larmet.
+Beroende på typ av verksamhet kan behovet av ytterligare personal som hjälper till att utrymma patienter
+från en vårdavdelning variera. Behovet ska analyseras och antalet intilliggande avdelningar som larmas
+ska anpassas efter verksamheten.
+På informationstablåer inom sjukhus ska minst information om huskropp och våning där brand detekterats
+visas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 4 av 8
+
+--- Page 5 ---
+Riktlinje Brand
+Dokumenttyp: Styrdokument Dokument skapat: 2019-12-06
+Version: 1.0 Versionsdatum: 2018-11-27
+Vid ombyggnader som innebär att brandlarm installeras ska bedömning av omfattning göras utifrån en
+helhetssyn på byggnaden. Kan större delar än den del som omfattas av ombyggnaden förses med
+brandlarm bör detta övervägas.
+Brandlarm med fullständig övervakning enligt SBF 110 ska installeras i alla byggnader som inrymmer
+verksamhet i Vk 5C samt i byggnader som på något sätt är sammanbyggda med byggnader som inrymmer
+verksamhet i Vk 5C. Detta gäller ej retroaktivt men ska tillämpas vid om- och nybyggnader.
+Samtliga byggnader/lokaler för offentlig verksamhet bör förses med system för tidig upptäckt av brand och
+utrymningslarm.
+2.1.12 Frångänglighet
+Vid installation av automatisk vattensprinkler behöver åtgärder för att anpassa utrymningen för funk-
+tionsnedsatta inte vidtas. Detta innebär i praktiken att det t ex inte ställs krav på utrymningsplatser,
+tröskelhöjder, dörröppningsautomatik på ”tunga dörrar”, osv. Observera att detta endast är ett förtydligande
+av kravnivån i BBR.
+2.1.13 Brandkrav återinrymning
+Där återinrymningskrav föreligger (t ex Vk 5C) kan automatisk upplåsningsfunktion via brandlarmet
+tillämpas förutsatt att dessa utrymmen har ett heltäckande automatiskt brandlarm. Detta förutsätter att
+dörrbeslagning/lås utförs med omvänd funktion, d v s upplåst vid strömlöst läge.
+Observera att utrymning och återinrymningskrav hela vägen till det fria måste beaktas.
+2.1.14 Brandkrav nödbelysning
+Nödbelysning ska installeras i trapphus och i korridorsstråk där vård (ej vårdcentraler e d) bedrivs samt i
+korridorer som ingår i utrymningsstrategin från dessa verksamheter. Nödbelysning ska därtill alltid
+installeras i transport- och kommunikationsstråk under mark.
+Nödbelysning i mörka utrymmen och driftutrymmen bör övervägas.
+2.1.15 Hantering av brandfarlig vara
+Under projekteringen ska följande fastställas:
+om brandfarlig vara kommer att hanteras i berörd del,
+vem i projektet som ansvarar för projekteringen kopplad till brandfarlig vara,
+vem i projektet som ansvarar för ansökan om tillstånd för brandfarlig vara.
+2.1.16 Installationsutrymmen
+För installationsutrymmen gäller följande:
+undertaksutrymmen som sträcker sig över flera brandceller ska undvikas,
+vid installationsutrymmen under golv ska brandavskiljande väggar dras ner till bjälklaget.
+2.1.17 Isolering
+Cellplast bör om möjligt undvikas men om det används ska utförande vara enligt tabellen nedan.
+Isoleringsmaterial Ytterv­ äggar Tak Under plattan och Invändigt i
+inb­ yggt i upp till marknivå byggnaden
+byggnadsdel
+Stenull Ja Ja Ja Ja
+Mineralull Ja Ja Ja Ja
+Cellplast (ingjuten i Ja Ja Ja Nej1
+betong)
+Cellplast (övriga Nej Nej Ja Nej1
+konstruktioner)
+1
+Undantag kan enbart göras för cellplast inbyggt i kyl- och frysrumsväggar. Val av cellplastprodukt bör göras i samråd med brandkonsult
+för att säkerställa BBR:s krav 5:5 ”Skydd mot utveckling och spridning av brand och brandgas inom byggnader”.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 5 av 8
+
+--- Page 6 ---
+Riktlinje Brand
+Dokumenttyp: Styrdokument Dokument skapat: 2019-12-06
+Version: 1.0 Versionsdatum: 2018-11-27
+Nedan visas två exempel på en ytterväggskonstruktion som är godkänd och en som inte är det.
+Konstruktionen runt cellplasten ska uppfylla lägst brandteknisk klass EI 60. Detta innebär att cellplasten ska
+skyddas i lägst brandteknisk klass EI 60 mot både utvändig och invändig brand.
+Avsteg från det som presenteras i tabell ovan erfordrar en kvalitativ riskvärdering som utförs av brand-
+konsult och ska godkännas av brandansvarig. Den kvalitativa riskvärderingen ska ta sin utgångspunkt i
+följande tre skeden samt utvärdera cellplastproduktens brandegenskaper och redovisas i ett brandtekniskt
+utlåtande.
+Förvaltningsskedet /mindre renoveringar
+I förvaltningsskedet sker små projekt ner till enstaka åtgärder av olika yrkeskårer. Riskvärderingen ska
+redovisa risker avseende uppkomst av brand med föreslagen cellplastkonstruktion, vilka arbetsmoment
+som sannolikt kan vara möjliga brandstiftare (till exempel arbete med nya genomföringar), samt hur
+cellplastskonstruktionen kan utföras för att minimera risker för exempelvis antändning av cellplasten i
+samband med olika arbeten kring konstruktion i förvaltningsskedet.
+Brandskydd under byggtid
+I dokument ”Brandskydd under byggtid” ska de riskreducerande åtgärderna beskrivas för att säkerställa
+brandskyddet för byggnaden/projektet avseende användandet av cellplast. Det som särskilt ska tas i
+beaktande är avstånd till annan byggnad, upplag cellplast, heta arbeten, arbeten i befintlig fasad/bjälklag,
+riskkällor, brandstiftare m m.
+Brand i byggnad
+Vid brand i byggnad; vilka svagheter finns i skyddet för cellplast, vilka svårigheter medför cellplast för
+räddningstjänstens släckinsats, vilka konsekvenser kan en brand få för vårdverksamhetens dagliga drift
+t ex längre produktionstopp.
+2.1.18 Styrningar
+För att skapa robusta lösningar ska brandstyrningarna vara så enkla som möjligt.
+Inom sjukhus är verksamheten normalt i stort behov av fungerande hissar. Bedöms hisstyrningar behövas
+ska hissar endast styras av rökdetektorer i hisschakt och detektorerna placerade närmst hisschakt på
+respektive plan.
+Styrningar kopplade till brand ska sammanställas i ett separat avsnitt/bilaga. Sammanställningen kan med
+fördel utformas som en styrmatris, se ”Bilaga - Exempel utformning av styrmatris”.
+I sammanställningen ska det framgå vilka styrningar kopplade till brand som ska följas av aktiverad
+detektor, larmtryckknapp, aktiverad sprinkler, strömbortfall inom den berörda delen samt manuella
+styrningar.
+Om brandlarmet är sektionerat och räddningstjänstens angreppsvägar varierar beroende på var i
+fastigheten brandlarmet aktiverats ska detta redovisas på en övergripande situationsplan.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 6 av 8
+
+--- Page 7 ---
+Riktlinje Brand
+Dokumenttyp: Styrdokument Dokument skapat: 2019-12-06
+Version: 1.0 Versionsdatum: 2018-11-27
+Styrmatrisen kan med fördel kombineras med ritningar som redovisar styrområden.
+2.1.19 Tekniskt byte fasadbeklädnad
+Tekniskt byte vid installation av automatisk vattensprinkleranläggning som innebär att brännbar
+fasadbeklädnad godtas i Br1-byggnader lägre än nio våningar enligt BBR 5:551 accepteras ej.
+2.1.20 Bärverk
+Vid dimensionering enligt klassificering får reduktion av bärverksklass med anledning av
+sprinklerinstallation endast göras för byggnadsdelar belägna ovan mark, dock lägst till R 60. Vid
+dimensionering enligt modell av naturligt brandförlopp får sprinklersystem inte tillgodoräknas.
+2.2 Bygg
+2.2.1 Riskkällor
+Riskkällor som kan orsaka en brand, t ex brandfarliga heta arbeten, behöver hanteras specifikt inom
+projektet och ska sammanställas och hanteras löpande under projektet.
+2.2.2 Brandtätningar
+Brandtätning ska utföras med samma brandtekniska klass som den brandcellsavskiljande byggnadsdel i
+vilken den aktuella genomföringen är belägen. Tätningar utförs med typgodkänt material enligt med
+typgodkännandet tillhörande handlingar.
+Tillfälliga håltagningar ska tätas omedelbart efter håltagning tills dess att den permanenta tätningen utförs.
+Brandtätning förses med en tydlig och beständig märkskylt med uppgifter om:
+Produktnamn.
+Brandteknisk klass.
+Installatörens namn.
+Datum när tätningen utförts.
+2.2.3 Märkning av brandcellsgränser
+Märkning av brandcellsgräns ska göras på vägg ovan undertak var 4:e m med texten "EI 30", "EI 60” etc
+genom schablonmålning med bokstavshöjd ca 100 mm, kulör röd. På detta vis tydliggörs mot entreprenörer
+vad som är brandcellsgräns.
+2.2.4 Avstängning brandteknisk funktion
+Brandtekniska funktioner kan behöva stängas av vid olika tillfällen, till exempel vid heta arbeten i ett rum
+inne på en avdelning eller vid dammande arbete. Det ska tydligt anges vem som ansvarar för avstängning
+av brandtekniska funktioner inom byggnaden.
+Den som behöver utföra arbete som erfordrar att en brandteknisk funktion stängs av ska:
+Kontakta ansvarig för avstängning av brandteknisk funktion för en genomgång av arbetsområdet och
+vilka brandtekniska funktioner som behöver stängas av. Vid genomgången ska även hyresgästen få
+informationen och ge sina synpunkter gällande avstängningen (kan vara tider etc) så att
+konsekvenserna begränsas. Om avstängningen medför att information behöver spridas till
+driftcentral, bevakningspersonal, hyresgäster etc, gör ansvarig för avstängningen detta.
+Fylla i ”Bilaga - Avstängning brandteknisk funktion” tillsammans med driftentreprenör.
+Placera ”Bilaga - Avstängning brandteknisk funktion” väl synligt på arbetsområdet.
+Få kvittens av driftentreprenör att avstängningen är utförd innan arbete påbörjas.
+Kontakta driftentreprenör vid återställning av funktionen.
+2.2.5 Brandfarliga heta arbeten
+Gällande utgåva av Brandskyddsföreningen Sveriges säkerhetsregler för brandfarliga heta arbeten såväl
+som Brandskyddsföreningens tillstånd/kontrollista för heta arbeten ska användas. Beställaren av arbetet
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 7 av 8
+
+--- Page 8 ---
+Riktlinje Brand
+Dokumenttyp: Styrdokument Dokument skapat: 2019-12-06
+Version: 1.0 Versionsdatum: 2018-11-27
+ska säkerställa att utföraren följer ovanstående.
+2.2.6 Samordnad provning
+Brandkonsulten i projektet ska granska underlag för samordnad provning och vid behov lämna synpunkter
+och kompletterande underlag. Vid större projekt ska brandkonsulten även medverka vid samordnad
+provning.
+2.2.7 Plan för brandskydd under byggtid
+Se ”Bilaga - Brandskydd under byggtid”.
+2.3 Projektavslut
+2.3.1 Relationshandling
+Innan handlingar enligt framtagen handlingsförteckning, överlämnas från brandkonsult till projektet ska
+brandkonsulten genomföra en slutkontroll mot upprättade brandskyddshandlingar. Slutkontrollen utförs för
+att brandkonsulten ska förvissa sig om att brandskyddet är korrekt utfört och därmed kunna upprätta
+relationshandlingar och intyga till byggnadsnämnden att brandskyddet uppfyller kraven i
+brandskyddsdokumentationen.
+Handlingar enligt handlingsförteckning (relationshandlingar och brandritningar) ska sparas enligt gällande
+rutiner. Relationshandlingar i form av brandritningar och brandskyddsdokumentation ska alltid tas
+fram/uppdateras vid projektavslut.
+Brandskyddsdokumentationen som överlämnas vid projektavslut avser brandskyddsdokumentation för
+aktuell byggnad om regionen/landstinget valt att arbeta efter denna princip.
+Syftet med att ha en brandskyddsdokumentation för respektive byggnad är att likrikta lösningar, spara tid
+och pengar i projekt samt att få ett mer enhetligt brandskydd inom fastigheterna.
+Brandskydds¬dokumentationen ska, dels beskriva det befintliga brandskyddet, dels beskriva
+egenambitioner samt övriga förutsättningar och projekteringsanvisningar för framtida ombyggnader/
+ändringar.
+Relationshandlingen som tas fram vid projektavslut ska alltid beskriva hur brandskyddet är utformat. Det
+accepteras därför inte att en relationshandling upprättas genom att stämpla om en bygghandling.
+2.3.2 Information till hyresgäster
+Vid projektavslut efter en ombyggnation eller om annan teknisk förändring skett i fastigheten som påverkar
+hyresgästen ska hyresgäster delges information om brandskyddet. Ramavtalad brandkonsult kan vid behov
+hjälpa till att ta fram denna information.
+Bilagor
+Bilaga, Ansvarsfördelning i brandsäkerhetsfrågor.docx
+Bilaga, Brandskyddsdokumentation per byggnad.pdf
+Bilaga, Drift- och underhållsinstruktioner brand.pdf
+Bilaga, Exempel utformning av styrmatris.pdf
+Bilaga, Avstängning brandteknisk funktion.pdf
+Bilaga, Checklista för mindre renovering.pdf
+Bilaga, Arbetsorganisation och ansvarsfördelning.docx
+Bilaga, Brandskydd under byggtid.docx
+Bilaga, Förvaltning drift och underhåll.docx
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 8 av 8

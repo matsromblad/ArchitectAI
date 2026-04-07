@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>New Project — ArchitectAI</title>
-  <meta name="description" content="Start a new ArchitectAI project. Upload site drawings, governing documents, and describe your building in plain language." />
-  <meta property="og:title" content="New Project — ArchitectAI" />
-  <meta property="og:description" content="From prompt to building. In minutes." />
+  <title>New Project — AI Nightingale</title>
+  <meta name="description" content="Start a new AI Nightingale project. Upload PTS guidelines, site drawings, and describe your hospital in plain language." />
+  <meta property="og:title" content="New Project — AI Nightingale" />
+  <meta property="og:description" content="AI driven hospital architecture." />
   <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,21 +15,21 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #0D1117;
-      --bg-2:         #161B22;
-      --bg-3:         #1C2128;
-      --border:       rgba(255,255,255,0.08);
-      --border-hover: rgba(255,255,255,0.16);
-      --gold:         #FFD700;
-      --gold-dim:     rgba(255,215,0,0.10);
-      --gold-glow:    rgba(255,215,0,0.25);
-      --gold-border:  rgba(255,215,0,0.30);
-      --text:         #E6EDF3;
-      --text-muted:   #8B949E;
-      --text-dim:     #6E7681;
-      --danger:       #EF4444;
-      --danger-dim:   rgba(239,68,68,0.10);
-      --success:      #22C55E;
+      --bg:           #F8F9FA;
+      --bg-2:         #FFFFFF;
+      --bg-3:         #F1F3F5;
+      --border:       rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.16);
+      --gold:         #BEB1A4; /* Warm Beige */
+      --gold-dim:     rgba(190,177,164,0.15);
+      --gold-glow:    rgba(190,177,164,0.30);
+      --gold-border:  rgba(190,177,164,0.40);
+      --text:         #212529;
+      --text-muted:   #495057;
+      --text-dim:     #868E96;
+      --danger:       #FA5252;
+      --danger-dim:   rgba(250,82,82,0.10);
+      --success:      #40C057;
       --radius:       12px;
       --radius-sm:    8px;
       --nav-height:   64px;
@@ -38,7 +38,8 @@
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--bg);
+      background: var(--bg) url('images/medarch_bg.png') no-repeat center center fixed;
+      background-size: cover;
       color: var(--text);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       font-size: 16px;
@@ -59,7 +60,7 @@
       top: 0; left: 0; right: 0;
       height: var(--nav-height);
       z-index: 100;
-      background: rgba(13,17,23,0.85);
+      background: rgba(255,255,255,0.85);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
@@ -738,16 +739,16 @@
     }
   </style>
 </head>
-<body>
+<body style="background: #F9F7F4;">
 
 <!-- ── NAV ── -->
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo">
-      <span class="logo-icon"></span>
-      ArchitectAI
-      <span class="nav-page-label" style="margin-left:4px;">/ New Project</span>
+    <a href="/" class="nav-logo">
+      <div class="logo-icon" style="background:#BEB1A4; display:flex; align-items:center; justify-content:center; color:white; font-size:14px; width:24px; height:24px; border-radius:4px;">+</div>
+      AI Nightingale <span style="font-weight:400; color:var(--text-dim); font-size:14px; margin-left:4px;">PTS Edition</span>
     </a>
+    <div class="nav-page-label">Hospital Setup</div>
     <a href="index.html" class="nav-back">
       ← Back to home
     </a>
@@ -783,7 +784,7 @@
     <!-- Page header -->
     <div class="page-header">
       <h1>Start a new project</h1>
-      <p>Upload your site drawings, attach any governing documents, then describe the building in plain language. ArchitectAI will take it from there.</p>
+      <p>Upload your site drawings, attach any governing documents, then describe the building in plain language. AI Nightingale will take it from there.</p>
     </div>
 
     <!-- ── SECTION A: Site Drawings ── -->
@@ -857,7 +858,7 @@
           <div class="card-icon">✍️</div>
           <div class="card-title-group">
             <div class="card-title">Design Brief</div>
-            <div class="card-subtitle">Describe the building you want ArchitectAI to design</div>
+            <div class="card-subtitle">Describe the building you want AI Nightingale to design</div>
           </div>
         </div>
       </div>
@@ -887,8 +888,8 @@
         <div class="card-header-left">
           <div class="card-icon">⚙️</div>
           <div class="card-title-group">
-            <div class="card-title">Project Settings</div>
-            <div class="card-subtitle">Used by the Compliance Agent to apply the correct standards</div>
+            <h1 id="pageTitle" style="font-size:18px; margin:0;">Design your PTS Hospital</h1>
+            <p id="pageDesc" class="subtitle" style="margin:4px 0 0 0; color:var(--text-muted);">Provide the core requirements, clinical specs, and PTS regulations. AI Nightingale will generate the full BIM.</p>
           </div>
         </div>
       </div>
@@ -935,8 +936,8 @@
     <!-- ── SECTION E: Submit ── -->
     <div class="submit-section">
       <div class="submit-actions">
-        <button class="btn btn-gold" id="btn-launch" disabled>
-          Launch ArchitectAI →
+        <button class="btn btn-gold" id="btn-launch" style="background:#BEB1A4; color:white;">
+          Launch AI Nightingale →
         </button>
         <button class="btn btn-outline" id="btn-draft">
           Save draft
@@ -1219,7 +1220,7 @@
     .then(async res => {
       if(res.ok) {
         showToast('System Launched!', 'A terminal should pop up to run your architecture. You can close this tab and open the dashboard.');
-        setTimeout(() => { window.location.href = 'http://127.0.0.1:8765/'; }, 3000);
+        setTimeout(() => { window.location.href = `http://127.0.0.1:8765/?project=${payload.projectName}`; }, 3000);
       } else {
         showToast('Error', await res.text());
       }

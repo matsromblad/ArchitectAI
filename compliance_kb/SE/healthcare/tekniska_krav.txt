@@ -1,0 +1,1348 @@
+
+--- Page 1 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+5 VA-, VVS-, KYL- OCH PROCESSMEDIESYSTEM
+Version: 0.1 Versionsdatum: 1900-01-01
+För avsteg i anvisningar fordras att ändringen blir protokollförd i projekteringsmöte samt godkänd av
+teknikansvarig inom aktuellt region.
+GENERELLA ANVISNINGAR VID OMBYGGNATION
+Samtliga installationer inom aktuellt ombyggnadsområde som skall bibehållas skall kontrolleras. Utförs
+förslagsvis när undertak rivits och i samråd med teknikansvarig vvs och representant inom aktuellt region.
+MILJÖ, ENERGI OCH TERMISKT KLIMAT
+För att säkerställa den planerade byggnadens energi- och effektbalans bör det alltid utföras.
+Under projekteringstiden och byggskedet ska förslag till förändringar som påverkar energi- och inneklimatet
+dokumenteras, dessa rapporteras till ansvarig representant inom aktuellt region.
+Beräkning av toppeffekten vid dimensionerad utetemperatur ska alltid utföras. Dessa skall utföras i
+ett tidigt skede och användas för att bestämma toppeffekter. Läckluftflödet för effektberäkningen,
+ska ansvarig part för klimatskalet ange, saknas uppgifter skall beräkningen göras vid 50 Pa
+tryckskillnad och 0,6 l/s,m2 omslutande area.
+Simuleringar av energibalans i byggnaden skall alltid utföras, samt kontinuerligt uppdateras genom
+respektive projekt. Vid tidiga simulering bör man ej utföra dessa på rumsnivå. Läckluftflödet för
+energiberäkningen, ska ansvarig part för klimatskalet ange, saknas uppgifter skall beräkningen
+göras vid 50 Pa tryckskillnad och 0,08 l/s,m2 omslutande area.
+I energisimuleringen skall elförbrukningen uppdelas i fastighets- och verksamhetsdel.
+Simulering av inneklimatet bör göras för kritiska rum i ett tidigt skede.
+Simulering av dagsljus bör göras i ett tidigt skede, det för att se hur mycket dagljus som faller in och
+hur det påverkar energi- och inneklimatet.
+Vid dimensionering/upphandling av centala aggregat, exempelvis luftbehandlingsaggregat och
+kylaggregat skall beräkning av LCC energi användas och verkligt utfall följas upp/granskas vid
+besiktningstillfället. Vid denna skall drifttider och lastprofil fastställas.
+Nya elmotorer ska vara i energieffektiviseringsklass IE3 alt. IE2 med varvtalsreglering.
+Övriga krav och frågeställningar avseende miljö och energi enligt ansvarig representant inom aktuellt
+region.
+DIMENSIONERANDE UTETEMPERATUR
+Sommartid:
+Kylbehovsberäkning utförs med de indata som anges för klimatklass enligt typrum eller RFP.
+Beräkningsmodell och om föreslagna kortare avvikelser är acceptabla bestäms för varje enskilt projekt.
+Vintertid (bör anges för orten):
+För uppvärmning av till lokaler används DVUT, för ventilation skall dimensionerande utetemperaturen vara
+ortens EUT1, för operationssalar o.dyl som kräver stor mängd uteluft skall hänsyn tas till ortens absolut
+”lägsta” utomhustemperaturen mellan 1901-1999.
+DIMENSIONERANDE INOMHUSTEMPERATURER
+PTS tar hänsyn till:
+Rumstyp
+Inredning/utrustning
+Funktionskrav
+För de dimensionerande inomhustemperaturerna skall hänsyn tas till behov och krav som finns för
+personal, patienter samt berörd verksamhets utrustning.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 1 av 32
+
+--- Page 2 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Typrummen och RFP ställer krav på klimat. Med mintemperatur menas det lägsta temperatur som skall
+upprätthållas. Uppvärmningssystemet (t.ex. radiatorer) skall dock dimensioneras för rumstemperatur 24oC
+inom vårdlokaler.
+Komfortklass innebär krav på maxtemperatur. För klimatberoende värmelaster innebär det att: vid
+uteklimatet 27 grader och 50% RH får rumtemperaturen vid ”Dämpande kyla” vara max 26 grader och vid
+”Individuellt reglad kyla” max 23+/-1.5 grader
+För temperaturlaster som inte är utetemperaturberoende gäller angiven min rumstemperatur med
+noggrannhet enligt valt styrsytem.
+DIMENSIONERANDE LUFTFLÖDEN
+Hygienflöden dvs. min.luftflöden finns angivna för typrum och i RFP.
+Luftflöden för vårdlokaler kan även finnas som en lokal anvisning.
+PTS tar hänsyn till:
+Rumstyp
+Inredning/utrustning
+Funktionskrav
+Tryckförhållanden mellan lokaler med olika hygieniska krav beaktas. Det är viktigt att spridningen av
+ohälsosamma och illaluktande gaser ej sprids inom känsliga utrymmen. Därför är tryckbalansen mellan
+avdelningar av stor vikt.
+Lokaler där luftflödet baseras på personantal skall dessa dimensioneras för antal personer som mer än
+tillfälligt vistas i lokalen.
+Tillfälligt betraktas här; enstaka tillfällen under ett år, där lokalen inte är avsett för detta tillfälle eller mer
+frekventa men kortare perioder. (Exempelvis 15-20 min per dag eller 30 min per vecka).
+LUFTFUKTIGHET
+Styrfunktion eftersträvas där temperaturen och luftfuktigheten ligger närmare max.värdet – sommartid och
+närmare min.värdet - vintertid.
+BRANDSKYDD
+Strategin för brandlarm och brandfunktioner redovisas i brandskyddsdokumentationen för varje projekt.
+LJUD
+Vid större projekt skall akustiker anlitas som ljudsakkunnig projektör, för att säkerställa att ljudkrav uppfylls.
+FÖRSÖRJNINGSSÄKERHET
+Som regel beaktas skriften ”Det robusta sjukhuset” utgiven av krisberedskapsmyndigheten att gälla vid
+teknisk försörjningssäkerhet.
+TILLGÄNGLIGHET, UTRYMMEN
+Skriften ”Rätt arbetsmiljö för montörer och driftpersonal” ska gälla som målsättning.
+Väsentliga apparater och delar av apparater, aggregat skall kunna demonteras och bytas utan att
+kostnadskrävande ingrepp behöver utföras på byggnaden eller på andra installationer.
+Huvudmatningar för tappvatten, kyla och ev. värme i schakt skall vara åtkomliga på varje plan via dörrar.
+Stora maskiner och aggregat skall placeras på fundament/sockel min 120 mm högt.
+RÖRSYSTEM
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 2 av 32
+
+--- Page 3 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+ANSLUTNING AV YTTRE FÖRSÖRJNINGSSYSTEM
+Ledningar för vatten samt gaser förlagda åtkomliga i installationskulvertar utgör ur drift- och
+säkerhetssynpunkt det bästa alternativet. Denna lösning bör därför komma till stånd om inte starka skäl
+talar för andra alternativ.
+Kallvatten
+Redundans för vattenförsörjning till byggnad för sjukvårdsrelaterad verksamhet förordas, är sjukhuset
+försörjd från kommunalt vattensystem, är matning från två oberoende håll är att föredra.
+För att begränsa verkan av ett ledningsbrott inom sjukhusområdet, insätts på lämpliga punkter manuella
+avstängningsventiler och i ledningssystemet anordnas förbigångsmöjligheter, t ex genom ett
+ringmatningssystem, så att en begränsad vattendistribution kan upprätthållas vid ett brott på en
+huvudledning.
+Vid nyinstallation övervägs om reniningsutrustning för tappvatten (t.ex. uv-rening) skall installeras, detta
+bestäms med ansvarig representant inom aktuellt region. Redundans inom respektive byggnad skall också
+beaktas beroende på patienter samt berörd verksamhets utrustning, för sjukvårdsrelaterad verksamhet.
+För eventuell tillförsel av reservvatten från egen grundvattentäkt eller motsvarande, anordnas avstick med
+avstängningsventil i vattensystemet på lämpligt ställe. I samband med installation av reservvatten övervägs
+vattenrening t.ex. UV-rening.
+52 FÖRSÖRJNINGSSYSTEM FÖR FLYTANDE ELLER
+GASFORMIGT MEDIUM
+52.B Tappvattensystem
+ALLMÄNT
+Tappvattenledningar förläggs inomhus och dimensioneras så att framtida ändringar underlättas.
+Byggnader förses med vattenmätare med möjlighet till fjärravläsning för både kall- och tappvarmvatten.
+Tappvattenledning förläggs i mark eller, där så är möjligt i gångbar kulvert.
+SYSTEM OCH FUNKTIONER
+Tappvarmvattentemperaturer utförs enligt ”Branschregler - Säker vatteninstallation”. Avvikelser från denna
+kan förekomma.
+ÅTGÄRDER MOT LEGIONELLATILLVÄXT
+Avstick från huvudledningar skall ej vara längre än 10 meter.
+Korta fördelningsledningar till respektive tappställe skall eftersträvas. Exempelvis undvikes
+gemensamma fördelare med långa fördelningsledningar.
+Ej nyttjad ledning rives fram till närmast vattenförande ledning. Generellt skall proppade avstick ej
+förekomma, varpå även del av samlingsledning då byts ut.
+Om detta medför betydlig påverkan avseende driftavbrott, ekonomi etc överväges proppning av
+ledning. Ledning proppas då så nära vattenförande ledning som möjligt. Max.längd 1,5 ggr
+anslutande rörets diameter. Proppade ledningar skall vara överisolerade.
+Wc-stolar och brandposter bör inkopplas på kallvattenledning vid/som betjänar tvättställ alt. dusch.
+Om möjligt, undvikes system med många förgreningar på VVC-ledning.
+Installation där större risk föreligger att kallvattnet värms upp, och varmvatten kyls ned, undvikes.
+Sträckor med oisolerade tappvattenledningar ovan undertak skall ej installeras. PEX-rör med
+oisolerat skyddsrör typ rör-i-rör och prisolrör betraktas här som oisolerat.
+52.BB Kallvattensystem
+Tappkallvatten skall betraktas som livsmedel. Vid ingrepp på tappvattenledningar skall hygienaspekter
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 3 av 32
+
+--- Page 4 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+beaktas. Exempelvis skall händer, verktyg etc som direkt eller indirekt kan komma i kontakt med
+dricksvatten vara erforderligt rengjorda.
+Verksamhetens krav avgör vilka vattenkvalitéer som erfordras, exempelvis renvatten/osmosvatten,
+hårdhetsgrader etc. Renvatten/osmosvatten skall utföras som ringsystem.
+Pumpar och andra anordningar för nödvattenförsörjning skall försörjas med reservkraft, oavsett vilket
+alternativ som väljs för reservvatten. Vid behov förses erforderliga tryckstegringspumpar inom sjukhuset
+med reservkraft. Vid anordnande av reservkraftförsörjning till pumpar för sprinkleranläggningar beaktas de
+särskilda bestämmelser.
+Spol - och diskdesinfektorer, autoklaver samt befuktare skall matas med mjukgjort vatten om så krävs och
+inte annat framkommer från leverantören.
+Normalt utförs tappkallvattenledningar med enkel matning. Verksamhetens krav avgör om dubbel matning
+skall utföras, ex dialys.
+LEDNINGAR INOMHUS
+Synliga ledningar skall utföras av styva rör.
+Dolda skarvar, ej utbytbara, får ej utföras, gäller även typgodkända skarvmetoder.
+Servisledning
+Inkommande kallvattenledning förses i varje byggnad med sil, avstängningsventiler och förbigångsledning
+innanför grundmur.
+Tappkallvattenledningar i mark utförs i huvudsak av plaströr PEM.
+52.BC Varmvattensystem
+Tappvarmvattenledningar med tillhörande cirkulationsledningar utförs av rör i koppar eller i rostfritt syrafast
+stål alternativt av PEX rör.
+För möjlighet till hetvattenspolning av system sommartid, skall vid byggnader som innefattar avdelningar
+med infektionskänsliga patienter, avstick med avstängningsventiler installeras på varmvattensida för
+möjlighet att via portabel elpanna kunna temperaturhöja varmvattnet.
+Tappvarmvatten förvärms till min 60°C med hänsyn till den s.k. "legionärssjukan".
+Cirkulationsledningar förses med manuella reglerventiler vid varje inkoppling till tappvarmvattenledning.
+Temperatursänkning på cirkulationsledningar får max var 5°C.
+Ackumulatortankar bör undvikas.
+52.F Tryckluftssystem
+ALLMÄNT
+Tryckluft för teknisk verksamhet benämns teknisk luft.
+52.H Gassystem
+Medicinska gasanläggningar omfattar följande medicinska gaser:
+Andningsoxygen
+Lustgas
+Andningsluft
+Medicinsk koldioxid
+Andningsoxygen/lustgasblandning (50/50 V/V)
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 4 av 32
+
+--- Page 5 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Samt anläggning för:
+Instrument luft
+Nitrogen för instrumentdrivning
+52.HB System för medicinsk gas
+Medicinsk gasanläggning projekteras och byggs enligt aktuell version av handbok SIS HB 370 med tillägg.
+Vid ny och ombyggnader av medicinsk gasanläggning skall en riskanalys utföras.
+Vid riskanalysen behandlas bl. annat.
+Redundans.
+Behov av reservmatning, vart larm från tryckövervakning skall skickas, dimensionerande flöden från
+avdelningen, antal gasuttag idrift, överdimensioneringsfaktor, totala nätets kapacitet, en ökning
+förväntas av förbrukningen av instrument luft.
+Vid dimensionering av ledningsnät och centralutrustningar tillses att uppgifter avseende förbrukning
+inhämtas. Detta gäller i första hand behandlingsintensiva avdelningar såsom operation, IVA och
+liknande.
+Framtida inköp av medicinsk gasutrustning kommer att anpassas till EU-standard. Trycknivån kan
+påverkas av detta, vilket beaktas vid rördimensionering.
+Föreskrifter beaktas för laboratoriegaser som acetylen, gasol, oxygen, koldioxid, kvävgas, vätgas, argon
+och helium. Vid ny/ombyggnad övervägs förändring av systemens uppbyggnad och styrning jämfört med
+nuvarande teknik.
+LEDNINGSSYSTEM
+System indelas med avstängningsventiler i sektioner, husvis, våningsvis, avdelningsvis.
+FÖR AKUTSJUKHUS
+Stamnät utföres som högtryckssytem med reduceringar i varje hus.
+BEC.5 Demontering av vvs-, kyl- och processmedieinstallationer
+Ledningar som ej är i drift, och som ej planeras att driftsättas skall demonteras. Ledningar proppas/lockas
+så nära huvudledning som möjligt.
+BEH.5 Slopande i vvs-, kyl och processmedieinstallationer
+Slopade ledningar skall tömmas, vid behov renblåsas samt proppas.
+Ledning skall märkas vid proppningar samt där ledning är åtkomlig för märkning.
+PEB.4 Brandpost i mark
+För brandpost övervägs föravstängningsventil så att posten kan servas utan att nätet behöver stängas av.
+PJB VÄRMEVÄXLARE
+På tillopp- och returledning på primär- och sekundärsida av växlare installeras, mellan växlare och
+avstängningsventil, en avsättning DN 25 med avstängningsventil. Detta för möjlighet till renspolning av
+växlare.
+PKB PUMPAR
+Pumpar skall vara försedda med frekvensomformare för möjlighet till tryckreglering.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 5 av 32
+
+--- Page 6 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+PMB.22 Avskiljare för rening av flytande medium
+Bensinavskiljare installeras där bensin eller andra brand- eller explosionsfarliga vätskor kan tillföras
+spillvatten.
+Oljeavskiljare installeras där eldnings- eller smörjoljor kan tillföras spillvatten.
+Fettavskiljare installeras där spillvatten kan innehålla fett eller andra ämnen som avskiljs vid spillvattnets
+avkylning.
+Slamavskiljare installeras där spillvatten kan innehålla slam eller andra fasta partiklar som ger påtaglig risk
+för avsättningar i ledningar.
+Brunnar till bensin- och oljeavskiljare utföres utan vattenlås. I spillvattenledning efter bensin- och olje-
+avskiljare anordnas larmgivare för okontrollerat bensin-respektive oljeutflöde samt brunn för provtagnings-
+möjlighet. Gipsavskiljare installeras där hantering med gips förekommer. Kan även användas för avskiljning
+av lera (terapilokaler).
+Avskiljare skall vara typgodkänd. Avskiljare skall vara åtkomliga från slamsugningsbil, ha larm för full
+avskiljningsmängd samt provtagningsbrunn efter avskiljare.
+PN RÖRLEDNINGAR M M
+Till tappenheter inom rum förordas synlig rördragning.
+Rördragning i vägg utföres där hygieniska skäl föreligger.
+Ledningar skall förläggas så att skador till följd av vattenläckage begränsas. Ledningar förläggs i första
+hand friliggande. Inbyggda ledningar samt förläggningar ovan fasta undertak bör undvikas. Om ledningar
+förläggs dolda skall detta utföras i separata inklädnader, slitsar, schakt, täckta rännor etc.
+PSB AVSTÄNGNINGSVENTILER
+Ledningar för tappvatten utförs med avstängningar vid avgreningar i våningsplan samt vid in- och utgångar
+i kulvertar/schakt.
+Vid ringmatning för exempelvis ett våningsplan installeras avstängningsventiler på ytterligare 1-3 punkter
+för möjlighet till avstängning av delar av respektive system. Bestäms närmare enligt överenskommelse med
+ansvarig representant inom aktuellt region.
+Ytterligare avstängningar övervägs med hänsyn till lokalernas karaktär.
+Kopplingsledningar utförs med föravstängningar vid inkoppling till platsutrustning.
+Avstängningsventiler skall vara av typ kulventiler för rör tom DN 50, vridspjällsventiler för DN 65 och större.
+Växel som manöverdon väljs till vridspjällsventiler större eller lika med DN 125.
+Vridspjällsventiler monteras med axel i horisontellt läge.
+PSD.11 Manuella styrventiler i vätskesystem
+Injusteringsventiler skall vara av typ som möjliggör mätning av såväl tryck som flöde.
+Mättuttag skall finnas på ventiler som betjänar större specifika områden, exempelvis ett plan, en avdelning
+eller dyl.
+PVB TAPPVENTILER, BLANDARE M M I TAPPVATTENSYSTEM
+Blandare förses med förlängd spak inom vårdlokaler enligt PTS typrum eller RFP.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 6 av 32
+
+--- Page 7 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+PVB.2 Blandare
+Ettgreppsblandare väljs.
+Blandare skall förses med föravstängningsventiler.
+Blandare skall vara utförd med spärr mot för hög temperatur, till exempel mekanisk reglering av
+blandningsförhållandet. Legionellaspolning vid behov.
+Vid blandarfästen placeras föravstängningsventilen mellan fäste och blandare.
+PVB.21 Duschblandare och duschanordningar
+Utförande ska vara termostatblandare. Duschblandare skall vara utförd med spärr mot för hög temperatur.
+Duschblandare skall placeras så, att de kan manövreras omedelbart utanför duschutrymmet.
+Duschslangar skall vara utförda svarta i antilegionella utförande. Packningar i antilegionella utförande, ej
+fiberpackningar. Slanglängd max 1,5 m.
+Duschsilar skall väljas bland typer utförda för minimering av "aerosoler" för att minska risken för
+legionellaspridning.
+Kombinerad hand- och huvuddusch utförs med handdusch försedd med höj- och sänkbart fäste på
+väggstång ca 1 200 mm.
+Handduschen skall kunna tas loss från väggstångsfästet och användes fritt med handen.
+PVB.23 Tvättställsblandare och bidéblandare
+Ettgrepps tvättställsblandare monteras enligt RFP.
+Väggmonterad blandare monteras med utloppspipens underkant 100 mm över tvättställets överkant.
+RB TERMISK ISOLERING AV INSTALLATIONER
+I sekundära utrymmen såsom ovan fasta undertak, rörkulvertar, schakt, slitsar o dyl utföres ingen
+ytbeklädnad. Isolering skall där vara utförd med aluminiumfoliebeklädnad eller dyl. Samtliga skarvar tejpas
+med avsedd tejp.
+Synliga, isolerade rörledningar utförs med lämplig ytbeklädnad.
+Där rörledningar utsätts för mekanisk påverkan (t ex trånga och arbetskrävande undercentraler) överväges
+ytbeklädnad av lämpligt skyddmaterial för ledningar under 2m över golv.
+Vid transportvägar, entreer med påkörningsrisk för städmaskiner, truckar etc. utföres ytbeklädnad av
+lämpligt påkörningsskydd.
+Varmvatten- och VVC-rör skall ej samisoleras.
+Kallvattenledningar isoleras i min. Serie 1B.
+Varmvatten- och VVC-ledningar isoleras i min Serie 2B.
+RBB.2 Termisk isolering med mineralull på rörledning
+Utföres dammbunden.
+Större avstängningsventiler isoleras med avtagbara och återanvändbara isolerkåpor (DN 65 och större),
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 7 av 32
+
+--- Page 8 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+mindre ventiler överisoleras.
+RC YTBEKLÄDNADER PÅ TERMISK ISOLERING PÅ
+INSTALLATIONER
+Vid inkoppling, inskärning och dyl till befintliga system skall ytbeklädnad på isolering på befintliga ledningar
+återställas/ bytas.
+UB GIVARE
+Givare i rörledning skall monteras med dykrör av rostfritt stål, anpassat till rörledningsmaterial och
+isoleringens tjocklek.
+UGB.3 Mätare för temperatur, rörmonterade
+Termometer skall ha anpassat temperaturområde för mediat.
+Termometer rak modell och med dykrör, ½”G, anpassad för ledningsmaterial och isoleringstjocklek.
+På respektive plan eller avdelning, förslagsvis i anslutning till injusteringsventil för vvc-ledning, installeras
+en termometer. Termometern skall kunna avläsas enkelt.
+UNDERCENTRAL
+I undercentral placeras termometrar så att följande temperatur kan utläsas:
+• Tillopp och returtemperatur på primär/sekundär sida av fjärrvärmeväxlare.
+• Inkommande kallvattentemperatur.
+• Utgående varmvattentemperatur.
+• VVC-temperatur.
+UGC MÄTARE FÖR TRYCK
+På sekundär och primärsida av värmeväxlare installeras mätare för analog tryckfallsmätning separat över
+växlare samt separat över sil/filter.
+Avstängningsventiler för mätare skall endast vara öppna vid mätning.
+UGE MÄTARE FÖR FLÖDE
+Separata vattenmätare installeras för varje byggnad enligt följande:
+• Kallvatten
+• Tappkallvatten innan värmeväxlare eller dyl som nyttjas till tappvarmvatten.
+• Tappkallvatten som nyttjas för reservkyla.
+Mätning av renvatten, via osmosanläggning utförs systemvis.
+Mätare skall vara utförda för fjärravläsning och vara försedda med anslutning för kommunikationsbus. Typ
+av mätare bestäms i samråd med representant inom aktuellt region.
+53 AVLOPPSVATTENSYSTEM OCH PNEUMATISKA
+AVFALLSTRANSPORTSYSTEM E D
+.
+53.BB Spillvattensystem
+RÖRLEDNINGAR I HUS
+Beakta att vid användning av exempelvis dialys, desinfektion, avdelningskök att det förekommer mycket
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 8 av 32
+
+--- Page 9 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+höga temperaturer, därför bör rostfri spillvattenledning användning i början för att sedan övergå till en
+annan material, exempelvis spillvattenledningar av plast.
+Avloppsledningar inomhus förläggs i huvudsak utbytbara och så att framtida ändringar underlättas.
+Vertikala stamledningar förlägges i schakt, inklädnader slitsar eller dyl. läckageindikering vid golv förordas.
+Långa horisontella dragningar vid tak undvikes. Sidodragningar i plan på vertikala stamledningar undvikes.
+Kors-rör får ej förekomma.
+Möjlighet för åtkomlighet vid spolning/rensning beaktas.
+Spillvattenledningar skall provtryckas med vatten, minst en våningshöjd. Erforderliga rensrör för detta
+ändamål utföres.
+Spillvattenledningar skall vara rensbara i hela sin sträckning. Exempel förordas spolmöjlighet/rensbrunn vid
+gavel för åtkomlighet utifrån.
+Rensrör bör placeras i neutrala utrymmen på varje våningsplan i vårdbyggnader.
+• Placering ca: 500 mm från golv.
+RÖRLEDNINGAR I ANLÄGGNING
+Systemet i mark utformas som självfallssystem. Endast i undantagsfall som pumpsystem.
+Desinfektion av avloppsvatten
+Riskbedömning och analys skall alltid göras i projekten, utifrån verksamheten.
+Från de delar av mikrobiologiska och farmaceutiska laboratorier etc. eller där högpatogena
+mikroorganismer hanteras anordnas möjlighet till desinfektion av avloppsvatten.
+Obduktionsavdelningar anordnas så att möjlighet till desinfektion av avloppsvatten kan ske enkelt från ett
+av obduktionsrummen.
+När desinfektion av avlopp erfordras skall val av behandlingsmetod ske i samråd med med ansvarig
+representant inom aktuellt region och berörd kommun.
+ÖVRIGT
+Ledningar får ej innehålla blyföreningar.
+53.BC Dagvattensystem
+RÖRLEDNINGAR I ANLÄGGNING
+Dagvattenledningar i mark ansluts till dagvattenledningar från byggnad samt till avledningsanordningar för
+vatten från nederbörd på hårdgjorda markytor och dränerat yt- och grundvatten.
+Lokalt omhändertagande av dagvatten (LOD) bör övervägas.
+ÖVRIGT
+Invändig takavvattning skall undvikas.
+Ledningar får ej innehålla blyföreningar.
+BEC.5 Demontering av vvs-, kyl- och processmedieinstallationer
+Vid rivning av spill- och dagvattenledningar beaktas ev fogar med blytätning, kvicksilver etc. Ej nyttjade
+dagvattenledningar i hus ska demonteras.
+Rapport skall överlämnas till beställaren innehållande miljöfarligt material och mängde.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 9 av 32
+
+--- Page 10 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+BEH.5 Slopande i vvs-, kyl och processmedieinstallationer
+Vid slopning skall slopade ledningar tömmas, vid behov renblåsas samt proppas.
+PMB.22 Avskiljare för rening av flytande medium
+Bensinavskiljare installeras där bensin eller andra brand- eller explosionsfarliga vätskor kan tillföras
+spillvatten.
+Oljeavskiljare installeras där eldnings- eller smörjoljor kan tillföras spillvatten.
+Fettavskiljare installeras där spillvatten kan innehålla fett eller andra ämnen som avskiljs vid spillvattnets
+avkylning.
+Slamavskiljare installeras där spillvatten kan innehålla slam eller andra fasta partiklar som ger påtaglig risk
+för avsättningar i ledningar.
+Brunnar till bensin- och oljeavskiljare utföres utan vattenlås. I spillvattenledning efter bensin- och
+oljeavskiljare anordnas larmgivare för okontrollerat bensin-respektive oljeutflöde samt brunn för
+provtagningsmöjlighet. Gipsavskiljare installeras där hantering med gips förekommer. Kan även användas
+för avskiljning av lera (terapilokaler).
+Avskiljare skall vara typgodkänd. Avskiljare skall vara åtkomliga från slamgsugningsbil, ha larm för full
+avskiljningsmängd samt provtagningsbrunn efter avskiljare.
+PPD.1 Inre inspektion av rörledningar
+Vid ombyggnader skall befintliga ledningars kondition, i mark och under platta verifieras, före
+projektering. Vid behov utförs videofilmning.
+Ledningar i mark skall filmas direkt efter återfyllnad.
+Ledningar under platta på mark skall filmas innan och direkt efter gjutning.
+Relinade ledningar skall filmas direkt efter utförd åtgärd
+Överväges även filmning före övertagande.
+PRB.1 Golvbrunnar
+Golvbrunn installeras endast där planerad spolning eller vattenutsläpp beräknas ske.
+Av hygienskäl placeras ej golvbrunn vid tvättställ utan bräddavlopp.
+Golvbrunn placeras ej i gång- och transportvägar.
+För att begränsa antalet golvbrunnar bör enheter anslutas direkt till spillvattensystem och ej via golvbrunn.
+I städrum kan golvbrunn placeras i anslutning till utslagsback vid bruk av städvagnar.
+I städutrymme med golvbrunn kopplas avlopp från utslagsback till egen avsättning.
+Desinfektionsrum förses med golvbrunn/spärrbrunn.
+Brunnar i garage och där trafik med trucktåg o dyl förekommer utföres med körbara betäckningar.
+Brunnar skall vara rensbara, utförandet vid speciella rensningskrav beaktas särskilt. Silar skall vara utförda
+med snäpplås. Verktyg skall ej erfordras vid demontering.
+PRC SPYGATTER
+Spygatt installeras i kalla, ej frostfria utrymmen.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 10 av 32
+
+--- Page 11 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+PUC.1 Tvättställ
+Tvättställ av porslin monteras dikt vägg med bultmontage.
+Mellan vägg och tvättställ tätas runt om med vit elastisk mögetresistent fogmassa av silikontyp.
+Tvättställ monteras med golvfixtur.
+Fixtur fastsättes i stående träreglar i båda sidor. Detta för att rörelsehindrade personer skall ha möjlighet
+att använda tvättställ som stöd.
+Vägganslutet vattenlås monteras där lämplig väggkonstruktion (regelvägg) så medger för att underlätta
+städning.
+Fällbara tvättställ skall utformas så att anslutningsledningar ej kläms.
+INOM SJUKVÅRD
+I samband med sjukvårdsarbete sker tvättning i rinnande vatten. Anordning som möjliggör att tvättstället
+kan fyllas med vatten får ej förekomma.
+Tvättställ i samband med sjukvårdsarbete utföres utan bräddavlopp.
+Montagehöjd enligt RFP och riktlinje för tillgänglighet.
+LOKALER SOM EJ ÄR INOM SJUKVÅRD
+Tvättning kan ske i rinnande eller upptappat vatten.
+PUE.1 Klosetter
+Vägg hängd sanitetsutrustning väljs i första hand.
+Golvmonterad fixtur ska användas.
+Montagehöjd enligt riktlinje för tillgänglighet.
+Det är mycket viktigt att inget glapp förekommer mellan fixtur och väggmaterial.
+Golvställd WC-stol monteras med skruvar, ej limning. Mellan WC-stol och golv tätas. Förhöjd skål skall
+användas.
+WC-stol förses med föravstängning placerad vid väggbricka/avstick.
+Klosett av porslin skall vara utförd av vitt sanitetsporslin.
+PUF.11 Diskbänkar av rostfritt stål
+Diskbänkar monterade på väggkonsoler kan vid speciella tillfällen förses med extra stödben i framkant.
+PUF.411 Utslagsbackar av rostfritt stål
+Utslagsback utan vulstspolning med galler.
+Utslagsback utan vulstspolning utförs av rostfri kvalitet SIS 14 23 32. SIS 14 23 47.
+Utslagsback monteras med överkant ca 500 mm över golv i städrum i övriga lokaler ca 600 mm över golv.
+PUG.1 Diskdesinfektorer och spoldesinfektorer
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 11 av 32
+
+--- Page 12 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Desinfektionsapparater förses med lätt manöverbara föravstängningsventiler på vägg.
+PUG.12 Diskdesinfektorer
+För en normalvårdsavdelning installeras diskdesinfektor för instrument, handfat m.m
+Lokala värmare i respektive apparat förutsätts. Doseringsutrustning för avkalkning diskuteras med hänsyn
+till vattenkvalitet t ex < 5° dh.
+Spoltider och apparatutformning samt tillbehör studeras i varje enskilt fall utifrån avdelningens verksamhet
+och typ.
+PUG.13 Spoldesinfektorer
+För en normalvårdsavdelning installeras spoldesinfektor för bäcken, urinflaskor m.m.
+Lokala värmare i respektive apparat förutsätts. Doseringsutrustning för avkalkning diskuteras med hänsyn
+till vattenkvalitet t.ex < 5 dh. Spoltider och apparatutformning samt tillbehör studeras i varje enskilt fall
+utifrån avdelningens verksamhet och typ.
+RB TERMISK ISOLERING AV INSTALLATIONER
+I sekundära utrymmen såsom ovan fasta undertak, rörkulvertar, schakt, slitsar o dyl utföres ingen
+ytbeklädnad. Isolering skall där vara utförd med aluminiumfoliebeklädnad eller dyl.
+I sekundära utrymmen såsom ovan fasta undertak, rörkulvertar, schakt, slitsar o dyl utföres ingen
+ytbeklädnad.
+Synliga, isolerade rörledningar utförs med lämplig ytbeklädnad.
+Där rörledningar utsätts för mekanisk påverkan (t ex trånga och arbetskrävande undercentraler) överväges
+ytbeklädnad av lämpligt skyddmaterial för ledningar under 2m över golv.
+Vid transportvägar, entreer med påkörningsrisk för städmaskiner, truckar etc. utföres ytbeklädnad av
+lämpligt skyddmaterial.
+Invändig dagvattenledningar isoleras mot kondensering.
+Eventuell erforderlig ljudisolering beaktas.
+RBB.11 Termisk isolering med slangar eller plattor av syntetiskt
+cellgummi på rörledning
+Isoleringen utföres vid upphängningar med distansskål.
+YTC.153 Provning av avloppsvattensystem och pneumatiska
+avfallstransportsystem
+Utöver spolningskontroll gäller följande:
+Vid nybyggnationer och större ombyggnationer skall tryck- och täthetes kontroll utföras på respektive
+våning. Detta utförs genom att systemet fylls med vatten till lägsta belägna avloppsenhet, exkl. golvbrunnar
+och andra lågt placerade enheter som proppas/lockas vid kontrollen.
+Provtiden skall vara minst 2 timmar.
+54 BRANDSLÄCKNINGSYSTEM
+.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 12 av 32
+
+--- Page 13 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+54.B/1 Vattensläcksystem - sprinklersystem
+I tidigt skede utreds vattenskällans kapacitet, om nödvändigt med avtappningsprov.
+Vilka anläggningar som ska förses med vattensprinkler definieras i brandskyddsriktlinjerna med
+brandskyddsansvarig inom aktuellt region, brandskyddsriktlinjerna "Brandskyddsdokumentation" för
+objektet upprättas av sakkunnig brandingenjör.
+SYSTEM OCH FUNKTIONER
+Brandskyddsdokumentationen definierar vilket av regelverken som ska användas.
+Samordning av sprinklerlarm med övriga brandlarm utförs i samråd med brandmyndigheten och
+brandskyddsansvarig.
+LEDNINGSSYSTEM
+Behov av larmade avstängningsventiler avdelningsvis övervägs i varje projekt. Detsamma gäller för
+flödesvakter för indikering av på vilket plan, avdelning som sprinkler aktiverats.
+Avstängningsventiler ska vara låsbara i såväl öppet som stängt läge eller enligt överenskommelse med
+brandskyddsansvarig och räddningstjänsten.
+Avstängningsventiler ska enligt egen ambition vara sektionerade för varje större brandcell samt vara
+försedd med flödesvakt. Larmsignal ska överföras till bemannad plats (driftcentral) vid fall att en ventil ställs
+i ett onormalt läge.
+Utlöst sprinkler ska normalt ge signal till räddningstjänsten.
+Orienteringsritningar för sprinklersystemet ska finnas tillgängliga.
+PSJ.1 Sprinklerhuvuden
+Vid installation av sprinklerhuvuden där åverkan kan förekomma övervägs infällda huvud med täcklock
+(Concealed), ex låga korridorer, psykiatriavdelningar.
+Vid övrig installation där åverkan kan förekomma skall sprinklerhuvuden förses med skyddskorgar.
+55 KYLSYSTEM
+Kylanläggning utföres dels ur komfortsynpunkt för att kompensera icke önskvärda värmetillskott genom
+värmeinläckning utifrån, värmealstrande apparater m m, dels som varukylanläggning för lokal kylning av t
+ex avfallsrum, likförvaring o dyl samt som processkylanläggning för att kyla värmealstrande apparater som
+MR-kameror, röntgen utrustning mm.
+Hänsyn till ställda komfortkrav, byggnadssätt m m samt ekonomisk jämförelse med alternativa åtgärder
+skall ligga till grund för beslut om komfortkyla. Möjligheten att återvinna kondensorenergin till
+tappvarmvatten- och/eller värmesystem skall alltid beaktas.
+För dimensionering av kylsystem skall kylbehovsberäkning ligga som grund, där hänsyn tas till
+värmelagring i byggnadsstomme, solinstrålning och interna värmelaster.
+Värmelaster skall reduceras så långt det är möjligt, exempelvis genom effektiv solavskärmning och
+energieffektiva apparater och belysning.
+ALLMÄNT
+Kylsystem skall utföras så flexibla som möjligt, med hänsyn till att verksamhet kan förändras och därmed
+också kylbehovet.
+I första hand skall indirekta kylsystem med vatten som köldbärare väljas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 13 av 32
+
+--- Page 14 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Rumskylsystem skall samregleras med rumsvärmare för det aktuella rummet för att undvika att rummet
+värms och kyls samtidigt.
+Nedan är en uppdelning av förutsättningar för dimensionering av kyla inom Region Halland:
+I RFP anges om vårdlokaler och vårdutrymmen ska installeras med kyla. De ska utföras enligt olika
+ambitionsnivåer och är kopplat till överenskommelser till verksamheter genom hyresavtal etc.
+Vissa lokaler har ”dämpande komfortkyla”(centralt reglerad kyla). Här tillåts inomhustemperaturen
+”glida med” några grader under uteluftstemperaturen.
+Andra lokaler har en högre nivå komfortkyla(med angiven max-temperatur i RFP). Dessa lokaler
+eller utrymmen är dimensionerade för en rumstemperatur som ska hålla ”normal nivå” så länge ute-
+klimatet är under 27°C vid 60% relativ fuktighet.
+Specifika rum, lokaler eller verksamheter som är känsligare avseende max-temperatur och/eller
+relativ fuktighet(som t ex handhar läkemedel, utför operation, förvarar sterilt material eller dylikt), där
+är temperatur eller relativ fuktighet fast begränsad vid ett dimensionerande ute-klimat på 28°C och
+70% relativ fuktighet. Dessa specifika lokaler är anordnade med lokalt installerad processkyla för det
+specifika ändamålet. (Alternativt i förkommande fall för läkemedel med kylskåp, eller kylskåp i
+kombination med komfortkyla.)
+Riktvärde för dimensionerande ute-klimat för kylmedelskylare och kondensorer för centrala system är
++30°C och 40 % RF.
+Om krav på komfortkyla uppfylls ska ur energihushållningssynpunkt daggpunktsreglerad kyla utföras i
+första hand, i övrigt får ”våt” kyla utföras. Hygienkrav beaktas!
+Vid val av systemtyp beaktas:
+Flexibilitet och utrymmesbehov samt miljöpåverkan.
+Indirekt lokalkylning innebär mindre flexibilitet jämfört med vattenburen kyla.
+Erforderliga luftflöden för kyla är 3-4 ggr större än för enbart ventilationsbehov vilket leder till
+utrymmeskrävande installation.
+Befintliga tappkallvattenkylda apparater skall byggas bort i så stor omfattning som möjligt.
+Vid lokalkylning med låga medietemperaturer åtgår kyleffekt till att kondensera vatten vilket innebär större
+energiförbrukning och större kylmaskiner jämfört med "torr" vattenburen kyla.
+Byggnader förses med energimätare med möjlighet till fjärravläsning.
+Nedan är en uppdelning av avnämare av kyla inom sjukvården:
+Processkyla
+Kyla för kylning av utrustningar, apparater, servrar, telerum, ställverk, hissar, datarum etc. Denna kyla är
+inte utetemperaturberoende. Kylbehovet är ungefär detsamma året runt.
+Kyla för speciella avdelningar
+Komfortkyla Kyla för kylning av kylbatterier i luftbehandlingsaggregat för operation, röntgen, intensivvård,
+laboratorier etc. Denna kyla är utetemperaturberoende.
+Komfortkyla Kyla för övriga avdelningar
+Kyla för kylning av kylbatterier i luftbehandlingsaggregat samt kylbafflar, cirkulationsaggregat etc för
+behandlings-, vård- och rehabiliteringsavdelningar samt administrationslokaler, kontor etc.
+RÖRLEDNINGAR I HUS
+Materialval för köldbärarledningar plast, koppar eller rostfritt stål.
+Rörsystem bör utföras på sådant sätt att höga tryckdifferenser över styrventiler inte uppkommer. Vid större
+system bör varvtalsreglerad cirkulationspump installeras.
+Rörsystem för lokala kylapparater dimensioneras så att det underlättar ombyggnader, som utgångsvärde
+används R<50 Pa/m för våningar och R<80 Pa/m för schakt.
+Val av isolering och dennes ytskikt med hänsyn till vattenångdiffusion. I första hand väljs kvalitetssäkrad
+diffusionstät syntetiskt cellgummiisolering, ventiler, flänsar, filter etc isoleras lika rören. Apparater som ej
+kan isoleras förses med extra ytbehandling och spillplåt för uppsamling av kondens. Spillplåten förses med
+dräneringsledning.
+Isolering utförs på varma sidan:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 14 av 32
+
+--- Page 15 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Fram till VÅ-avnämare
+Inomhus, där normal rumstemperatur krävs.
+Apparater som ej kan isoleras skall vara försedd med extra ytbehandling och spillplåt för uppsamling av
+kondens. Spillplåten förses med dräneringsledning.
+Materialkombinationer i reglerventiler och kylbatterier, pumpar, avstängnings-ventiler, kompensatorer, filter
+m m:
+Vid användande av frysskyddsmedel av organiska salter skall material väljas som ligger nära
+varandra i den galvaniska spänningskedjan för att undvika korrosion.
+Byte av frysskyddsmedel till organiska salter i befintliga anläggningar skall ej ske utan en
+konsekvensutredning.
+Hänsyn tages till luftningsproblem. Luftare skall placeras vid högpunkter. I första hand vid övergångar från
+horisontellt förlagd rör till vertikal där vattnets strömningsriktning är nedåt. Där luftare måste placeras mitt i
+ett horisontellt förlagd rörsystem bör en förstoring av röret utföras för att åstadkomma en luftficka.
+Avluftare skall tåla eventuellt frysskyddsmedel. Vid eftervärmning av luft sommartid bör kondensorvärme
+från kylmaskin utnyttjas.
+Avtappningsdon monteras vid rörlednings- och apparats lågpunkter så att slang kan anslutas.
+UTFORMNING AV KYLCENTRAL ELLER KYLMASKINER
+Kylanläggningen bör utformas så att den består av flera kylmaskiner anpassade för det skiftande behovet
+över årstiderna. Ett antal mindre kylmaskiner bör installeras för att täcka behovet vintertid.
+För kylproduktion sommartid installeras minst 2 st kylmaskiner.
+Kylmaskinerna bör dimensioneras så att en kylmaskin finns tillgänglig som backup för de andra
+kylmaskinerna. Alternativt att delar av kylsystemet med lägre prioritet enkelt kan stängas av om
+kylkapaciteten minskar. Kylmaskinerna ansluts i första hand till kylmedelskylare för bortförande av
+kondensorvärme. Om avsättning inte finns för kondensorvärmet i tillräcklig hög grad beaktas möjligheten till
+att använda "frikyla", d.v.s. möjligheten att överföra kyla från kylmedelsystemet direkt eller indirekt till
+köldbärarsystemet.
+Förångare dimensioneras med hänsyn till försmutsningsgrad. Kondensorer och kylmedelskylare väljs och
+dimensioneras med hänsyn till bl. annat ljudstörning.
+Kompressorer avvibreras från byggnadskonstruktionen och från rör och elanslutningar.
+Kylmaskiner upphandlas med LCC-utvärdering. Vid denna skall drifttider och lastprofil definieras.
+VAL AV KÖLDMEDIUM TILL KYLMASKINER
+För att uppfylla köldmediekungörelsens krav på minimering av användandet av ozonnedbrytande ämnen
+och växthusgaser (klimatpåverkan) skall i varje enskilt fall detta studeras.
+PAK.5 Kylkompressoraggregat, kylaggregat och värmepumpsaggregat
+Stora kylmaskiner förses med möjlighet för fjärrstyrning via kommunikationsbus.
+Anslutande rörledningar förses med uttag för tryckmätning.
+Förångare dimensioneras med hänsyn till försmutsningsgrad.
+PJB VÄRMEVÄXLARE
+Anslutande rörledningar förses med uttag för tryckmätning. I större system förses ledningar med ventiler så
+att renspolning av VVX, både primärt och sekundärt, går att utföra utan demontering.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 15 av 32
+
+--- Page 16 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+PJD.11 Luftkylda kylare för kylmedel, friblåsande
+Riktvärde för dim utetillstånd är + 32 grader C & 50 % RF
+PJD.3 Kyltorn
+Vid val av kyltorn ska en riskanalys göras.
+PKB PUMPAR
+Cirkulationspumpar skall vara försedda med frekvensomformare eller dyl för möjlighet till tryckreglering.
+För frekvensomformare till stora pumpar bör övervakning via kommunikationsbus övervägas. Vid val av
+pump tas hänsyn till pumpens driftkostnad under beräknad livstid (sk. livscykelkostnaden).
+Vid risk för kondens skall pumpar korrosionsskyddas och placeras på pumppelare med uppsamlingsplåt
+med dränage för kondensvatten.
+Vid val av pumpar för anläggningar med höga tryck, temperaturer och glykolsystem beaktas val av
+axeltätning mellan pump och motor.
+I första hand väljs pumpar upp till och med ansl 50 ”våta” och över ansl 50 ”torra”. Pumpval skall även
+beakta energiklassning men energikrav är underordnat driftsäkerhet och funktionskrav.
+Vid större system bör extern differanstryckgivare installeras.
+För ökad driftsäkerhet beaktas möjligheten att koppla två pumpar parallellt. Pumparna bör gå växelvis för
+att säkerställa driften.
+Parpumpar skall ej installeras.
+Före pump skall sil installeras i rörledning.
+Pumpar som fordrar vibrationsdämpare mot rörnät skall i undvikas. Om sådana pumpar måste komma till
+användning utförs anslutande ledningar med väl utformade fixanordningar och styrningar.
+Högvarviga pumpar bör undvikas.
+Torra pumpar får ej hängas i ledningar.
+PLC.41 Slutna expansionskärl med skilda rum för vätska gas
+Kylsystem förses med avstängnings- och avtappningsventil för kontroll av förtryck.
+PLC.411 Slutna expansionskärl med skilda rum för vätska och gas samt
+med anordning för tryckhållning
+Föreskrivs i stora system.
+PN RÖRLEDNINGAR M M
+Ledningar skall förläggas så att skador till följd av vattenläckage begränsas.
+Ledningar förläggs i första hand friliggande. Inbyggda ledningar samt förläggningar ovan fasta undertak bör
+undvikas.
+Rörsystem dimensioneras så att det underlättar ombyggnader.
+För längre kulvertledningar installeras elektriskt fuktlarmsystem bestående av elektriska ledare i rörisolering
+samt utrustning för kontinuerlig övervakning.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 16 av 32
+
+--- Page 17 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Påfyllning av kylsystem med vatten skall förses med vattenmätare.
+PS VENTILER M M I VÄTSKESYSTEM OCH GASSYSTEM
+Gruppavstängningsventil tillsammans med injusteringsventil förses med mättutag i ledning.
+PSB AVSTÄNGNINGSVENTILER
+Ledningar utförs med avstängningar vid avgreningar i våningsplan samt vid in- och utgångar i
+kulvertar/schakt.
+Vid ringmatning för exempelvis ett våningsplan installeras avstängningsventiler på ytterligare 1-3 punkter
+för möjlighet till avstängning av delar av respektive system.
+Ytterligare avstängningar övervägs med hänsyn till lokalernas karaktär.
+Kopplingsledningar utförs med föravstängningar vid inkoppling till platsutrustning.
+Kulventiler skall vara med fritt genomlopp i kulan. I anslutning till avstängningsventiler förses rörledning
+med mättutag för tryck.
+Gruppavstängningsventil tillsammans med injusteringsventil förses med mättutag i ledning.
+Avstängningsventiler typ kulventiler används för rör tom DN 50, vridspjällsventiler för DN 65 och större.
+Växel som manöverdon väljs till vridspjällsventiler större eller lika med DN 125.
+Vridspjällsventiler monteras ej med axel i lodrätt läge med manövrering underifrån.
+Tillverkarens monteringsanvisning skall beaktas.
+Vid placering av ventiler beaktas manövreringsmöjlighet.
+Ventiler i rörstråk monteras med spindeln nedåt.
+PSD.11 Manuella styrventiler i vätskesystem
+Injusteringsventiler skall vara av typ som möjliggör mätning av såväl tryck som flöde. Möjlighet skall finnas
+att mäta flöde även vid differenstrycksregulatorer.
+Injusteringsventiler inmonteras i köldbärarsystems huvudledningar och vid slutapparater typ luftkylbatterier,
+kylmaskiner etc.
+Vid kylbafflar o.dyl. monteras injusteringsventil utan mätuttag. Förinställning skall ske via beräknade
+värden.
+Vid större system övervägs möjligheten att använda differenstryckregulatorer för att säkerställa att för höga
+tryckfall vid styrventiler inte uppstår med ljudproblem som följd.
+PSF AVLEDARE
+Större system förses med central luftavskiljare, typ undertrycksavluftare. Mindre system förses med uttag
+för dylik.
+PSF.14 Avledare för luft eller gas i vätskesystem
+Som alternativ kan portabel undertrycksavgasare installeras/nyttjas, som kan flyttas runt och dockas in på
+olika system. Överväges i samtliga fall.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 17 av 32
+
+--- Page 18 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Avluftare utförs i systemens höjdpunkter. Om möjligt utförs detta med T-rör vid schakt där avluftare
+placeras åtkomligt exempelvis i neutralt varmbonat utrymme.
+Manuella luftare bör väljas i första hand för köldbärarsystem.
+Manuellt betjänade luftklockor förses om möjligt med avluftningsledning med avstängningsventil dragen till
+över golvbrunn.
+PTC.3 Kylbafflar och konvektorer
+System utföres med daggpunktsreglerad framledningstemperatur.
+Apparater skall förses med manuell luftningsventil på returen för köldbäraranslutning samt förses med
+kondensvakt.
+Apparater skall vara inplastade förslutna från leverantör.
+PTC.5 Fläktluftkylare
+Fläktluftkylare för kylning av installationstäta teknikrum skall placeras på vägg, för bättre åtkomstmöjlighet
+vid service.
+Kondensvattenpumpar bör undvikas.
+RB TERMISK ISOLERING AV INSTALLATIONER
+För ledningar med dy större än 80 mm beräknas den ekonomiska isoleringen med hänsyn till energi pris
+och mediets temperatur.
+Där rörledningar utsätts för mekanisk påverkan (t ex trånga och arbetskrävande undercentraler) överväges
+ytbeklädnad av lämpligt skyddmaterial för ledningar under 2m över golv.
+Vid transportvägar, entreer med påkörningsrisk för städmaskiner, truckar etc. utföres ytbeklädnad av
+lämpligt skyddmaterial.
+För skydd mot kondens skall diffusionstät isolering av mjuk syntetiskt cellgummi.
+Vid användande av isolering av mjuk syntetiskt cellgummi beaktas krav i brandskyddsdokumentation.
+Avstängningsventiler, strypventiler, silar och övrig platsutrustning i rörledningar (dock ej pumpar) isoleras
+med samma isoleringstjocklek som tillhörande rörledning.
+VENTILER
+Isolering vid ventiler, termometrar, givare o dyl får ej utföras förrän distanshylsor har monterats.
+Avstängningsventiler, strypventiler, silar och övrig platsutrustning i rörledningar (dock ej pumpar) isoleras
+med samma isoleringstjocklek som tillhörande rörledning.
+RBB.11 Termisk isolering med slangar eller plattor av syntetiskt
+cellgummi på rörledning
+Isoleringen utföres vid upphängningar med distansskål. Vid risk för kondens skall armaturer
+kondensisoleras. Där så ej är möjligt placeras en dränerad dropplåt under oisolerad armatur.
+RBB.2 Termisk isolering med mineralull på rörledning
+Utföres dammbunden.
+Avstängningsventiler, inregleringsventiler, silar och övrig platsutrustning i rörledningar (dock ej pumpar)
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 18 av 32
+
+--- Page 19 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+isoleras med samma isoleringstjocklek som tillhörande rörledning. Inregleringsventiler, isolering utförs med
+avtagbara isolerdon med ytbeklädnad lika tillhörande rörledning. Ev mättuttag förses med förlängda nipplar.
+UB GIVARE
+Givare i rörledning skall monteras med dykrör.
+UDC MÄTSTYRDON FÖR TRYCK
+På primärsida och sekundärsida av värmeväxlare installeras mätare för analog tryckfallsmätning separat
+över växlare samt separat över sil/filter.
+Avstängningsventiler för mätare skall endast vara öppna vid mätning.
+UGA MÄTARE MED SAMMANSATT FUNKTION
+KYLSYSTEM
+Kylenergimätare skall vara förberedda för fjärravläsning samt vara av flödestyp, ej mekaniska.
+Fjärravläsning via kommunikationsbus.
+Byggnader förses med energimätare och elmätare med möjlighet till fjärravläsning. Separat mätning kan
+ske för separata kylistallationer exempelvis för kylning av data hall.
+Kylmaskiner ska ha separat elmätare för uppföljning av COP.
+UGB.3 Mätare för temperatur, rörmonterade
+Termometer rak modell, med dykrör och spritfyllning.
+Termometrar anbringas i värmeåtervinningsledningar och köldbärar- ledningar före styrventiler, apparater
+och i omedelbar anslutning till, kyl- och återvinningsbatterier.
+Termometrar placeras så att följande temperatur kan utläsas:
+• Tillopp- och returtemperatur på primärsida och sekundärsida av fjärrkylväxlare, och övriga växlare i
+systemet.
+• Tillopp- och returtemperatur på kylmedel/köldbärare.
+• Tillopp- och returtemperatur på primärsida och sekundärsida av shuntgrupper.
+• Tillopp- och returtemperatur i värmeåtervinningssystem.
+• Temperaturgivare på större enskilda enheter övervägs.
+56 VÄRMESYSTEM
+VÄRMESYSTEM INOMHUS
+I första hand skall värmesystem utföras som 2-rörs vattenburna system med radiatorer.
+Lämplig zonindelning, t.ex. norr- söderfasad, byggnadens läge, -konstruktion etc. görs så att
+systemtemperaturer i varje zon anpassas för verkligt behov.
+Även zonindelningar och anpassningar för avdelningar med speciella temperaturkrav skall göras.
+UTFÖRANDE
+Radiatorer och konvektorer skall förses med reglerbar strypanordning samt automatisk termostatventil.
+Inbyggda radiatorer och konvektorer förses med separat känselkropp.
+RADIATORTERMOSTATER, MAXBEGRÄNSADE
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 19 av 32
+
+--- Page 20 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Vid val av maxbegränsningstemperatur, som skall dokumenteras, skall det aktuella behovet av godtagbar
+rumstemperatur beaktas.
+Platsutrustning väljs även med hänsyn till enkelhet i uppbyggnad och funktion samt lättillgänglighet för
+manöver, underhåll och städning.
+CENTRALUTRUSTNINGAR, VÄRMECENTRALER
+Värmeeffektbehovet fördelas på värmeproducerande enheter så, att eventuellt bortfall eller driftstörning av
+en enhet möjliggör drift av nödvändig värmeproduktion under kortare tid med annan eller andra enheter.
+Fjärrvärmecentraler skall utformas enligt fjärrvärmeleverantörens anvisningar. Om inget annat framkommer
+utförs denna enligt ”Fjärrvärmecentralen – Utförande och installation - Tekniska bestämmelser F:101” som
+utges av Svensk Fjärrvärme. Gäller även sekundärsida.
+UNDERCENTRALUTRUSTNINGAR
+I undercentraler med värmeväxlare mellan primär- och sekundärsystem utförs expansionssystem för
+sekundärsida huvudsakligen med någon av följande typer:
+Slutet system
+Kärl med kompressor för tryckhållning
+För mindre system
+Förtryckt kärl.
+Värmemängdsmätare installeras så att varje byggnad kan mätas.
+MARKVÄRME
+Snösmältningssystem utförs med värmeväxlare och sekundärsystem med slutet, fabrikstillverkat
+expansionssystem.
+PLATSUTRUSTNING
+Platsutrustning väljs även med hänsyn till enkelhet i uppbyggnad och funktion samt lättillgänglighet för
+manöver, underhåll och städning.
+LEDNINGSNÄT
+Värmevattenledningar ansluts till de platsutrustningar som har dessa behov. Sådan platsutrustning som vid
+tillverkningen ej försetts med avstängnings- eller manöverutrustning, förses vid inkopplingsställe med
+erforderlig sådan utrustning. Vid förläggning skall åtkomlighet beaktas. Expansionsanordning utförs i första
+hand av lyra. För ångledning gäller att kompensator ej får användas.
+SYSTEM OCH FUNKTIONER LEDNINGAR
+Rörsystem bör utföras på sådant sätt att höga tryckdifferenser över styrventiler inte uppkommer. Rörsystem
+dimensioneras så att det underlättar ombyggnader, som utgångsvärde R<100 Pa/m.
+Ledning för värmeåtervinning med temperatur lägre än + 20°C utföres av koppar eller rostfritt stål. Vid
+temperaturer under 0°C används frysskyddsmedel av typ etylenglykol i första hand.
+Fördelningsledningar för värmevatten och ånga utförs med avstängningar vid avgreningar i våningsplan
+samt vid in- och utgångar i kulvertar. Ytterligare avstängningar övervägs med hänsyn till lokalernas
+karaktär. För avluftning av ledningar utförs i första hand manuellt luftade luftklockor.
+Avluftare förses med avstängningsventil. I ledningsnät för värmeåtervinningssystem eller andra typer av
+ledningsnät med cirkulerande medium med låg temperatur skall avluftare av typ undertrycksavgasare
+installeras.
+BEC.5 Demontering av vvs-, kyl- och processmedieinstallationer
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 20 av 32
+
+--- Page 21 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Ledningar som ej är i drift skall demonteras.
+PJ VÄRMEVÄXLARE, KONDENSORER OCH FÖRÅNGARE
+Generellt gäller att undercentral, växlare eller annan värmekälla och huvudcirkulationssystem mellan
+fjärrvärmeväxlare och under-shuntgrupper eller sekundära växlare, skall dimensioneras för en
+överkapacitet på 20%.
+PJB VÄRMEVÄXLARE
+I undercentraler med värmeväxlare installeras två växlare med vardera 75% effekttäckning, beroende på
+verksamhetens art och krisberedskap.
+Anslutande rörledningar förses med uttag för tryckmätning. I större system förses ledningar med ventiler så
+att renspolning av VVX, både primärt och sekundärt, går att utföra utan demontering.
+På tillopp- och returledning på primär- och sekundärsida av växlare installeras, mellan växlare och
+avstängningsventil, en avsättning DN 25 med avstängningsventil. Detta för möjlighet till renspolning av
+växlare.
+PKB PUMPAR
+Energiklass A pumpar väljs i första hand, för våta pumpar gäller energiklass A som minimi krav.
+Cirkulationspumpar skall vara försedda med frekvensomformare eller dyl för möjlighet till tryckreglering.
+Större pumpar utförs med lös frekvensomformare. Energikrav är underordnat driftsäkerhet och
+funktionskrav.
+För frekvensomformare vid stora pumpar bör övervakning via kommunikationsbus övervägas. Vid val av
+pump tas hänsyn till pumpens driftkostnad under beräknad livstid (sk. livscykelkostnaden).
+Vid val av pumpar för anläggningar med höga tryck, temperaturer och glykolsystem beaktas val av
+axeltätning mellan pump och motor.
+I första hand väljs pumpar upp till och med ansl 50 ”våta” och över ansl 50 ”torra”.
+Vid större system bör extern differanstryckgivare installeras.
+För ökad driftsäkerhet beaktas möjligheten att koppla flera pumpar parallellt. Pumparna bör gå växelvis för
+att säkerställa driften. Parpumpar skall ej föreskrivas.
+Före pump skall sil installeras i rörledning.
+Pumpar som fordrar vibrationsdämpare mot rörnät skall i görligaste mån undvikas. Om sådana pumpar
+måste komma till användning utförs anslutande ledningar med väl utformade fixanordningar och styrningar.
+Torra pumpar får ej hängas i ledningar.
+Högvarviga pumpar bör undvikas.
+PLC.41 Slutna expansionskärl med skilda rum för vätska gas
+Mindre värmesystem försett med avstängnings- och avtappningsventil för kontroll av förtryck.
+I undercentraler med värmeväxlare mellan primär- och sekundärsystem skall expansionssystem för
+sekundärsida utföras med slutna expansionskärl.
+För större system installeras kärl med kompressor för tryckhållning.
+PN RÖRLEDNINGAR M M
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 21 av 32
+
+--- Page 22 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Ledningar skall förläggas så att skador till följd av vattenläckage begränsas.
+Ledningar förläggs i första hand friliggande. Inbyggda ledningar samt förläggningar ovan fasta undertak bör
+undvikas.
+Rörsystem dimensioneras så att det underlättar ombyggnader.
+Expansionsanordning utförs i första hand av lyra.
+För längre kulvertledningar installeras elektriskt fuktlarmsystem bestående av elektriska ledare i rörisolering
+samt utrustning för kontinuerlig övervakning.
+PS VENTILER M M I VÄTSKESYSTEM OCH GASSYSTEM
+Vid placering av ventiler beaktas manövreringsmöjlighet
+Fördelningsledningar för värmevatten och ånga utförs med avstängningar vid avgreningar i våningsplan
+samt vid in- och utgångar i kulvertar.
+Ytterligare avstängningar övervägs med hänsyn till lokalernas karaktär.
+PSB AVSTÄNGNINGSVENTILER
+Ledningar utförs med avstängningar vid avgreningar i våningsplan samt vid in- och utgångar i
+kulvertar/schakt.
+Vid ringmatning för exempelvis ett våningsplan installeras avstängningsventiler på ytterligare 1-3 punkter
+för möjlighet till avstängning av delar av respektive system.
+Ytterligare avstängningar övervägs med hänsyn till lokalernas karaktär.
+Kopplingsledningar utförs med föravstängningar vid inkoppling till platsutrustning.
+VÄRMESYSTEM
+Kulventiler skall vara med fritt genomlopp i kulan. I anslutning till avstängningsventiler förses rörledning
+med mättutag för tryck.
+Gruppavstängningsventil tillsammans med injusteringsventil förses med mättutag i ledning.
+Avstängningsventiler typ kulventiler används för rör tom DN 50, vridspjällsventiler för DN 65 och större.
+Växel som manöverdon väljs till vridspjällsventiler större eller lika med DN 125.
+Vridspjällsventiler monteras ej med axel i lodrätt läge med manövrering underifrån.
+Tillverkarens monteringsanvisning skall beaktas.
+Ventiler i rörstråk monteras med spindeln nedåt.
+PSD.11 Manuella styrventiler i vätskesystem
+Injusteringsventiler skall vara av typ som möjliggör mätning av såväl tryck som flöde. Möjlighet skall finnas
+att mäta flöde även vid differenstrycksregulatorer.
+Mättuttag skall finnas på ventiler som betjänar större specifika områden, exempelvis ett plan, en avdelning
+eller dyl.
+Vid större system övervägs möjligheten att använda differenstryckregulatorer för att säkerställa att för höga
+tryckfall vid styrventiler inte uppstår med ljudproblem som följd.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 22 av 32
+
+--- Page 23 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Inregleringsventiler inmonteras i värmesystems huvudledningar och vid slutapparater.
+PSF AVLEDARE
+Avluftare av typ undertrycksavgasare överväges. Större system förses med central luftavskiljare. Mindre
+system förses med uttag för dylik.
+PSF.14 Avledare för luft eller gas i vätskesystem
+Avluftare utförs i systemens höjdpunkter.
+Om möjligt utförs detta med T-rör på schakt där avluftare placeras åtkomligt exempelvis i neutralt
+varmbonat utrymme.
+Avluftare placeras i slutet på högpunkt i flödesriktningen. Böj utförs istället som ett T-rör med avluftare
+placerad i högpunkt. I andra hand placeras avluftaren vid horisontellt förlagd ledning.
+Där så är möjligt, utförs de som manuellt betjänade luftklockor med avluftningsledning med
+avstängningsventil dragna till över golvbrunn.
+Om manuella luftklockor ej kan användas, utförs avluftare som automatiska luftklockor med
+avstängningsventil.
+PTB RUMSVÄRMEAPPARATER
+Som rumsvärmare förordas radiatorer utan konvektionsplåtar. Om möjligt utförs dessa som enkelpaneler.
+Radiatorer och konvektorer skall förses med:
+• Reglerbar strypanordning och automatisk termostat.
+• Returavstängningsventil.
+• Galler och sidoplåtar, där så är lämpligt.
+• Monteras med ett fritt avstånd 70mm mellan radiator och fönsterbänk
+RB TERMISK ISOLERING AV INSTALLATIONER
+För ledningar med dy större än 80 mm beräknas den ekonomiska isoleringen med hänsyn till energi pris
+och mediets temperatur.
+Där rörledningar utsätts för mekanisk påverkan (t ex trånga och arbetskrävande undercentraler) överväges
+ytbeklädnad av lämpligt skyddmaterial för ledningar under 2m över golv.
+Vid transportvägar, entréer med påkörningsrisk för städmaskiner, truckar etc. utföres ytbeklädnad av
+lämpligt skyddmaterial.
+RBB.2 Termisk isolering med mineralull på rörledning
+Utföres dammbunden.
+VÄRMESYSTEM
+I sekundära utrymmen såsom ovan fasta undertak, rörkulvertar, schakt, slitsar o dyl utföres ingen
+ytbeklädnad. Isolering skall där vara utförd med aluminiumfoliebeklädnad eller dyl. Samtliga skarvar tejpas
+med avsedd tejp.
+Synliga, isolerade rörledningar utförs med lämplig ytbeklädnad.
+Avstängningsventiler, inregleringsventiler, silar och övrig platsutrustning i rörledningar (dock ej pumpar)
+isoleras med samma isoleringstjocklek som tillhörande rörledning. Inregleringsventiler, isolering utförs med
+avtagbara isolerdon med ytbeklädnad lika tillhörande rörledning. Inregleringsventiler under ansl 32 isoleras
+ej.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 23 av 32
+
+--- Page 24 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+RC YTBEKLÄDNADER PÅ TERMISK ISOLERING PÅ
+INSTALLATIONER
+Vid inkoppling, inskärning och dyl till befintliga system skall ytbeklädnad på isolering på befintliga ledningar
+återställas/ bytas.
+UB GIVARE
+Givare i rörledning skall monteras med dykrör.
+UGA MÄTARE MED SAMMANSATT FUNKTION
+VÄRMESYSTEM
+Värmeenergimätare skall vara förberedda för fjärravläsning samt vara av flödestyp, ej mekaniska.
+Fjärravläsning via kommunikationsbus.
+Värmemängdsmätare installeras så att varje byggnad kan mätas.
+UGB.3 Mätare för temperatur, rörmonterade
+Termometer rak modell, med dykrör och spritfyllning.
+Termometrar anbringas i värmevattenledningar, värmeåtervinningsledningar före styrventiler, apparater och
+i omedelbar anslutning till värme- och återvinningsbatterier.
+Termometrar placeras så att följande temperatur kan utläsas:
+• Tillopp- och returtemperatur på primärsida och sekundärsida av fjärrkylväxlare, och övriga växlare i
+systemet.
+• Tillopp- och returtemperatur på värmeledningar.
+• Tillopp- och returtemperatur på primärsida och sekundärsida av shuntgrupper.
+• Tillopp- och returtemperatur i värmeåtervinningssystem.
+• Temperaturgivare på större enskilda enheter kan även övervägas.
+UGC MÄTARE FÖR TRYCK
+På primärsida av värmeväxlare installeras mätare för analog tryckfallsmätning separat över växlare samt
+separat över sil/filter.
+På sekundärsida av värmeväxlare installeras mätare för analog tryckfallsmätning separat över växlare,
+separat över pumpar samt separat över sil/filter.
+Avstängningsventiler för mätare skall endast vara öppna vid mätning.
+57 LUFTBEHANDLINGSSYSTEM
+Byggnaders ventilationssystem skall utformas så att erforderlig mängd uteluft tillförs byggnaden och så att
+föroreningar från verksamheter liksom luftburna utsöndringsprodukter från personer och byggnadsmaterial
+samt fukt, elak lukt och hälsofarliga ämnen bortförs.
+System bör delas upp avdelningsvis där temperaturkrav, hygeinkrav etc beaktas. Exempelvis skall
+infektionsavdelningar alltid förses med egna separata system.
+Operationssalar skall betjänas med separata system där temperaturer kan regleras i respektive
+luftbehandlingsaggregat. För rum med renhetskrav används SIS-TS 39-2012 som vägledning.
+Luftbehandlingsanläggning skall anordnas så att uteluftflödet kan minskas när byggnaden eller del av den
+inte brukas.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 24 av 32
+
+--- Page 25 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Hälsorisker och skador på byggnaden beaktas vid reducering av flöden.
+Luftbehandlingsanläggning skall uppfylla följande två primära krav:
+En tillfredsställande luftkvalitet
+Ett tillfredställande termiskt rumsklimat
+CENTRALUTRUSTNINGAR
+Vid planering av centralutrustningar beaktas kravet på skydd mot störande ljud. Vidare beaktas placering
+och utformning av schakt, utbyten av aggregatenheter, filter etc med hänsyn till framtida om/eller
+tillbyggnad.
+Vid val av centralutrustningar, skall teknisk/ekonomisk jämförelse utföras och redovisas. Vid sådan
+jämförelse beaktas bl a följande:
+Uppdelning av anläggningen så, att lokaler med begränsad nyttjandetid kan stängas av från den del
+som fordrar dygnetruntdrift
+Olika typer av värmeåtervinningssystem, deras ekonomi, platsutrymme och skötsel.
+Vid upphandling av aggregat skall en utvärdering av livscykelenergikostnaden, LCCe, utföras.
+TEKNISKA KRAV
+Värmeåtervinning ur frånluften skall anordnas.
+Om enskilda rum (exempelvis rökrum) medför risk för luktspridning, kan det vara fördelaktigt att ansluta
+rummet med en separat frånluftsfläkt.
+Zon-indelning av luftbehandlingssystem med avseende på olika temperatur nivåer ex. norr/söder fasad,
+olika verksamheter, skall beaktas.
+System med variabelt luftflöde i rum övervägs för erhållande av optimal ekonomi och energibesparing samt
+för möjlighet att reglera luftflöden. Detta är intressant främst för lokaler med låg utnyttjandegrad och hög
+personbelastning.
+Anläggningar med forcering skall utföras så att luftflödet till andra delar av anläggningen inte påverkas vid
+forceringen.
+För personalberörda lokaler utföres forcering med tryckknapp och timerfunktion.
+För lokaler där personal ej stadigvarande vistas utföres forceringen med automatiska forceringsdon.
+Automatisk forcering utföres med temperaturgivare.
+Till- och frånluftkanaler ansluts till till- och frånluftdon samt till de övriga platsutrustningar vilka till sin
+funktion är avsedda för anslutning till luftbehandlingssystem.
+Kanalsystem skall utformas så att varje ur injusterings- och kontrollsynpunkt väsentlig storhet i den färdiga
+anläggningen kan ställas in och mätas med enkla metoder.
+Flödesmätning skall även kunna utföras för avdelning eller ett våningsplan.
+Till- och frånluftskanaler skall förläggas så att de är åtkomliga för rensning.
+Samtliga kanaler skall förses med rensluckor placerade på sådant avstånd från varandra att man med
+normalt tillgängliga rensredskap kan nå alla delar av luftdistributionssystemet som behöver rensas.
+Varje service- och underhållskrävande komponent i kanalsystem skall vara lämpligt placerad ur
+skötselsynpunkt. Placering av spjäll, rensluckor och övrig utrustning som erfordrar service och underhåll
+förordas i första hand i teknikutrymmen och i andra hand i allmänna utrymmen, korridorer och dyl.
+Lägsta möjliga lufthastighet skall eftersträvas i kanalsystemet för erhållande av lägsta möjliga driftkostnad
+för fläktar. Med hänsyn till framtida ombyggnader bör kanalsystemet dimensioneras så att möjligheter att
+utöka luftflödet finns. Detta medför låga hastigheter i schakt och våningsplan och att ”större” dimensioner
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 25 av 32
+
+--- Page 26 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+dras fram till korridorändar.
+Vid dimensionering skall krav för aggregat ställas så att verkligt utfall kan följas upp och kontrollmätas,
+exempel med LCC energi (LCCe).
+LUFTINTAG
+Uteluft intagen placeras med hänsyn till väderstreck, trafik etc. Vid planeringen skall särskilt beaktas
+åtgärder till förhindrande av igensättning med is och snö i intagsgaller och förfilter.
+Intagskanaler utföres med förstoring av kanalarean och förses med tråg i botten, dränering samt
+inspektionslucka/dörr.
+Vid systemuppbyggnad skall eftersträvas ett minimum av brand/brandgasspjäll.
+BEC.5 Demontering av vvs-, kyl- och processmedieinstallationer
+LUFTBEHANDLING
+Kanaler som ej är i drift, och som ej planeras att driftsättas skall demonteras. Kanaler proppas/lockas så
+nära huvudkanal som möjligt.
+Q APPARATER, KANALER, DON M M I LUFTBEHANDLINGSSYSTEM
+Luftbehandlingsaggregat skall vara Euroventcertifierade.
+Förutom för servicepunkter skall inspektionsluckor installeras före och efter luftvärmare, luftkylare samt
+värmeåtervinnare.
+Samtliga inspektions-, serviceluckor i aggregat skall vara försedda med gångjärn.
+Aggregat bör förses med inspektionsfönster i luckor samt invändig belysning kopplad tillsammans med
+rumsbelysning.
+Där klimat eller dränering så kräver utförs aggregatbotten fram till VVX utföres av rostfritt stål.
+QE FLÄKTAR
+Startanordning för fläkt utförs normalt så, att automatisk återstart sker efter driftavbrott. Vid större fläktar
+beaktas möjligheten att använda mjukstart, frekvensomformare för att minska max el-uttag vid starten.
+Aggregat och fläktar placeras inomhus. Utomhusplacering endast efter överenskommelse med ansvarig
+inom aktuellt region.
+För fläktar och aggregat som installeras vid ny- och ombyggnad gäller följande SFP-värden vid nominellt
+flöde:
+Från- och tilluftssystem med värmeåtervinning
+SFP, Kw/(m³/s): 2,0 , 1,5 vid luftflöde >1,5 m³/s
+Från- och tilluftssystem utan värmeåtervinning
+SFP, Kw/(m³/s): 1,5 , 1,35 vid luftflöde >1,5 m³/s
+Frånluftssystem med värmeåtervinning
+SFP, Kw/(m³/s): 1,0 , 0,7 vid luftflöde >1,5 m³/s
+Frånluftssystem
+SFP, Kw/(m³/s): 0,6 , 0,4 vid luftflöde >1,5 m³/s
+QF VÄRMEVÄXLARE
+Typ av värmeväxlare i luftbehandlingssystem väljs beroende på hygienkrav och risk för överföring av lukter.
+Om inga sådana hinder föreligger förordas roterande värmeväxlare.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 26 av 32
+
+--- Page 27 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+QFB VÄRMEVÄXLARE LUFT-LUFT
+Vid risk för kondensbildning beaktas avvattningsledningar från spill plåt. Förses med vattenlås med
+luktstopp. Värmeväxlare skall skyddas med filter på till och frånluftsida.
+Vid risk för luftläckage mellan till- och frånluftsida skall det tillses att frånluftsidan har ett lägre statiskt tryck
+än tilluftsidan så att överföring från frånluft till tilluft ej sker.
+Där roterande regenerativ värmeåtervinnare väljs skall denna vara av resistent material och respektive
+fläktdelar sugande över rotorn. Renblåsningssektor förutsätts. Vidare skall rotor utföras tvättbar (våttvätt)
+och förses med uppsamlingstråg med avlopp.
+Statiska (rekuperativa) värmeåtervinnare typ plattvärmeväxlare och batterivärmeväxlare förekommer även,
+speciellt i extra rena miljöer typ operation och liknande.
+Frågan om medium i rörledning vid batteriväxlare tas upp med VVS-ansvarig vid varje projekt. Etylenglykol
+väljs i första hand.
+QFC VÄRMEVÄXLARE VÄTSKA-LUFT E D
+Värme-, kyl- och återvinningsbatterier utförs normalt med rör av koppar och lameller av aluminium. Vid
+placering av kyl- och återvinningsbatterier beaktas avvattningsledningar från spillplåt för kondensvatten.
+Förses med vattenlås.
+Värme-, kyl- och återvinningsbatterier skall vara av resistent material.
+Luftbatterier som värmer uteluft skall utföras med cirkulationspump i kretsen mellan reglerventil och
+luftbatteri. Kombibatterier värme och kyla väljs i första hand.
+QGB LUFTFILTER
+Luftfilter för vårdlokaler väljs efter PTS typrum eller RFP, Tyrummen tar hänsyn till:
+• Rumstyp
+• Inredning/utrustning
+• Funktionskrav
+• Filterklass
+Filter skall vara P-märkta påsfilter i standardmoduler.
+Förfilter installeras för filter med klass F9 och högre, för att förlänga bytesintervall.
+Vid alla filter utförs tryckdifferensmätare av U-rörstyp med spritfyllning. Märks med begynnelse- och
+sluttryckfall.
+Vid filtervakter anges tillåtet tryckfall och arbetsområde.
+QHB LUFTFUKTARE
+För lokaler med krav på luftfuktighet skall luften befuktas med ånga.
+QJB LUFTSPJÄLL
+Fördelnings- och grenkanaler förses med erforderliga avstängnings- och injusteringsspjäll.
+Spjällen skall vara utförda så, att avstängnings- eller regler-anordningens läge i kanalen kan utläsas.
+Utrymme för service beaktas.
+Inställningsläge skall markeras på spjäll.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 27 av 32
+
+--- Page 28 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+QL VENTILATIONSKANALER M M
+Cirkulärt och rektangulära kanalsystem utföres i täthetsklass C. Cirkulärt kanalsystem skall vara
+typgodkänt. Påstick skall endast användas i undantagsfall och kontrollant skall beredas möjlighet att
+kontrollera utförandet. Kanaländar skall vid leverans och under montering hållas förslutna.
+Plåtskruv, kortare modell som endast tränger in några mm i kanal får användas. Närmast renslucka (1,5 m)
+skall trycktät popnit användas. Vid eftermontering av renslucka skall befintliga skruvar på 1 m avstånd från
+rensluckan bytas till trycktät popnit.
+Kanalsystem skall vara väl rengjorda innan de tas i permanent bruk. Kanal upphängs med svep och pendel
+från bjälklag. Rektangulära kanaler med bärjärn och pendel från bjälklag.
+Generellt gäller att huvud och samlingskanaler dimensioneras för 20% extra luftflöde. Vid detta luftflöde
+skall gälla dimensionerande rekommenderande hastighet 4 m/s där max.hastighet 5 m/s samt max. tryckfall
+1 Pa/m ej får överskridas. Grenkanalen dimensioner för max.hastighet 4 m/s och max. tryckfall 1 Pa/m
+överskridas. Anslutningskanal dimensioneras brukligen med donanslutnings-dimensionen. Dock bör ej
+max.hastighet 3 m/s och max. tryckfall 1 Pa/m överskridas.
+För operationsrum och rum med höga hygienkrav övervägs om rostfria tilluftskanaler skall installeras.
+Bestäms i samråd med ansvarig inom aktuellt region.
+Beakta att upphängningsanordning utförs med bärförmåga i erforderlig brandteknisk klass. Gäller
+exempelvis kanaler vid brandgrängenomföringar, kanaler i främmande brandcell som ej avskiljs med spjäll
+eller dyl, övrigt gäller tillverkarens anvisningar.
+QLE LUCKOR I VENTILATIONSKANAL FÖR RENSNING OCH
+INSPEKTION
+Rensluckors läge skall fastställas på ritningar.
+Vid montering skall åtkomlighet beaktas. Brandteknisk klass skall vara lika krav på kanal. Luckor skall
+fästas i stos.
+Rensluckor skall låsas med ”omvänd” popnit eller skruv.
+QM LUFTDON M M
+Anslutningslådor skall vid leverans vara försedda med skyddslock.
+Lock i donända får ej avlägsnas före slutstädning.
+Luftdon med anslutningslåda skall ha fast mätuttag för luftflödesmätning. Don utan injusteringsmöjlighet
+skall förses med injusteringsspjäll med fast mätuttag.
+Anslutningslåda eller anslutningsdetalj (vinkel T-rör) upphänges med pendel minsta diam 8 mm från
+bjälklag. Om en pendel användes, skall denna monteras centriskt över donanslutning.
+QMB UTELUFTSDON
+Avstånd till luftningar från spillvattensystem och dyl beaktas.
+Luftintag placeras med hänsyn till väderstreck, trafik samt risk för igensättning med is och snö, luftintag mot
+norr förordas.
+Ytterväggsgaller och smådjursnät skall vara åtkomligt för borttagning av snö och is. Åtgärder utförs för att
+undvika igensättning av snö och is i filter.
+Separat intagskammare med inspektionslucka/dörr och spygatt för dränering förordas.
+Luftintag som betjänar operationsavdelningar eller annan verksamhet där en temporär minskning, eller
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 28 av 32
+
+--- Page 29 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+obalans av luftflödet ej är acceptabel, skall förses med elvärmekabel.
+Uteluftsdons dimensioneras efter tillverkarens rekommenderade anvisningar avseende tryckfall,
+vattenskiljning och dyl.
+Max. hastighet över bruttoarea för ytterväggsgaller skall dock vara 2,0 m/s.
+QMC TILLUFTSDON
+För tilluftdon förordas don med möjlighet att lätt ställa in spridningsbilden.
+QME FRÅNLUFTSDON
+Punktutsug
+Punktutsug installeras för bortföring av exempelvis anestesigaser I operationssalar, förberedelserum,
+anestesirum etc. behov och utformning utförs I samråd med verksamheten.
+Punktutsug för anestesi erfordrar ofta separat fläkt pga höga tryckfall. Avluft från denna anslutes vanligen
+på frånluftskanal som betjänar rummet och skall ha ett betydligt högre flöde.
+Dragskåp dragbänkar
+Dragskåp och dragbänkar installeras för utsugsanordning vanligen för laboratoriearbeten och dyl.
+Bedömning görs av kanalmaterial samt om separat system med separat fläkt erfordras, beroende på vilka
+kemikalier som hanteras och skall evakueras. Riskbedömning skall göras om skåp kan anslutas till centralt
+frånluftssystem.
+Kemikalieskåp
+Riskbedömning skall göras om skåp kan anslutas till centralt frånluftssystem beroende på vilka kemikalier
+som skall förvaras, om flaskor förvara öppna eller stängda etc. Anvisning om vilka kemikalier som kan
+förvaras skall finnas uppsatta vid/på skåpet.
+RB TERMISK ISOLERING AV INSTALLATIONER
+KANALER
+Kanaler isoleras utvändigt.
+Håltagning i isolering, för givare, rensluckor etc eller vid isoleravslut skall utformas med kantskoning.
+Vid isolering av kanal skall givare och don monteras på distansplåt så att brand- och kondensisolering kan
+monteras obruten.
+Isolermaterial skall vara försedd med fabrikatsmärkning som anger typ av isolering (värme, brand,
+kondens) brandklass samt artikelnummer.
+Isolering skall vara försedd med dammskyddande ytskikt.
+Invändig isolering utan plåttäckning skall undvikas.
+YTC.157 Kontroll av luftbehandlingssystem
+LCCe: Provning av installerat aggregat mot erhållna data skall utföras före slutbesiktning och
+garantibesiktning.
+KONTROLL AV PRESTANDA
+Temperatur
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 29 av 32
+
+--- Page 30 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Kontroll av rumstemperaturen skall normalt ske med data-log för representativa rum.
+Luftutbyteseffektivitet
+Kontroll av luftutbyteseffektiviteten skall ske i 10% av rummen vid ny- och ombyggnad genom
+spårgasmätning.
+Ljudnivå
+Angivna ljudnivåer avser maximalvärden och får ej överskridas.
+Mätningarna utförs enligt VVS AMA, Normalmätning.
+Luftflöden
+Kontroll av luftflöden, 100%, skall utföras enligt byggforskningens rekommenderade mätmetoder.
+OVK-besiktning skall göras innan anläggningen tas i drift.
+Täthet
+Kanalsystemen täthetsprovas till 100 %.
+Y MÄRKNING, PROVNING, DOKUMENTATION M M
+.
+YTB MÄRKNING OCH SKYLTNING AV INSTALLATIONER
+Skall följa gällande märkstandard inom aktuellt region.
+YTB.1 Märkning av installationer
+Hela installationen märkes.
+Skyltar skruvas fast.
+Samtliga i objektet förekommande skyltar fästes väl synliga på eller intill det objekt som skall märkas.
+Centralutrustningsenheter förses med skyltar. Skyltarna skall ange enhetens benämning, ordningsnummer
+samt nominella data för flöde och tryck.
+Märkningen utförs vid schaktutgångar, brandcellsgenomgångar etc.
+YTB.15261 Märkning av installationer för medicinsk gas
+Utöver märkning enligt HB 370 märks gasuttag med vilken nödavstängningslåda som betjänar uttaget samt
+nödavstängningslådor inom avdelning med löpnummer.
+Rörledningar ska märkas med namn på gassort i rörledning.
+Gasens strömningsriktning ska markeras med pil.
+Rörledningar ska märkas omedelbart efter montering.
+Ventiler, regulatorer och övriga komponenter ska förses med märkskylt som anger namn på gassort i
+klartext samt text eller annan märkning som identifierar betjäningsområde.
+YTB.157 Märkning av luftbehandlingsinstallationer
+Kanalmärkning anbringas på huvudkanaler minst var 10:e meter. Märkning skall ange media (tilluft, frånluft
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 30 av 32
+
+--- Page 31 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+etc), system-tillhörighet enligt ritningar, samt betjäningsområde. (Ex. tilluft, 07-57-0100, plan 5) Kanal med
+krav på skyddsavstånd, förses med skylt som anger krav på minsta avstånd till brännbar byggnadsdel.
+Från- och tilluftskanaler förlagda ovan demonterbart undertak skall märkas på minst ett ställe i varje rum.
+AGGREGAT, APPARATER OCH KOMPONENTER
+Skyltar utförs rektangulära av laminerad plast. Mätplan skall märkas med identifikation och redovisas i
+protokoll.
+YUC BYGGHANDLINGAR FÖR INSTALLATIONER
+Principschemor ska innehålla dimensionerande data för flöde, tryck, temperatur och effekt. Sektioner skall
+upprättas där så erfordras.
+YUD.5 Relationshandlingar för vvs-, kyl- och processmedieinstallationer
+Bestäms närmare enligt överenskommelse med ansvarig representant inom aktuell region.
+YUE UNDERLAG FÖR RELATIONSHANDLINGAR FÖR
+INSTALLATIONER
+Underlag för relationsritningar av samtliga i entreprenaden ingående handlingar och ritningar skall upprättas
+av entreprenören.
+Slopade installationer och ledningar ej i drift skall markeras på ritning.
+Ledningar under plattan skall koordinat inmätt enligt stomlinje systemet på planritningar.
+Planritningar med ledningar, vattengångar, brunnsplaceringar med lockhöjd och
+riktningsförändringar etc. koordinatsatta enligt det nationella stomlinjesystemet.
+Skyltar för ventiler, brunnar etc på närliggande husliv eller stolpar.
+Underlag för relationshandlingar ska vara undertecknade av behörig undertecknare hos
+entreprenören.
+Underlag för relationshandling ska överensstämma med verkligt utförande och funktion.
+Underlaget ska bestå av kopior av de handlingar som legat till grund för utförande av entreprenaden
+och på vilka förts in avvikelser som gjorts under arbetets gång. Om så erfordras ska underlaget
+kompletteras med skiss så att installationernas slutliga utförande klart framgår.
+Underlaget ska innehålla lägesuppgifter för sådana utrustningar, enheter, apparater o d vars
+definitiva placering inte redovisats i handling.
+Mått och övriga uppmätningsuppgifter ska ritas in och anges så tydligt och fullständigt att de kan
+tjäna som underlag för relationsritningar.
+YUG UNDERLAG FÖR SÄKERHETSINSTRUKTIONER FÖR
+INSTALLATIONER
+För angiven utrustning i denna beskrivning skall ” Försäkran om överens stämmelser” enligt AFS
+överlämnas senast 1 månad innan slutbesiktning.
+CE-märkning av sammansatta maskiner skall vara utförd och försäkran om överensstämmelse skall
+föreligga vid slutbesiktning.
+Hur anläggningens CE-märkning utförs skall anges i AF-del för projektet.
+YUH.5 Driftinstruktioner för vvs-, kyl- och processmedieinstallationer
+Bestäms närmare enligt överenskommelse med ansvarig representant inom aktuell region.
+YUJ UNDERLAG FÖR DRIFTINSTRUKTIONER FÖR
+INSTALLATIONER
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 31 av 32
+
+--- Page 32 ---
+Tekniska krav
+Dokumenttyp: Styrdokument Dokument skapat: 2026-04-07
+Bestäms närmare enligt överenskommelse med ansvarig representant inom aktuell region.
+YUL UNDERLAG FÖR UNDERHÅLLSINSTRUKTIONER FÖR
+INSTALLATIONER
+Bestäms närmare enligt överenskommelse med ansvarig representant inom aktuell region.
+6 EL- OCH TELESYSTEM
+Version: 0.1 Versionsdatum: 1900-01-01
+63 ELKRAFTSYSTEM
+63.BC Lågspänningsnät
+Benämningar enligt lokal standard för respektive sjukhus.
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 32 av 32

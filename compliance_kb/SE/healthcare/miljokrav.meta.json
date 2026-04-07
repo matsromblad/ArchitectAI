@@ -1,0 +1,14 @@
+{
+  "filename": "Miljokravrapport.pdf",
+  "category": "miljokrav",
+  "type": "environmental_requirements",
+  "title": "Miljökrav Rapport",
+  "description": "Environmental and sustainability requirements",
+  "relevant_agents": [
+    "compliance",
+    "architect"
+  ],
+  "extracted_at": "2026-04-07T14:30:28.534598+00:00",
+  "text_file": "miljokrav.txt",
+  "char_count": 25992
+}

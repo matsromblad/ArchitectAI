@@ -1,0 +1,75 @@
+{
+  "jurisdiction": "SE",
+  "region": "Gävleborg",
+  "building_type": "healthcare",
+  "extracted_at": "2026-04-07T14:30:24.114387+00:00",
+  "documents": {
+    "tekniska_krav": {
+      "title": "Tekniska Krav Total Rapport",
+      "type": "technical_requirements",
+      "agents": [
+        "compliance",
+        "architect",
+        "mep"
+      ],
+      "text_file": "tekniska_krav.txt",
+      "meta_file": "tekniska_krav.meta.json",
+      "char_count": 83199
+    },
+    "funktionskrav": {
+      "title": "Funktionskrav",
+      "type": "functional_requirements",
+      "agents": [
+        "brief",
+        "architect"
+      ],
+      "text_file": "funktionskrav.txt",
+      "meta_file": "funktionskrav.meta.json",
+      "char_count": 42106
+    },
+    "miljokrav": {
+      "title": "Miljökrav Rapport",
+      "type": "environmental_requirements",
+      "agents": [
+        "compliance",
+        "architect"
+      ],
+      "text_file": "miljokrav.txt",
+      "meta_file": "miljokrav.meta.json",
+      "char_count": 25992
+    },
+    "typrum": {
+      "title": "Typrum (Rumstyper)",
+      "type": "room_types",
+      "agents": [
+        "brief",
+        "architect"
+      ],
+      "text_file": "typrum.txt",
+      "meta_file": "typrum.meta.json",
+      "char_count": 339209
+    },
+    "ytskikt": {
+      "title": "Ytskikt och Material",
+      "type": "surface_materials",
+      "agents": [
+        "architect",
+        "compliance"
+      ],
+      "text_file": "ytskikt.txt",
+      "meta_file": "ytskikt.meta.json",
+      "char_count": 8011
+    },
+    "brand": {
+      "title": "Riktlinje Brand Gävleborg",
+      "type": "fire_safety",
+      "agents": [
+        "compliance",
+        "architect"
+      ],
+      "text_file": "brand.txt",
+      "meta_file": "brand.meta.json",
+      "char_count": 33127
+    }
+  }
+}

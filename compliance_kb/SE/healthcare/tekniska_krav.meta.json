@@ -1,0 +1,15 @@
+{
+  "filename": "TekniskaKravTotalRapport.pdf",
+  "category": "tekniska_krav",
+  "type": "technical_requirements",
+  "title": "Tekniska Krav Total Rapport",
+  "description": "Total report of technical requirements from PTS",
+  "relevant_agents": [
+    "compliance",
+    "architect",
+    "mep"
+  ],
+  "extracted_at": "2026-04-07T14:30:26.192972+00:00",
+  "text_file": "tekniska_krav.txt",
+  "char_count": 83199
+}

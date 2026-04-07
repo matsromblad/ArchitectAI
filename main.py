@@ -41,7 +41,7 @@ def main():
 
     console.print(Panel(
         Text.assemble(
-            ("⬛ ARCHITECTAI\n", "bold yellow"),
+            ("+ AI NIGHTINGALE\n", "bold yellow"),
             (f"Project: {args.project_id}\n", "white"),
             (f"Prompt:  {args.prompt[:80]}\n", "cyan"),
             (f"Site:    {site_file.name}\n", "green"),
@@ -52,6 +52,7 @@ def main():
     ))
 
     # Import here to avoid slow startup if just checking --help
+    from src.memory.project_memory import ProjectMemory
     from src.agents.pm_agent import PMAgent
     from src.agents.input_parser import InputParserAgent
     from src.agents.client_agent import ClientAgent
@@ -125,6 +126,37 @@ def main():
         memory.approve_milestone(milestone_name, "Approved via CLI")
         console.print(f"[green]✓ {milestone_name} Approved[/green]\n")
 
+    def safe_run_agent(agent, inputs, context_name="task", max_retries=2):
+        """Runs an agent with self-healing proxy. If it crashes, PM agent attempts to write a fix rule."""
+        import traceback
+        last_e = None
+        for attempt in range(max_retries + 1):
+            try:
+                return agent.run(inputs)
+            except Exception as e:
+                last_e = e
+                tb = traceback.format_exc()
+                agent.send_message("pm", "status_update", {"status": "blocked", "message": str(e)})
+                console.print(f"[bold red]⨯ Agent {agent.AGENT_ID} crashed during {context_name}: {e}[/bold red]")
+                
+                if attempt < max_retries:
+                    console.print(f"[yellow]⚙ PM Agent attempting self-healing recovery ({attempt+1}/{max_retries})...[/yellow]")
+                    try:
+                        recovery_prompt = f"The agent '{agent.AGENT_ID}' crashed while working on '{context_name}'.\nError:\n{tb}\nProvide a short, direct instruction to prepend to the agent's input so it avoids this error on the next try."
+                        fix_resp = pm.chat(
+                            system="You are the PM fixing a crashed subagent. Output ONLY the short fix instruction.",
+                            messages=[{"role": "user", "content": recovery_prompt}],
+                            max_tokens=200
+                        )
+                        console.print(f"[yellow]PM Fix: {fix_resp}[/yellow]")
+                        # Inject fix into inputs
+                        inputs["qa_feedback"] = (inputs.get("qa_feedback") or "") + f"\n\nCRASH RECOVERY FIX: {fix_resp}"
+                    except Exception as pm_e:
+                        console.print(f"[red]PM failed to heal: {pm_e}[/red]")
+                else:
+                    break
+        raise last_e
+
     # Initialize project memory
     memory = ProjectMemory(project_id=args.project_id, base_dir=args.projects_dir)
     logger.info(f"Project memory initialized at: {memory.root}")
@@ -175,13 +207,13 @@ def main():
     room_program = None
 
     for attempt in range(MAX_RETRIES + 1):
-        room_program = brief.run({
+        room_program = safe_run_agent(brief, {
             "prompt": args.prompt,
             "site_data": site_data,
             "jurisdiction": args.jurisdiction,
             "qa_feedback": qa_feedback,
             "project_brief": project_brief,  # client agent output
-        })
+        }, "generating room program")
         n_rooms = len(room_program.get("rooms", []))
         total_area = room_program.get("total_net_area_m2", room_program.get("total_area_m2", "?"))
         console.print(f"[green]  Attempt {attempt+1}: {n_rooms} rooms, {total_area} m²[/green]")
@@ -217,11 +249,19 @@ def main():
         summary_txt = "completed"
     console.print(f"[green]✓ Compliance: {summary_txt}[/green]")
     
+    # ---- Export Rumsfunktionsprogram for M1 review ----
+    console.print("\n[bold cyan]📋 Exporting Rumsfunktionsprogram for M1 review...[/bold cyan]")
+    try:
+        rfp_path = brief.export_rfp_document(room_program)
+        console.print(f"[green]✓ RFP document saved → {rfp_path}[/green]")
+    except Exception as e:
+        console.print(f"[yellow]⚠ RFP export failed (non-critical): {e}[/yellow]")
+
     # --- MILESTONE 1 (M1) ---
-    milestone_gate(memory, "M1", 
-                   reflecting_agents=[brief, compliance], 
+    milestone_gate(memory, "M1",
+                   reflecting_agents=[brief, compliance],
                    context_data={"room_program": room_program, "compliance": comp_results},
-                   schemas=["site_data.json", "room_program.json", "compliance_brief.json"])
+                   schemas=["site_data.json", "room_program.json", "compliance_brief.json", "rumsfunktionsprogram.md"])
 
     # ---- PHASE 5: Architect Agent — spatial layout (with retry) ----
     console.print("\n[bold]Phase 5: Architect laying out rooms...[/bold]")
@@ -241,13 +281,13 @@ def main():
     layout_verdict = "?"
 
     for attempt in range(MAX_RETRIES + 1):
-        spatial_layout = architect.run({
+        spatial_layout = safe_run_agent(architect, {
             "room_program": room_program,
             "site_data": site_data_full,
             "component_templates": {},
             "qa_feedback": layout_qa_feedback,
             "project_brief": project_brief,  # for site dimensions
-        })
+        }, "layout generation")
         floors = spatial_layout.get("floors", [])
         total_rooms = sum(len(fl.get("rooms", [])) for fl in floors)
         console.print(f"[green]  Attempt {attempt+1}: {total_rooms} rooms across {len(floors)} floor(s)[/green]")
@@ -282,10 +322,11 @@ def main():
     struct_verdict = "?"
     
     for attempt in range(MAX_RETRIES + 1):
-        structural_schema = structural.run({
+        structural_schema = safe_run_agent(structural, {
             "spatial_layout": spatial_layout,
-            "qa_feedback": struct_qa_feedback,
-        })
+            "site_data": site_data_full,
+            "qa_feedback": struct_qa_feedback
+        }, "structural grid")
         
         qa_struct_verdict = run_qa("structural_schema", structural_schema, f"v{attempt+1}", attempt)
         struct_verdict = qa_struct_verdict.get("verdict", "?")
@@ -312,11 +353,12 @@ def main():
     mep_verdict = "?"
     
     for attempt in range(MAX_RETRIES + 1):
-        mep_schema = mep.run({
+        mep_schema = safe_run_agent(mep, {
             "spatial_layout": spatial_layout,
             "structural_schema": structural_schema,
-            "qa_feedback": mep_qa_feedback,
-        })
+            "site_data": site_data_full,
+            "qa_feedback": mep_qa_feedback
+        }, "mep routing")
         
         qa_mep_verdict = run_qa("mep_schema", mep_schema, f"v{attempt+1}", attempt)
         mep_verdict = qa_mep_verdict.get("verdict", "?")

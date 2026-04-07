@@ -1,0 +1,317 @@
+
+--- Page 1 ---
+Ytskiktsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+201 Golv
+201-0 Golv
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-1 Golv Plast, homogen eller skiktad
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MFK.1
+Beskrivning:
+201-2 Golv Plast, skumbaksida
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MFK.1
+Beskrivning:
+201-3 Golv Plast, antistat
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MFK.1
+Beskrivning:
+201-4 Golv Plast, halkhämmande
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MFK.1
+Beskrivning:
+201-8 Golv Keramik, klinker
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MBE.1
+Beskrivning:
+201-9 Golv Sten
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MBB.1
+Beskrivning:
+201-12 Golv Övrig sport
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MFK.1
+Beskrivning:
+201-13 Golv Massa
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MHG.2
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 1 av 8
+
+--- Page 2 ---
+Ytskiktsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+201-14 Golv Ytbehandlad betong - målad
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet LCS.2
+Beskrivning:
+201-15 Golv Asfalt
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet MHF.1
+Beskrivning:
+201-16 Golv Matta uppvikt mot vägg
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-17 Golv Gummimatta antistat
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-18 Golv Gummimatta halkhämmande
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-19 Golv Matta uppvikt mot vägg, halkhämmande
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-20 Golv Antistat
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-21 Golv Terazzo
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-22 Golv Torkmatta
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 2 av 8
+
+--- Page 3 ---
+Ytskiktsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+201-23 Golv gummi, sport
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-24 Golv Torkmatta med ledstråkseffekt
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-25 Golv Textil
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-26 Installationsgolv
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+Dimensioneras av ställverksentreprenör
+201-27 Golv Skrapmatta inkl injutningsram
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+201-28 Golv Ledande
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+202 Sockel
+202-0 Sockel
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+202-1 Sockel Trä
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+202-3 Sockel Plastmatta
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 3 av 8
+
+--- Page 4 ---
+Ytskiktsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+202-5 Sockel Keramik
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+202-6 Sockel Sten
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+202-9 Sockel Massa
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+202-10 Sockel Målad
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203 Vägg
+203-0 Vägg
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-1 Vägg. Obehandlad
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-2 Vägg. Målad, glansvärde 7
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-3 Vägg. Målad, glansvärde 20
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-4 Vägg. Målad, glansvärde 40
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 4 av 8
+
+--- Page 5 ---
+Ytskiktsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+203-5 Vägg. Målad
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-6 Vägg. Plastmatta
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-7 Vägg. Plastmatta till 2100 öfg, där ovan vägg målad glansvärde 40
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-8 Vägg. Kakel
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-9 Vägg. Plastmatta till 2100 öfg, där ovan vägg målad glansvärde 20
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-10 Vägg. Målad VT
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-11 Vägg. Våtrumsklassat ytskikt
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+203-12 Vägg komposit
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet ZZ
+Beskrivning:
+204 Stänkskydd
+204-0 Stänkskydd
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 5 av 8
+
+--- Page 6 ---
+Ytskiktsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+204-3 Stänkskydd Laminat
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+204-4 Stänkskydd Plastmatta
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+204-5 Stänkskydd Rostfritt
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+205 Tak
+205-0 Tak
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+205-1 Tak. Undertak, fast.
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+205-2 Tak. Undertak, demonterbart.
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+205-3 Tak. Ytskikt.
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+205-4 Tak. Hygien, ljudabsorberande, nedpendlat undertak.
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+205-5 Tak. Akustik.
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 6 av 8
+
+--- Page 7 ---
+Ytskiktsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+205-6 Tak. Gipsundertak.
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+205-7 Tak. Ljudabsorberande, nedpendlat undertak.
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+205-8 Tak. Betong.
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+206 Fönster
+206-0 Fönster
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+206-1 Fönster glasparti i vägg
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+206-2 Fönster ljudkrav anges i RFP
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+206-3 Fönster glasparti i vägg strålskyddat
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+206-4 Fönster glasparti i vägg ljudisolerande
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+206-5 Fönster observationsglas
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+207 Dörrar
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 7 av 8
+
+--- Page 8 ---
+Ytskiktsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+207-0 Dörrar ospec
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+Ospec.
+207-1 Dörrar Skjutdörr
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+207-2 Dörrar Med glasruta
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+207-3 Dörrar Svängdörrar
+Gränsdragning (hyresgrundande): BSAB-kod:
+Fastighet
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 8 av 8

@@ -257,6 +257,10 @@ else:
     if _dashboard_path.exists():
         app.mount("/static",    StaticFiles(directory=str(_dashboard_path)), name="static")
         app.mount("/dashboard", StaticFiles(directory=str(_dashboard_path)), name="dashboard")
+        
+    _website_path = Path(__file__).parent.parent.parent / "website"
+    if _website_path.exists():
+        app.mount("/website", StaticFiles(directory=str(_website_path)), name="website")
 
     @app.websocket("/ws/{project_id}")
     async def websocket_endpoint(websocket: WebSocket, project_id: str):
@@ -322,14 +326,56 @@ else:
 
     @app.get("/projects")
     async def list_projects():
-        """List available project directories."""
+        """List available project directories that have passed Phase 0 (client)."""
+        import json
         projects_dir = Path(PROJECTS_DIR)
         projects = []
         if projects_dir.exists():
             for d in projects_dir.iterdir():
-                if d.is_dir() and (d / "state.json").exists():
-                    projects.append(d.name)
+                state_file = d / "state.json"
+                if d.is_dir() and state_file.exists():
+                    try:
+                        with open(state_file, 'r', encoding='utf-8') as f:
+                            st = json.load(f)
+                            # Only show projects that passed milestone 1 (client)
+                            client_status = st.get("milestones", {}).get("client", {}).get("status")
+                            if client_status in ("approved", "completed"):
+                                projects.append(d.name)
+                    except Exception:
+                        pass
         return {"projects": projects}
+
+    @app.get("/files/{project_id}")
+    async def list_files(project_id: str):
+        """List files in the project directory."""
+        from fastapi.responses import JSONResponse
+        import os, datetime
+        p_dir = Path(PROJECTS_DIR) / project_id
+        if not p_dir.exists():
+            return JSONResponse({"files": []})
+            
+        files = []
+        for file_path in p_dir.rglob("*"):
+            if file_path.is_file() and file_path.name != "state.json":
+                stat = file_path.stat()
+                rel_path = file_path.relative_to(p_dir).as_posix()
+                files.append({
+                    "name": file_path.name,
+                    "path": rel_path,
+                    "size": stat.st_size,
+                    "updated": datetime.datetime.fromtimestamp(stat.st_mtime).isoformat()
+                })
+        return {"files": sorted(files, key=lambda f: f["updated"], reverse=True)}
+
+    @app.get("/download/{project_id}/{file_path:path}")
+    async def download_file(project_id: str, file_path: str):
+        """Serve a file from the project directory."""
+        from fastapi.responses import FileResponse, JSONResponse
+        p_dir = Path(PROJECTS_DIR) / project_id
+        target = p_dir / file_path
+        if not target.exists() or not target.is_relative_to(p_dir):
+            return JSONResponse({"error": "File not found"}, status_code=404)
+        return FileResponse(str(target), filename=target.name)
 
     async def _read_stream(stream, project_id):
         while True:
@@ -385,6 +431,7 @@ else:
         env["PYTHONUNBUFFERED"] = "1"
         env["NO_COLOR"] = "1"
         env["FORCE_COLOR"] = "0"
+        env["PYTHONIOENCODING"] = "utf-8"
             
         try:
             cwd = Path(__file__).parent.parent.parent

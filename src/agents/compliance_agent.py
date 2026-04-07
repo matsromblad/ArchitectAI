@@ -16,6 +16,7 @@ from src.agents.base_agent import BaseAgent
 from src.tools.se_fire import SE_FIRE
 from src.tools.se_hvac import SE_HVAC
 from src.tools.se_lighting import SE_LIGHTING
+from src.memory.kb_loader import get_loader
 
 
 _SYSTEM_PROMPT_TEMPLATE = """\
@@ -23,6 +24,7 @@ You are the Compliance Agent for ArchitectAI, a multi-agent building design syst
 
 You are the ONLY agent with jurisdiction-specific regulatory knowledge. You are the expert on:
 - Building codes (BBR in Sweden, UAE Civil Defence codes, etc.)
+- Swedish PTS (Program för Teknisk Standard) for regional healthcare facilities.
 - Healthcare facility standards (Socialstyrelsen SOSFS in SE, JCI internationally)
 - Fire safety regulations
 - Accessibility standards (ADA, EN 17210)
@@ -36,6 +38,14 @@ Use these for Swedish rules — do NOT rely solely on LLM training for BBR value
 {hvac_block}
 
 {lighting_block}
+
+### PTS & HEALTHCARE KNOWLEDGE BASE (Extracted from regulatory documents)
+
+{kb_tekniska_krav}
+
+{kb_miljokrav}
+
+{kb_brand}
 
 Rules you MUST follow:
 1. NEVER invent a regulation. If you don't know, say so.
@@ -62,16 +72,42 @@ Output format:
 
 class ComplianceAgent(BaseAgent):
     AGENT_ID = "compliance"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3-flash"
 
     def __init__(self, memory, model=None):
         super().__init__(memory, model)
         self.kb_dir = Path(os.getenv("COMPLIANCE_KB_DIR", "./compliance_kb"))
-        # Build system prompt with deterministic SE rule blocks
+
+        # Load KB documents and store strings on self so run() can use them
+        # per-call when the building_type changes the SE rule blocks.
+        kb_loader = get_loader()
+        kb_docs = kb_loader.get_documents_for_agent("compliance")
+
+        # Store KB strings — use the new larger limits from kb_loader
+        self._kb_tekniska = (
+            f"**TEKNISKA KRAV (Technical Requirements):**\n"
+            + kb_docs["tekniska_krav"][:10_000]
+            if kb_docs.get("tekniska_krav") else ""
+        )
+        self._kb_miljokrav = (
+            f"**MILJÖKRAV (Environmental Requirements):**\n"
+            + kb_docs["miljokrav"][:5_000]
+            if kb_docs.get("miljokrav") else ""
+        )
+        self._kb_brand = (
+            f"**BRAND (Fire Safety):**\n"
+            + kb_docs["brand"][:6_000]
+            if kb_docs.get("brand") else ""
+        )
+
+        # Pre-build default prompt (healthcare / no specific building_type yet)
         self._sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
             se_fire_block=SE_FIRE.prompt_block(),
             hvac_block=SE_HVAC.prompt_block(),
             lighting_block=SE_LIGHTING.prompt_block(),
+            kb_tekniska_krav=self._kb_tekniska,
+            kb_miljokrav=self._kb_miljokrav,
+            kb_brand=self._kb_brand,
         )
 
     def run(self, inputs: dict) -> dict:
@@ -101,11 +137,16 @@ class ComplianceAgent(BaseAgent):
             "task": f"Compliance check: {query[:60]}",
         })
 
-        # Optionally rebuild prompt with building-type-specific blocks
+        # Rebuild prompt with building-type-specific SE rule blocks + KB context.
+        # Previously this was missing the kb_* variables, causing a KeyError crash
+        # or silently omitting the KB from every live query.
         sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
             se_fire_block=SE_FIRE.prompt_block(building_type),
             hvac_block=SE_HVAC.prompt_block(building_type),
             lighting_block=SE_LIGHTING.prompt_block(building_type),
+            kb_tekniska_krav=self._kb_tekniska,
+            kb_miljokrav=self._kb_miljokrav,
+            kb_brand=self._kb_brand,
         )
 
         kb_context = self._get_kb_context(jurisdiction, building_type, query)
@@ -153,23 +194,15 @@ Provide your compliance verdict as JSON."""
         return result
 
     def _get_kb_context(self, jurisdiction: str, building_type: str, query: str) -> str:
-        """Retrieve context from local knowledge base, if available."""
-        kb_path = self.kb_dir / jurisdiction
-        if not kb_path.exists():
-            return (
-                f"No local knowledge base found for {jurisdiction}. "
-                "Using deterministic SE rule modules + LLM training knowledge."
-            )
-        docs = list(kb_path.glob("*.pdf")) + list(kb_path.glob("*.txt"))
-        if not docs:
-            return (
-                f"Knowledge base directory exists for {jurisdiction} but contains no documents. "
-                "Using deterministic SE rule modules."
-            )
-        doc_list = "\n".join(f"- {d.name}" for d in docs)
-        return (
-            f"Available regulatory documents for {jurisdiction}:\n{doc_list}\n\n"
-            "(ChromaDB RAG integration pending — using training knowledge for now)"
+        """Fetch targeted semantic context from the KB based on the specific query."""
+        if jurisdiction != "SE" or building_type != "healthcare":
+            return ""
+
+        # Use semantic search for the specific compliance query
+        return self.kb_loader.get_semantic_context(
+            query,
+            self.AGENT_ID,
+            n_results=5
         )
 
     def check_room_program(self, room_program: dict) -> dict:

@@ -33,7 +33,7 @@ Output format: strict JSON only, no prose, no markdown.
 
 class InputParserAgent(BaseAgent):
     AGENT_ID = "input_parser"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3-flash"
 
     def run(self, inputs: dict) -> dict:
         """
@@ -103,8 +103,18 @@ class InputParserAgent(BaseAgent):
 
 Output ONLY valid JSON, no markdown."""
 
-        response = self.client.chat.completions.create(
-            model="openclaw",
+        import os
+        from openai import OpenAI
+        gemini_key = os.getenv("GEMINI_API_KEY")
+        
+        # Use Gemini Vision specifically
+        client = OpenAI(
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=gemini_key,
+        )
+        
+        response = client.chat.completions.create(
+            model="gemini-flash-latest",
             max_tokens=2048,
             messages=[{
                 "role": "user",
@@ -113,7 +123,6 @@ Output ONLY valid JSON, no markdown."""
                     {"type": "text", "text": prompt},
                 ]
             }],
-            extra_headers={"x-openclaw-model": f"anthropic/{self.model}"},
         )
         return self._extract_json(response.choices[0].message.content)
 

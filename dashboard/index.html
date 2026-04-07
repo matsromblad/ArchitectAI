@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ArchitectAI — Live Dashboard</title>
+<title>AI Nightingale — Live Dashboard</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #0D1117;
-    color: #E6EDF3;
+    background: #F8F9FA url('medarch_bg.png') no-repeat center center fixed;
+    background-size: cover;
+    color: #212529;
     font-family: 'Courier New', monospace;
     height: 100vh;
     overflow: hidden;
@@ -20,22 +21,22 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 20px;
-    background: #161B22;
-    border-bottom: 1px solid #30363D;
+    background: #FFFFFF;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
   }
   header h1 {
     font-size: 18px;
     letter-spacing: 2px;
-    color: #FFD700;
-    text-shadow: 0 0 10px #FFD70055;
+    color: #BEB1A4;
+    text-shadow: 0 0 10px #BEB1A455;
   }
-  header .subtitle { font-size: 11px; color: #8B949E; }
+  header .subtitle { font-size: 11px; color: #495057; }
   .tab-bar {
     display: flex;
     gap: 2px;
     padding: 0 20px;
-    background: #161B22;
-    border-bottom: 1px solid #30363D;
+    background: #FFFFFF;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
   }
   .tab {
     padding: 7px 18px;
@@ -45,12 +46,12 @@
     cursor: pointer;
     border: none;
     background: transparent;
-    color: #8B949E;
+    color: #495057;
     border-bottom: 2px solid transparent;
     transition: color 0.15s;
   }
   .tab:hover { color: #C9D1D9; }
-  .tab.active { color: #FFD700; border-bottom: 2px solid #FFD700; }
+  .tab.active { color: #BEB1A4; border-bottom: 2px solid #BEB1A4; }
   .tab-content { display: none; flex: 1; overflow: hidden; }
   .tab-content.active { display: flex; }
 
@@ -65,8 +66,8 @@
     align-content: start;
   }
   .agent-card {
-    background: #161B22;
-    border: 1px solid #30363D;
+    background: #FFFFFF;
+    border: 1px solid rgba(0,0,0,0.12);
     border-radius: 6px;
     padding: 14px 16px;
     border-left: 3px solid var(--agent-color);
@@ -85,18 +86,18 @@
     justify-content: center;
     font-size: 14px;
     font-weight: bold;
-    color: #0D1117;
+    color: #F8F9FA;
     flex-shrink: 0;
   }
   .agent-card-title { flex: 1; }
-  .agent-card-title h4 { font-size: 13px; color: #E6EDF3; margin-bottom: 2px; }
+  .agent-card-title h4 { font-size: 13px; color: #212529; margin-bottom: 2px; }
   .agent-card-title .model-badge {
     font-size: 9px;
     padding: 2px 6px;
     border-radius: 10px;
-    background: #21262D;
-    color: #8B949E;
-    border: 1px solid #30363D;
+    background: rgba(0,0,0,0.04);
+    color: #495057;
+    border: 1px solid rgba(0,0,0,0.12);
     display: inline-block;
   }
   .model-badge.opus { background: #2A1F4A; color: #B388FF; border-color: #7C3AED44; }
@@ -104,7 +105,7 @@
   .model-badge.haiku { background: #1A3C2A; color: #56D364; border-color: #2EA04344; }
   .agent-card p {
     font-size: 10px;
-    color: #8B949E;
+    color: #495057;
     line-height: 1.6;
     margin-bottom: 8px;
   }
@@ -118,16 +119,16 @@
     font-size: 9px;
     padding: 2px 6px;
     border-radius: 3px;
-    background: #21262D;
-    color: #8B949E;
-    border: 1px solid #30363D;
+    background: rgba(0,0,0,0.04);
+    color: #495057;
+    border: 1px solid rgba(0,0,0,0.12);
   }
   .tag.input-tag  { border-color: #9B59B655; color: #9B59B6; }
   .tag.output-tag { border-color: #2ECC7155; color: #2ECC71; }
   .agent-card .how {
     font-size: 10px;
-    color: #6E7681;
-    border-top: 1px solid #21262D;
+    color: #868E96;
+    border-top: 1px solid rgba(0,0,0,0.04);
     margin-top: 8px;
     padding-top: 8px;
     line-height: 1.5;
@@ -140,13 +141,13 @@
     justify-content: space-between;
     margin-bottom: 16px;
   }
-  .outputs-header h2 { font-size: 13px; color: #E6EDF3; letter-spacing: 1px; }
-  .outputs-header .legend { display: flex; gap: 12px; font-size: 10px; color: #8B949E; }
+  .outputs-header h2 { font-size: 13px; color: #212529; letter-spacing: 1px; }
+  .outputs-header .legend { display: flex; gap: 12px; font-size: 10px; color: #495057; }
   .legend-dot { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:4px; vertical-align:middle; }
 
   .milestone-folder {
     margin-bottom: 20px;
-    border: 1px solid #30363D;
+    border: 1px solid rgba(0,0,0,0.12);
     border-radius: 6px;
     overflow: hidden;
   }
@@ -155,22 +156,22 @@
     align-items: center;
     gap: 10px;
     padding: 10px 14px;
-    background: #161B22;
+    background: #FFFFFF;
     cursor: pointer;
     user-select: none;
-    border-bottom: 1px solid #30363D;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
   }
-  .milestone-folder-header:hover { background: #1C2128; }
+  .milestone-folder-header:hover { background: #F1F3F5; }
   .milestone-folder-header .mf-icon { font-size: 14px; }
-  .milestone-folder-header .mf-title { flex:1; font-size: 12px; font-weight: bold; color: #E6EDF3; }
+  .milestone-folder-header .mf-title { flex:1; font-size: 12px; font-weight: bold; color: #212529; }
   .milestone-folder-header .mf-status {
     font-size: 10px; padding: 2px 8px; border-radius: 10px;
-    background: #21262D; color: #8B949E;
+    background: rgba(0,0,0,0.04); color: #495057;
   }
   .milestone-folder-header .mf-status.active { background: #1F4E79; color: #58A6FF; }
   .milestone-folder-header .mf-status.done { background: #1A3C2A; color: #2ECC71; }
-  .milestone-folder-header .mf-status.pending { background: #21262D; color: #6E7681; }
-  .milestone-folder-header .mf-chevron { font-size: 10px; color: #8B949E; transition: transform 0.2s; }
+  .milestone-folder-header .mf-status.pending { background: rgba(0,0,0,0.04); color: #868E96; }
+  .milestone-folder-header .mf-chevron { font-size: 10px; color: #495057; transition: transform 0.2s; }
   .milestone-folder-header.collapsed .mf-chevron { transform: rotate(-90deg); }
 
   .milestone-folder-body {
@@ -178,7 +179,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 8px;
-    background: #0D1117;
+    background: #F8F9FA;
   }
   .milestone-folder-body.hidden { display: none; }
 
@@ -186,14 +187,14 @@
   .discipline-label {
     font-size: 9px;
     letter-spacing: 1px;
-    color: #6E7681;
+    color: #868E96;
     text-transform: uppercase;
     margin-bottom: 5px;
     display: flex;
     align-items: center;
     gap: 5px;
   }
-  .discipline-label::after { content:''; flex:1; height:1px; background:#21262D; }
+  .discipline-label::after { content:''; flex:1; height:1px; background:rgba(0,0,0,0.04); }
 
   .doc-item {
     display: flex;
@@ -201,8 +202,8 @@
     gap: 8px;
     padding: 6px 10px;
     border-radius: 4px;
-    border: 1px solid #30363D;
-    background: #161B22;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: #FFFFFF;
     font-size: 10px;
     cursor: default;
     transition: border-color 0.2s;
@@ -211,30 +212,30 @@
   .doc-item.status-done { border-left: 3px solid #2ECC71; }
   .doc-item.status-active { border-left: 3px solid #58A6FF; animation: pulse 2s infinite; }
   .doc-item.status-rejected { border-left: 3px solid #E74C3C; }
-  .doc-item.status-pending { border-left: 3px solid #30363D; opacity: 0.5; }
+  .doc-item.status-pending { border-left: 3px solid rgba(0,0,0,0.12); opacity: 0.5; }
   .doc-icon { font-size: 13px; flex-shrink:0; }
   .doc-info { flex:1; min-width:0; }
   .doc-name { color: #C9D1D9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .doc-meta { color: #6E7681; font-size: 9px; margin-top:1px; }
+  .doc-meta { color: #868E96; font-size: 9px; margin-top:1px; }
   .doc-badge {
     font-size: 8px; padding: 1px 5px; border-radius: 8px; flex-shrink:0;
-    background: #21262D; color: #8B949E;
+    background: rgba(0,0,0,0.04); color: #495057;
   }
   .doc-badge.done { background: #1A3C2A; color: #2ECC71; }
   .doc-badge.active { background: #1A2B4A; color: #58A6FF; }
   .doc-badge.rejected { background: #3C1215; color: #F85149; }
-  .doc-badge.pending { background: #21262D; color: #6E7681; }
+  .doc-badge.pending { background: rgba(0,0,0,0.04); color: #868E96; }
   .milestone-bar {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 11px;
-    color: #8B949E;
+    color: #495057;
   }
   .milestone-bar .milestone {
     padding: 3px 8px;
     border-radius: 3px;
-    border: 1px solid #30363D;
+    border: 1px solid rgba(0,0,0,0.12);
     cursor: default;
   }
   .milestone.active {
@@ -256,15 +257,15 @@
     letter-spacing: 1px;
     padding: 3px 8px;
     border-radius: 3px;
-    border: 1px solid #30363D;
+    border: 1px solid rgba(0,0,0,0.12);
     user-select: none;
     cursor: default;
   }
   .ws-status.ws-connected  { color: #2ECC71; border-color: #2ECC7144; background: #0A1F0E; }
-  .ws-status.ws-disconnected { color: #8B949E; border-color: #30363D;   background: #21262D; }
+  .ws-status.ws-disconnected { color: #495057; border-color: rgba(0,0,0,0.12);   background: rgba(0,0,0,0.04); }
   .ws-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .ws-dot.ws-live { background: #2ECC71; animation: wsPulse 1.2s ease-in-out infinite; }
-  .ws-dot.ws-sim  { background: #8B949E; }
+  .ws-dot.ws-sim  { background: #495057; }
   @keyframes wsPulse {
     0%,100% { opacity:1; box-shadow: 0 0 5px #2ECC71; }
     50%      { opacity:0.4; box-shadow: none; }
@@ -282,20 +283,20 @@
   }
   .sidebar {
     width: 280px;
-    background: #161B22;
-    border-left: 1px solid #30363D;
+    background: #FFFFFF;
+    border-left: 1px solid rgba(0,0,0,0.12);
     display: flex;
     flex-direction: column;
     overflow: hidden;
   }
   .sidebar-section {
     padding: 10px 14px;
-    border-bottom: 1px solid #30363D;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
   }
   .sidebar-section h3 {
     font-size: 10px;
     letter-spacing: 1px;
-    color: #8B949E;
+    color: #495057;
     margin-bottom: 8px;
     text-transform: uppercase;
   }
@@ -316,11 +317,11 @@
     font-size: 10px;
     padding: 1px 5px;
     border-radius: 2px;
-    background: #21262D;
-    color: #8B949E;
+    background: rgba(0,0,0,0.04);
+    color: #495057;
   }
   .agent-status.working { color: #3FB950; background: #1A3C2A; }
-  .agent-status.waiting { color: #FFD700; background: #2E2700; }
+  .agent-status.waiting { color: #BEB1A4; background: #2E2700; }
   .agent-status.blocked { color: #F85149; background: #3C1215; }
   .agent-status.qa { color: #E67E22; background: #2D1A00; }
   .agent-status.approved { color: #58A6FF; background: #1A2B4A; }
@@ -329,12 +330,12 @@
     flex: 1;
     overflow-y: auto;
     padding: 10px 14px;
-    border-bottom: 1px solid #30363D;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
   }
   .qa-queue h3 {
     font-size: 10px;
     letter-spacing: 1px;
-    color: #8B949E;
+    color: #495057;
     margin-bottom: 8px;
     text-transform: uppercase;
   }
@@ -357,15 +358,15 @@
   .log-section h3 {
     font-size: 10px;
     letter-spacing: 1px;
-    color: #8B949E;
+    color: #495057;
     margin-bottom: 8px;
     text-transform: uppercase;
   }
   .log-entry {
     font-size: 10px;
-    color: #8B949E;
+    color: #495057;
     padding: 2px 0;
-    border-bottom: 1px solid #21262D;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -381,7 +382,7 @@
     <div class="subtitle">Multi-Agent Building Design System — Live Simulation</div>
   </div>
   <div style="display:flex;align-items:center;gap:14px;">
-    <select id="projectSelector" style="background:#21262D; color:#8B949E; border:1px solid #30363D; border-radius:3px; padding:3px; font-size:10px; font-family:'Courier New', monospace; outline:none;">
+    <select id="projectSelector" style="background:rgba(0,0,0,0.04); color:#495057; border:1px solid rgba(0,0,0,0.12); border-radius:3px; padding:3px; font-size:10px; font-family:'Courier New', monospace; outline:none;">
       <option value="">-- select project --</option>
     </select>
     <div id="costTracker" title="Total API Cost" style="font-size:12px; font-weight:bold; color:var(--gold); display:flex; align-items:center; gap:6px; background:rgba(255,215,0,0.1); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,215,0,0.2);">
@@ -416,20 +417,21 @@
     </div>
   </div>
 </div>
-<div class="terminal-panel" style="height:200px; min-height:200px; background:#0D1117; color:#E6EDF3; font-family:monospace; font-size:11px; border-top:2px solid #30363D; display:flex; flex-direction:column;">
-  <div style="padding:4px 10px; background:#161B22; border-bottom:1px solid #30363D; display:flex; justify-content:space-between; align-items:center;">
-    <span style="color:#7EE787; font-weight:bold;">>_ SYSTEM TERMINAL (LIVE)</span>
+<div class="terminal-panel" id="terminalPanel" style="height:200px; min-height:100px; max-height:80vh; background:#F8F9FA; color:#212529; font-family:monospace; font-size:11px; border-top:2px solid rgba(0,0,0,0.12); display:flex; flex-direction:column; position:relative;">
+  <div id="terminalResizer" style="height:8px; width:100%; position:absolute; top:-4px; cursor:ns-resize; z-index:10;"></div>
+  <div style="padding:4px 10px; background:#FFFFFF; border-bottom:1px solid rgba(0,0,0,0.12); display:flex; justify-content:space-between; align-items:center;">
+    <span style="color:#40C057; font-weight:bold;">>_ SYSTEM TERMINAL (LIVE)</span>
     <button id="btnApprove" disabled style="background:#2EA043; color:white; border:none; border-radius:4px; padding:4px 12px; font-weight:bold; font-size:11px; cursor:not-allowed;" onclick="approveMilestone()">APPROVE MILESTONE</button>
   </div>
   <div id="terminalContent" style="flex:1; padding:10px; overflow-y:auto; white-space:pre-wrap; line-height:1.4;"></div>
 </div>
 </div><!-- end tab-live -->
 
-<div id="tab-agents" class="tab-content" style="overflow-y:auto;">
+<div id="tab-agents" class="tab-content" style="overflow-y:auto; background:var(--bg);">
   <div class="agents-grid" id="agentsGrid"></div>
 </div>
 
-<div id="tab-outputs" class="tab-content" style="overflow-y:auto; flex-direction:column;">
+<div id="tab-outputs" class="tab-content" style="overflow-y:auto; flex-direction:column; background:var(--bg);">
   <div id="outputsRoot" style="padding:16px 20px;"></div>
 </div>
 
@@ -438,7 +440,7 @@
 // CONFIG
 // ============================================================
 const AGENTS = [
-  { id:'pm',         name:'Proj. Manager', color:'#FFD700', hat:'#B8860B', abbr:'PM'  },
+  { id:'pm',         name:'Proj. Manager', color:'#BEB1A4', hat:'#B8860B', abbr:'PM'  },
   { id:'parser',     name:'Input Parser',  color:'#9B59B6', hat:'#6C3483', abbr:'IP'  },
   { id:'brief',      name:'Brief Agent',   color:'#1ABC9C', hat:'#148F77', abbr:'BR'  },
   { id:'compliance', name:'Compliance',    color:'#E74C3C', hat:'#922B21', abbr:'CO'  },
@@ -462,6 +464,7 @@ const STATIONS = [
   { id:'qa',         label:'🔍 QA REVIEW',    x:0.60, y:0.05, w:0.14, h:0.25 },
   { id:'ifc',        label:'🏛 IFC BUILD',    x:0.76, y:0.32, w:0.12, h:0.14 },
   { id:'milestone',  label:'✅ MILESTONE',    x:0.76, y:0.05, w:0.11, h:0.14 },
+  { id:'waiting_area',label:'☕ LOUNGE',      x:0.05, y:0.80, w:0.25, h:0.16 },
 ];
 
 // ============================================================
@@ -724,9 +727,9 @@ function drawStation(st) {
   // Meeting Room special style
   if (st.isMeeting) {
     // Golden glow border
-    ctx.shadowColor = '#FFD700';
+    ctx.shadowColor = '#BEB1A4';
     ctx.shadowBlur = 14;
-    ctx.strokeStyle = '#FFD70088';
+    ctx.strokeStyle = '#BEB1A488';
     ctx.lineWidth = 2;
     ctx.fillStyle = '#1A1700';
     roundRect(ctx, x, y, w, h, 6);
@@ -735,7 +738,7 @@ function drawStation(st) {
     ctx.shadowBlur = 0;
 
     // Label
-    ctx.fillStyle = '#FFD700';
+    ctx.fillStyle = '#BEB1A4';
     ctx.font = `bold ${Math.max(9, W * 0.009)}px Courier New`;
     ctx.textAlign = 'center';
     ctx.fillText(st.label, x + w/2, y + 14);
@@ -764,7 +767,7 @@ function drawStation(st) {
     }
 
     // "PM always here" hint
-    ctx.fillStyle = '#FFD70055';
+    ctx.fillStyle = '#BEB1A455';
     ctx.font = `${Math.max(7, W * 0.007)}px Courier New`;
     ctx.fillText('PM permanent', x + w/2, y + h - 8);
 
@@ -774,7 +777,7 @@ function drawStation(st) {
 
   // glow for milestone when waiting
   if (st.id === 'milestone' && milestoneWaiting) {
-    ctx.shadowColor = '#FFD700';
+    ctx.shadowColor = '#BEB1A4';
     ctx.shadowBlur = 18;
   }
   if (st.id === 'qa') {
@@ -782,16 +785,16 @@ function drawStation(st) {
     ctx.shadowBlur = 8;
   }
 
-  ctx.strokeStyle = st.id === 'milestone' && milestoneWaiting ? '#FFD700' :
-                    st.id === 'qa' ? '#C0392B44' : '#30363D';
+  ctx.strokeStyle = st.id === 'milestone' && milestoneWaiting ? '#BEB1A4' :
+                    st.id === 'qa' ? '#C0392B44' : 'rgba(0,0,0,0.12)';
   ctx.lineWidth = 1;
-  ctx.fillStyle = '#161B22';
+  ctx.fillStyle = '#FFFFFF';
   roundRect(ctx, x, y, w, h, 4);
   ctx.fill();
   ctx.stroke();
 
   ctx.shadowBlur = 0;
-  ctx.fillStyle = '#8B949E';
+  ctx.fillStyle = '#495057';
   ctx.font = `bold ${Math.max(9, W * 0.009)}px Courier New`;
   ctx.textAlign = 'center';
   ctx.fillText(st.label, x + w/2, y + 14);
@@ -805,7 +808,7 @@ function drawStation(st) {
 
   // Milestone waiting text
   if (st.id === 'milestone' && milestoneWaiting) {
-    ctx.fillStyle = '#FFD700';
+    ctx.fillStyle = '#BEB1A4';
     ctx.font = `${Math.max(8, W * 0.008)}px Courier New`;
     ctx.fillText('⏳ AWAITING', x + w/2, y + h - 8);
   }
@@ -903,10 +906,10 @@ function drawAgentLabel(x, y, name, scale) {
   ctx.save();
   ctx.font = `${Math.max(8, scale * 7)}px Courier New`;
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#0D1117CC';
+  ctx.fillStyle = '#F8F9FACC';
   const tw = ctx.measureText(name).width;
   ctx.fillRect(x - tw/2 - 2, y + scale*14, tw + 4, scale*7 + 2);
-  ctx.fillStyle = '#E6EDF3';
+  ctx.fillStyle = '#212529';
   ctx.fillText(name, x, y + scale*20);
   ctx.restore();
 }
@@ -936,7 +939,7 @@ function drawConnectors() {
     ['structure','qa'], ['ifc','qa'], ['mep','ifc'],
   ];
   ctx.save();
-  ctx.strokeStyle = '#30363D55';
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)55';
   ctx.lineWidth = 1;
   ctx.setLineDash([4, 6]);
   for (const [a, b] of pairs) {
@@ -1008,7 +1011,7 @@ function draw() {
 
   // Grid background
   ctx.save();
-  ctx.strokeStyle = '#161B2288';
+  ctx.strokeStyle = '#FFFFFF88';
   ctx.lineWidth = 0.5;
   for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
   for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
@@ -1019,12 +1022,12 @@ function draw() {
   // Stations
   STATIONS.forEach(st => drawStation(st));
 
-  // Agents — always draw, snap to waiting area if not yet placed
+  // Agents — always draw
   AGENTS.forEach((a, idx) => {
     const s = agentState[a.id];
     if (!s.x || !s.y) {
-      s.x = W * 0.25 + (idx % 5) * 30;
-      s.y = H * 0.88 - Math.floor(idx / 5) * 36;
+      s.x = W * 0.10 + (idx % 5) * 30;
+      s.y = H * 0.85 - Math.floor(idx / 5) * 30;
     }
     drawPixelAgent(s.x, s.y, a.color, a.hat, SCALE, s.status, s.bobPhase, s.rejected);
     drawAgentLabel(s.x, s.y, a.abbr, SCALE);
@@ -1033,9 +1036,9 @@ function draw() {
   // Title watermark
   ctx.save();
   ctx.font = `bold ${Math.max(10, W * 0.012)}px Courier New`;
-  ctx.fillStyle = '#FFD70015';
+  ctx.fillStyle = '#BEB1A415';
   ctx.textAlign = 'right';
-  ctx.fillText('ArchitectAI v0.1', W - 10, H - 10);
+  ctx.fillText('AI Nightingale v0.1', W - 10, H - 10);
   ctx.restore();
 }
 
@@ -1075,7 +1078,7 @@ function updateAgentUI() {
 function updateQAUI() {
   const el = document.getElementById('qaQueue');
   if (qaQueue.length === 0) {
-    el.innerHTML = '<div style="font-size:10px;color:#8B949E">No items in queue</div>';
+    el.innerHTML = '<div style="font-size:10px;color:#495057">No items in queue</div>';
     return;
   }
   el.innerHTML = qaQueue.map(q =>
@@ -1106,134 +1109,91 @@ function switchTab(name) {
 // OUTPUTS DATA & RENDERING
 // ============================================================
 
-// Document registry — updated by sim events
-const OUTPUT_DOCS = {
-  m1: [
-    { id:'site_data',     name:'site_data.json',        icon:'🗺️', discipline:'Input Parser',   meta:'Site boundary + constraints', status:'pending' },
-    { id:'room_program',  name:'room_program.json',      icon:'📋', discipline:'Brief Agent',     meta:'Room list, areas, adjacency', status:'pending' },
-    { id:'compliance_m1', name:'compliance_brief.json',  icon:'📜', discipline:'Compliance',      meta:'SE healthcare rules check',   status:'pending' },
-    { id:'qa_m1',         name:'qa_report_m1.json',      icon:'🔍', discipline:'QA Agent',        meta:'Brief quality report',        status:'pending' },
-  ],
-  m2: [
-    { id:'spatial_layout', name:'spatial_layout.json',   icon:'📐', discipline:'Architect',       meta:'Room positions + circulation', status:'pending' },
-    { id:'compliance_m2',  name:'compliance_layout.json',icon:'📜', discipline:'Compliance',      meta:'BBR corridor + fire check',    status:'pending' },
-    { id:'qa_m2',          name:'qa_report_m2.json',     icon:'🔍', discipline:'QA Agent',        meta:'Layout quality report',        status:'pending' },
-  ],
-  m3: [
-    { id:'structural',    name:'structural_schema.json', icon:'🏗️', discipline:'Structural',      meta:'Grid, columns, cores',        status:'pending' },
-    { id:'mep',           name:'mep_schema.json',        icon:'⚙️', discipline:'MEP Agent',       meta:'Shafts, plant, distribution', status:'pending' },
-    { id:'compliance_m3', name:'compliance_mep.json',    icon:'📜', discipline:'Compliance',      meta:'Ventilation + fire zones',    status:'pending' },
-    { id:'qa_m3',         name:'qa_report_m3.json',      icon:'🔍', discipline:'QA Agent',        meta:'Systems quality report',      status:'pending' },
-  ],
-  m4: [
-    { id:'ifc_model',     name:'building.ifc',           icon:'🏛️', discipline:'IFC Builder',     meta:'Full IFC4 building model',    status:'pending' },
-    { id:'qa_m4',         name:'qa_report_m4.json',      icon:'🔍', discipline:'QA Agent',        meta:'Model validation report',     status:'pending' },
-  ],
-  m5: [
-    { id:'ifc_export',    name:'building_final.ifc',     icon:'✅', discipline:'IFC Builder',     meta:'Final export — all approved', status:'pending' },
-    { id:'qa_final',      name:'qa_report_final.json',   icon:'🔍', discipline:'QA Agent',        meta:'Full project QA summary',     status:'pending' },
-  ],
-};
+// Document registry
+const OUTPUT_DOCS = {};
 
-const MILESTONE_META = [
-  { key:'m1', label:'M1 — Brief & Compliance', desc:'Room program, site data, initial compliance check', icon:'📋' },
-  { key:'m2', label:'M2 — Concept Layout',     desc:'Floor plan, circulation, layout compliance',         icon:'📐' },
-  { key:'m3', label:'M3 — Technical Systems',  desc:'Structure, MEP routing, technical compliance',       icon:'⚙️' },
-  { key:'m4', label:'M4 — Full Building Model',desc:'Complete IFC model, all disciplines coordinated',    icon:'🏛️' },
-  { key:'m5', label:'M5 — Final Export',        desc:'Validated IFC4 file ready for handover',            icon:'📦' },
-];
-
-function setDocStatus(id, status, version) {
-  for (const phase of Object.values(OUTPUT_DOCS)) {
-    const doc = phase.find(d => d.id === id);
-    if (doc) {
-      doc.status = status;
-      if (version) doc.version = version;
-      doc.updatedAt = new Date().toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'});
-    }
-  }
+let originURL = window.location.origin;
+if (originURL === 'null' || originURL.includes('file://')) {
+  originURL = 'http://localhost:8765';
 }
 
-function getMilestoneStatus(key) {
-  const idx = ['m1','m2','m3','m4','m5'].indexOf(key);
-  if (idx < currentMilestone) return 'done';
-  if (idx === currentMilestone) return 'active';
-  return 'pending';
-}
-
-function renderOutputs() {
+async function renderOutputs() {
   const root = document.getElementById('outputsRoot');
+  const sel = document.getElementById('projectSelector');
+  const project = sel ? sel.value : null;
 
-  // Group docs by discipline within each milestone
-  const html = MILESTONE_META.map(m => {
-    const docs = OUTPUT_DOCS[m.key] || [];
-    const status = getMilestoneStatus(m.key);
-    const doneCount = docs.filter(d => d.status === 'done').length;
-    const statusLabel = status === 'done' ? 'Complete' : status === 'active' ? 'In Progress' : 'Pending';
+  if (!project) {
+    root.innerHTML = '<div style="padding:20px; color:#868E96; text-align:center;">No project selected.</div>';
+    return;
+  }
 
-    // Group by discipline
-    const byDiscipline = {};
-    docs.forEach(d => {
-      if (!byDiscipline[d.discipline]) byDiscipline[d.discipline] = [];
-      byDiscipline[d.discipline].push(d);
+  try {
+    const res = await fetch(`${originURL}/files/${project}`);
+    if (!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
+    
+    // Check locked files based on working agents
+    const workingOutputs = [];
+    AGENT_CARDS.forEach(a => {
+      const state = agentState[a.id];
+      if (state && state.status === 'working') {
+        workingOutputs.push(...a.outputs);
+      }
     });
 
-    const disciplineHTML = Object.entries(byDiscipline).map(([disc, items]) => {
-      const itemsHTML = items.map(doc => {
-        const badgeLabel = doc.status === 'done' ? (doc.version || 'Done') :
-                           doc.status === 'active' ? 'Working…' :
-                           doc.status === 'rejected' ? 'Rejected' : '—';
-        return `
-          <div class="doc-item status-${doc.status}">
-            <span class="doc-icon">${doc.icon}</span>
-            <div class="doc-info">
-              <div class="doc-name">${doc.name}</div>
-              <div class="doc-meta">${doc.meta}${doc.updatedAt ? ' · ' + doc.updatedAt : ''}</div>
-            </div>
-            <span class="doc-badge ${doc.status}">${badgeLabel}</span>
-          </div>`;
-      }).join('');
+    if (!data.files || data.files.length === 0) {
+      root.innerHTML = `
+        <div class="outputs-header"><h2>📁 PROJECT FILES — ${project}</h2></div>
+        <div style="padding:20px; background:#FFFFFF; border:1px dashed rgba(0,0,0,0.12); border-radius:6px; color:#868E96; text-align:center; margin-top:10px;">
+          Pipeline is empty. No files produced yet.
+        </div>
+      `;
+      return;
+    }
+
+    const filesHTML = data.files.map(f => {
+      // Basic match to see if locked
+      const isLocked = workingOutputs.some(o => f.name.includes(o) || o.includes(f.name.split('.')[0]));
+      const sizeStr = (f.size / 1024).toFixed(1) + ' KB';
+      const dateStr = new Date(f.updated).toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'});
+      const ext = f.name.split('.').pop() || '';
+      const icon = ext === 'json' ? '📄' : ext === 'ifc' ? '🏛' : ext === 'png' ? '🖼' : '📁';
+      
+      const badgeHTML = isLocked 
+        ? `<span class="doc-badge active">⏳ LOCKED (Working)</span>` 
+        : `<span class="doc-badge done">${sizeStr}</span>`;
+
+      const wrapperStyle = isLocked ? `opacity:0.6; cursor:not-allowed; border-color:#FA525244; background:#FFF5F5;` : `cursor:pointer;`;
+      const onclickAttr = isLocked ? `` : `onclick="window.open('${originURL}/download/${project}/${f.path}', '_blank')"`;
+
       return `
-        <div class="discipline-group">
-          <div class="discipline-label">${disc}</div>
-          ${itemsHTML}
-        </div>`;
+        <div class="doc-item" style="${wrapperStyle}" ${onclickAttr}>
+          <span class="doc-icon">${icon}</span>
+          <div class="doc-info">
+            <div class="doc-name" style="font-weight:bold">${f.name}</div>
+            <div class="doc-meta">${dateStr}</div>
+          </div>
+          ${badgeHTML}
+        </div>
+      `;
     }).join('');
 
-    return `
-      <div class="milestone-folder">
-        <div class="milestone-folder-header" onclick="toggleFolder('${m.key}')">
-          <span class="mf-icon">${m.icon}</span>
-          <span class="mf-title">${m.label}</span>
-          <span style="font-size:10px;color:#6E7681;margin-right:8px">${doneCount}/${docs.length} files</span>
-          <span class="mf-status ${status}">${statusLabel}</span>
-          <span class="mf-chevron">▼</span>
-        </div>
-        <div class="milestone-folder-body" id="folder-${m.key}">
-          <div style="grid-column:1/-1;font-size:10px;color:#6E7681;margin-bottom:6px">${m.desc}</div>
-          ${disciplineHTML}
-        </div>
-      </div>`;
-  }).join('');
-
-  root.innerHTML = `
-    <div class="outputs-header">
-      <h2>📁 PROJECT OUTPUT FILES</h2>
-      <div class="legend">
-        <span><span class="legend-dot" style="background:#2ECC71"></span>Done</span>
-        <span><span class="legend-dot" style="background:#58A6FF"></span>Active</span>
-        <span><span class="legend-dot" style="background:#E74C3C"></span>Rejected</span>
-        <span><span class="legend-dot" style="background:#30363D"></span>Pending</span>
+    root.innerHTML = `
+      <div class="outputs-header">
+        <h2>📁 PROJECT FILES — ${project}</h2>
       </div>
-    </div>
-    ${html}`;
-}
-
-function toggleFolder(key) {
-  const body = document.getElementById(`folder-${key}`);
-  const header = body.previousElementSibling;
-  body.classList.toggle('hidden');
-  header.classList.toggle('collapsed');
+      <div class="milestone-folder">
+        <div class="milestone-folder-body">
+          <div class="discipline-group">
+            <div class="discipline-label">All Generated Artifacts</div>
+            ${filesHTML}
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    root.innerHTML = `<div style="padding:20px; color:#E74C3C;">Failed to load files: ${err.message}</div>`;
+  }
 }
 
 // ============================================================
@@ -1309,32 +1269,45 @@ function renderAgentCards() {
   const grid = document.getElementById('agentsGrid');
   grid.innerHTML = AGENT_CARDS.map(a => {
     const agent = AGENTS.find(ag => ag.id === a.id);
-    const color = agent ? agent.color : '#8B949E';
-    const inputTags = a.inputs.map(i => `<span class="tag input-tag">${i}</span>`).join('');
-    const outputTags = a.outputs.map(o => `<span class="tag output-tag">${o}</span>`).join('');
+    const color = agent ? agent.color : '#495057';
+    const hat = agent ? agent.hat : '#000000';
+    const inputTags = a.inputs.map(i => `<span class="tag input-tag">${i}</span>`).join('');      
+    const outputTags = a.outputs.map(o => `<span class="tag output-tag">${o}</span>`).join('');   
+    
+    // Render the agent on a hidden canvas to get a data URL for the card avatar!
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = 40;
+    offCanvas.height = 40;
+    const offCtx = offCanvas.getContext('2d');
+    const oldCtx = ctx; 
+    window.ctx = offCtx; // Temporary hijack of global ctx used by drawPixelAgent
+    drawPixelAgent(20, 20, color, hat, 1.2, 'waiting', 0.5, false);
+    window.ctx = oldCtx;
+    const avatarUrl = offCanvas.toDataURL();
+
     return `
       <div class="agent-card" style="--agent-color:${color}">
         <div class="agent-card-header">
-          <div class="agent-card-avatar" style="background:${color}">${a.emoji}</div>
+          <div class="agent-card-avatar" style="background:transparent; border:none;"><img src="${avatarUrl}" style="width:36px;height:36px;border-radius:4px;" /></div>
           <div class="agent-card-title">
-            <h4>${a.name} <span style="font-size:10px;color:#6E7681;font-weight:normal">· shown as <span style="color:${color};font-weight:bold">${agent ? agent.abbr : ''}</span> in Live View</span></h4>
+            <h4>${a.name} <span style="font-size:10px;color:#868E96;font-weight:normal">· Live tag: <span style="color:${color};font-weight:bold">${agent ? agent.abbr : ''}</span></span></h4>
             <span class="model-badge ${a.modelType}">${a.model}</span>
           </div>
         </div>
         <p>${a.role}</p>
-        <div class="how">⚙️ ${a.how}</div>
+        <div class="how" style="margin-top:8px; border-top:1px solid rgba(0,0,0,0.04); padding-top:8px;"><strong>Workflow:</strong> ${a.how}</div>
         <div class="agent-card-row" style="margin-top:10px">
-          <span style="font-size:9px;color:#6E7681;margin-right:2px">IN:</span>${inputTags}
+          <span style="font-size:9px;color:#868E96;margin-right:2px">IN:</span>${inputTags}
         </div>
         <div class="agent-card-row" style="margin-top:4px">
-          <span style="font-size:9px;color:#6E7681;margin-right:2px">OUT:</span>${outputTags}
+          <span style="font-size:9px;color:#868E96;margin-right:2px">OUT:</span>${outputTags}
         </div>
       </div>`;
   }).join('');
 
   // footnotes
   grid.insertAdjacentHTML('beforeend', `
-    <div style="grid-column:1/-1;font-size:9px;color:#6E7681;padding:8px 0 16px">
+    <div style="grid-column:1/-1;font-size:9px;color:#868E96;padding:8px 0 16px">
       * May be upgraded to Opus for complex legal/multi-discipline decisions &nbsp;|&nbsp;
       † May be downgraded to Haiku for repetitive templated tasks
     </div>`);
@@ -1408,10 +1381,24 @@ function renderAgentCards() {
     // Agent statuses
     if (s.agents) {
       const STATUS = { working:'working', done:'approved', waiting:'waiting', qa:'qa', blocked:'blocked' };
+      const STATION_MAP = {
+        'pm': 'meeting', 'parser': 'input', 'brief': 'brief',
+        'compliance': 'compliance', 'architect': 'design',
+        'structural': 'structure', 'mep': 'mep', 'ifc': 'ifc', 'qa': 'qa'
+      };
+      
       Object.entries(s.agents).forEach(([sid, status]) => {
         const did = AGENT_MAP.hasOwnProperty(sid) ? AGENT_MAP[sid] : sid;
         if (!did || !agentState[did]) return;
-        agentState[did].status = STATUS[status] || 'waiting';
+        const newStatus = STATUS[status] || 'waiting';
+        agentState[did].status = newStatus;
+        
+        // Ensure agent is moved to their work station when they start working
+        if (newStatus === 'working') {
+           agentState[did].targetStation = STATION_MAP[did];
+        } else if (newStatus === 'qa') {
+           agentState[did].targetStation = 'qa';
+        }
       });
     }
 
@@ -1538,6 +1525,34 @@ async function approveMilestone() {
 // ============================================================
 // INIT
 // ============================================================
+let isResizing = false;
+let lastDownY = 0;
+const terminalPanel = document.getElementById('terminalPanel');
+const resizer = document.getElementById('terminalResizer');
+
+resizer.addEventListener('mousedown', function(e) {
+  isResizing = true;
+  lastDownY = e.clientY;
+  document.body.style.cursor = 'ns-resize';
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', function(e) {
+  if (!isResizing) return;
+  const delta = lastDownY - e.clientY;
+  lastDownY = e.clientY;
+  const newHeight = terminalPanel.offsetHeight + delta;
+  if (newHeight >= 100 && newHeight <= window.innerHeight * 0.8) {
+    terminalPanel.style.height = newHeight + 'px';
+    resize(); // Trigger canvas layout fix
+  }
+});
+
+document.addEventListener('mouseup', function(e) {
+  isResizing = false;
+  document.body.style.cursor = '';
+});
+
 window.addEventListener('resize', () => { resize(); });
 resize();
 updateMilestoneUI();

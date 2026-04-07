@@ -16,29 +16,119 @@ from loguru import logger
 
 from src.agents.base_agent import BaseAgent
 from src.tools.se_dimensions import SE, snap_mm, room_dims_snapped
+from src.memory.kb_loader import get_loader
+
+
+# Load KB documents for Brief Agent
+# typrum.txt is 339k chars; we load 30k (9%) which covers~30+ room types
+# funktionskrav.txt is 42k chars; we load 10k (24%)
+# Previously these were capped at 5000 and 3000 chars respectively
+_kb_loader = get_loader()
+_kb_context = _kb_loader.get_documents_for_agent("brief")
 
 
 # System prompt for initial generation
-SYSTEM_PROMPT = """You are the Brief Agent for ArchitectAI. Output ONLY valid JSON, no prose.
+SYSTEM_PROMPT = """You are the Brief Agent for ArchitectAI — a specialist in Swedish healthcare architecture and
+Rumsfunktionsprogram (RFP). Output ONLY valid JSON, no prose or markdown.
 
-Schema:
-{"building_type":"healthcare","jurisdiction":"SE","rooms":[{"room_id":"R01a","room_name":"Patient Bedroom A","quantity":1,"zone":"clean","access_type":"restricted","min_area_m2":18.0,"width_hint_m":4.5,"depth_hint_m":4.0,"adjacencies":["R02a"],"compliance_flag":false,"notes":"SS 91 42 21"}],"total_net_area_m2":0,"clean_dirty_separation":"<100 chars>"}
+EXPERTISE: You apply Swedish Planerings- och Tillgångsstandard (PTS) and SS 91 42 21:2017 "Projektering av
+vårdlokaler" to generate a complete, clinically correct room function program. You understand:
 
-Rules:
-- JSON only. No corridors (code adds them). No markdown.
-- zone: clean|dirty|staff|public|service
-- Each bedroom=separate entry R01a..R01j, quantity=1
-- Each ensuite=separate entry R02a..R02j — zone=dirty, adjacency to its bedroom only
-- Isolation room: zone=clean, access only via anteroom
-- Anteroom: zone=clean, connects corridor↔isolation room
-- Isolation ensuite: zone=dirty, connects to isolation room only
-- notes: max 40 chars
-- Keep adjacencies minimal — code enforces corridor links automatically
+HYGIENE ZONES (Swedish healthcare):
+- Ren (clean/sterile): operating theatres, sterile storage, treatment rooms — strict access control
+- Smutsig (dirty/contaminated): sluice rooms, soiled utility, dirty corridors — separate waste path
+- Personal (staff): staff rooms, offices, locker rooms — staff-only access
+- Publik (public): waiting areas, reception, public corridors — open access
+- Service: plant rooms, porter routes, delivery — back-of-house access
+
+ROOM FUNCTIONAL CATEGORIES for primary care (vårdcentral):
+- Mottagningsrum/konsultationsrum: 16–20 m², hand wash basin required, door 1100 mm clear
+- Undersökningsrum: 20–25 m², examination table + wheelchair turning circle (D=1500mm)
+- Provtagning/behandling: 14–18 m², dirty zone, separate waste disposal
+- Väntrum: min 2 m² per person + wheelchair space, public zone
+- Reception/registrering: 15–25 m², clear view into waiting area, safe passage
+- Samtalsrum: 10–15 m², acoustic privacy required (Rw≥42dB)
+- Omklädning/tvätt: 1 per 5 clinical staff, 4–6 m²/person
+- Ren disk / Smutsig disk (Sterile Services Unit): always paired, never connected directly
+- Städservice: 4–6 m², one per nursing zone, floor drain, slopsink
+- WC handikappanpassad: min 4.5 m², D=1500 mm turning circle, 900 mm door
+
+CLEAN/DIRTY FLOW RULES (SS 91 42 21):
+- Clean and dirty routes shall NEVER cross (rätt-och-fel-flöde)
+- Each clinical zone must have both a ren diskrum AND a smutsig diskrum
+- Soiled linen path must reach the lift/exit without crossing clean zones
+- Staff changing route: street → change → clinical zone (never reverse)
+
+JSON SCHEMA — output exactly this structure:
+{
+  "building_type": "healthcare",
+  "jurisdiction": "SE",
+  "building_subtype": "primary_care|hospital_ward|...",
+  "rooms": [
+    {
+      "room_id": "R01",
+      "room_name": "Konsultationsrum 1",
+      "functional_category": "mottagning",
+      "quantity": 1,
+      "hygiene_zone": "ren|smutsig|personal|publik|service",
+      "access_type": "restricted|staff|public",
+      "min_area_m2": 18.0,
+      "width_hint_m": 4.2,
+      "depth_hint_m": 4.5,
+      "adjacencies": ["R02"],
+      "special_requirements": ["hand_wash_basin", "examination_table"],
+      "acoustic_class": "A|B|C|none",
+      "compliance_flag": false,
+      "notes": "SS 91 42 21 §4.2"
+    }
+  ],
+  "total_net_area_m2": 0,
+  "clean_dirty_separation": "<describe the clean/dirty flow>"
+}
+
+RULES:
+- JSON only. No corridors (corridors are calculated automatically). No markdown.
+- hygiene_zone must be: ren, smutsig, personal, publik, or service
+- Each room instance is a separate entry with quantity=1 unless truly identical
+- Every clinical zone must include a ren diskrum AND a smutsig diskrum
+- Always include at least one städrum per floor/zone
+- notes: max 60 chars, cite PTS or SS standard if relevant
+- Keep adjacencies to direct functional neighbours only
+
+---
+
+### PTS COMPLIANCE DOCUMENTS (extracted knowledge base)
+
+FUNKTIONSKRAV (Functional Requirements):
+{funktionskrav}
+
+TYPRUM (Standard Room Types):
+{typrum}
+
+---
 """
 
-# TOKEN-OPT: Separate system prompt for revision mode — instructs patch output only.
-# Much smaller output than a full room_program (only changed rooms).
-REVISION_SYSTEM_PROMPT = """You are the Brief Agent for ArchitectAI fixing a QA-rejected room program.
+def _build_system_prompt():
+    """Build system prompt with KB context using larger, centrally-managed limits."""
+    # typrum: 30,000 chars (was 5,000 — now covers ~30+ room types instead of ~3)
+    # funktionskrav: 10,000 chars (was 3,000)
+    typrum_text = _kb_context.get("typrum", "")
+    funk_text   = _kb_context.get("funktionskrav", "")
+
+    typrum_excerpt = typrum_text[:30_000] if typrum_text else "[Typrum not loaded]"
+    funk_excerpt   = funk_text[:10_000]   if funk_text   else "[Funktionskrav not loaded]"
+
+    if len(typrum_text) > 30_000:
+        pct = int(30_000 / len(typrum_text) * 100)
+        typrum_excerpt += (
+            f"\n\n[... Typrum continues — showing first 30,000 of {len(typrum_text):,} chars ({pct}%) ...]"
+        )
+
+    return SYSTEM_PROMPT.format(funktionskrav=funk_excerpt, typrum=typrum_excerpt)
+
+# Build dynamic revision prompt too
+REVISION_SYSTEM_PROMPT_BASE = """You are the Brief Agent for ArchitectAI fixing a QA-rejected room program.
+You are an expert in Swedish healthcare RFP (Rumsfunktionsprogram) per SS 91 42 21 and PTS.
 
 Output ONLY a JSON patch — do NOT output the full room_program.
 
@@ -55,14 +145,15 @@ Rules:
 - Omit rooms that are already correct.
 - If no rooms need removal, use removed_room_ids: []
 - If no rooms need adding, use added_rooms: []
-- Room objects follow the same schema as the original.
+- Room objects follow the full schema from the original (include all fields).
 - adjacencies: list only direct neighbours, not corridor (corridor is auto-wired).
+- Ensure clean/dirty flow is maintained after patch.
 """
 
 
 class BriefAgent(BaseAgent):
     AGENT_ID = "brief"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3-flash"
 
     # TOKEN-OPT: Patch-based revision threshold.
     # If prior_room_program is available AND qa_feedback is set, use patch mode.
@@ -124,18 +215,6 @@ class BriefAgent(BaseAgent):
     def run(self, inputs: dict) -> dict:
         """
         Generate a room program from user prompt and site data.
-
-        Args:
-            inputs: {
-                "prompt": str,               # User's building brief
-                "site_data": dict,           # From InputParserAgent
-                "jurisdiction": str,         # e.g. "SE"
-                "qa_feedback": dict|None,    # QA issues on revision
-                "prior_room_program": dict|None,  # TOKEN-OPT: previous version for patch mode
-            }
-
-        Returns:
-            room_program dict
         """
         prompt              = inputs["prompt"]
         site_data           = inputs.get("site_data", {})
@@ -156,7 +235,7 @@ class BriefAgent(BaseAgent):
         logger.info(f"[{self.AGENT_ID}] [{attempt_label}] Generating room program for: {prompt[:80]}...")
         self.send_message("pm", "status_update", {"status": "working", "task": f"Room program ({attempt_label})"})
 
-        # Build feedback text (shared across patch and non-patch revision)
+        # Build feedback section (shared across patch and non-patch revision)
         feedback_section = ""
         if qa_feedback:
             if isinstance(qa_feedback, dict):
@@ -172,10 +251,13 @@ class BriefAgent(BaseAgent):
                 + (f"Fix guidance: {fix_text}" if fix_text else "")
             )
 
+        # SPREAD: Fetch semantic context based on user prompt (RAG)
+        kb_query = f"{prompt[:200]} {project_brief.get('description', '')}"
+        extra_kb_context = _kb_loader.get_semantic_context(kb_query, self.AGENT_ID, n_results=5)
+
         # ── Build prompt and call LLM ────────────────────────────────────────
         if use_patch_mode:
             # TOKEN-OPT: Send only the affected rooms + QA issues.
-            # Compress prior rooms to a compact representation for context.
             prior_rooms_compact = json.dumps(
                 [{"id": r.get("room_id"), "n": r.get("room_name","")[:25],
                   "z": r.get("zone"), "a": r.get("min_area_m2"),
@@ -190,21 +272,20 @@ class BriefAgent(BaseAgent):
                 f"Output ONLY a patch JSON to fix the listed issues. "
                 f"Do not output rooms that are already correct."
             )
+            
+            sys_prompt = REVISION_SYSTEM_PROMPT
+            if extra_kb_context:
+                sys_prompt += f"\n\n{extra_kb_context}"
+                
             response = self.chat(
-                system=REVISION_SYSTEM_PROMPT,
+                system=sys_prompt,
                 messages=[{"role": "user", "content": user_message}],
-                max_tokens=2000,  # TOKEN-OPT: patch is much smaller than full regen
+                max_tokens=2000,
             )
             patch = self._extract_json(response)
-            # Unwrap if nested
             if "patch" in patch and isinstance(patch["patch"], dict):
                 patch = patch["patch"]
-            # Apply patch to prior version
             room_program = self._apply_patch(prior_room_program, patch)
-            logger.info(f"[{self.AGENT_ID}] Patch applied — "
-                        f"{len(patch.get('modified_rooms') or [])} modified, "
-                        f"{len(patch.get('added_rooms') or [])} added, "
-                        f"{len(patch.get('removed_room_ids') or [])} removed")
 
         elif qa_feedback:
             # Fallback non-patch revision: compact prompt, full regen
@@ -213,10 +294,15 @@ class BriefAgent(BaseAgent):
                 f"{feedback_section}\n"
                 f"Output corrected room_program JSON. Same rooms, fix only the listed issues."
             )
+            
+            sys_prompt = _build_system_prompt()
+            if extra_kb_context:
+                sys_prompt += f"\n\n{extra_kb_context}"
+                
             response = self.chat(
-                system=SYSTEM_PROMPT,
+                system=sys_prompt,
                 messages=[{"role": "user", "content": user_message}],
-                max_tokens=4000,
+                max_tokens=8192,
             )
             room_program = self._extract_json(response)
             if "room_program" in room_program and isinstance(room_program["room_program"], dict):
@@ -230,26 +316,26 @@ class BriefAgent(BaseAgent):
             constraints = project_brief.get("constraints", {})
             building_type = project_brief.get("building_type", "healthcare")
             se_dims = SE.prompt_block(building_type)
+            
             user_message = (
                 f'User request: "{prompt}"\n\n'
-                f"Project parameters (from Client Agent):\n"
+                f"Project parameters:\n"
                 f"- Building type: {building_type}\n"
-                f"- Jurisdiction: {jurisdiction} ({project_brief.get('jurisdiction_name', 'Sweden')})\n"
                 f"- Target net area: {size.get('target_net_area_m2', 280)} m²\n"
-                f"- Target gross area: {size.get('target_gross_area_m2', 420)} m²\n"
                 f"- Patient beds: {prog.get('patient_beds', 4)}\n"
-                f"- Key rooms required: {', '.join(prog.get('key_rooms', [])[:6])}\n"
-                f"- Isolation rooms: {constraints.get('isolation_rooms_required', 1)}\n"
-                f"- Standards: {', '.join(standards[:3])}\n"
-                f"- Min corridor width: {constraints.get('min_corridor_width_m', 2.4)} m\n\n"
+                f"- Key rooms: {', '.join(prog.get('key_rooms', [])[:6])}\n\n"
                 f"{se_dims}\n\n"
-                f"Generate compact room program JSON. Max 25 rooms. Short strings. No corridors.\n"
-                f"Use width_hint_m and depth_hint_m snapped to multiples of 0.1 m (= 100 mm)."
+                f"Generate room program JSON. Max 25 rooms."
             )
+            
+            sys_prompt = _build_system_prompt()
+            if extra_kb_context:
+                sys_prompt += f"\n\n{extra_kb_context}"
+
             response = self.chat(
-                system=SYSTEM_PROMPT,
+                system=sys_prompt,
                 messages=[{"role": "user", "content": user_message}],
-                max_tokens=4000,
+                max_tokens=8192,
             )
             room_program = self._extract_json(response)
             if "room_program" in room_program and isinstance(room_program["room_program"], dict):
@@ -512,3 +598,116 @@ class BriefAgent(BaseAgent):
         })
 
         return room_program
+
+    def export_rfp_document(self, room_program: dict) -> str:
+        """
+        Export a complete, human-readable Rumsfunktionsprogram as a Markdown document.
+        Saved to projects/<id>/outputs/rumsfunktionsprogram.md
+        Returns the file path.
+        """
+        from pathlib import Path
+
+        rooms = room_program.get("rooms", [])
+        project_id = room_program.get("project_id", self.memory.project_id)
+        jurisdiction = room_program.get("jurisdiction", "SE")
+        total_net = room_program.get("total_net_area_m2", 0)
+        gross = room_program.get("gross_area_m2", round(total_net * 1.5, 1))
+        created_at = room_program.get("created_at", "")[:10]
+        sep = room_program.get("clean_dirty_separation", "")
+        subtype = room_program.get("building_subtype", "")
+
+        # Group rooms by functional category / hygiene zone
+        ZONE_LABELS = {
+            "ren": "🟢 Ren zon (clean)", "clean": "🟢 Ren zon (clean)",
+            "smutsig": "🔴 Smutsig zon (dirty)", "dirty": "🔴 Smutsig zon (dirty)",
+            "personal": "🔵 Personalzon (staff)", "staff": "🔵 Personalzon (staff)",
+            "publik": "⚪ Publik zon (public)", "public": "⚪ Publik zon (public)",
+            "service": "🟤 Servicezon",
+        }
+
+        by_zone: dict = {}
+        for r in rooms:
+            zone = r.get("hygiene_zone") or r.get("zone", "okänd")
+            label = ZONE_LABELS.get(zone, f"🟡 {zone}")
+            by_zone.setdefault(label, []).append(r)
+
+        lines = [
+            f"# Rumsfunktionsprogram — {project_id}",
+            f"",
+            f"**Projekttyp:** {subtype or 'Healthcare'}  ",
+            f"**Jurisdiktion:** {jurisdiction}  ",
+            f"**Datum:** {created_at}  ",
+            f"**Genererat av:** AI Nightingale Brief Agent (SS 91 42 21 / PTS)  ",
+            f"",
+            f"---",
+            f"",
+            f"## Sammanfattning",
+            f"",
+            f"| Parameter | Värde |",
+            f"|-----------|-------|",
+            f"| Antal rum (netto) | {len(rooms)} st |",
+            f"| Total nettoarea | {total_net:.0f} m² |",
+            f"| Beräknad bruttoyta (faktor 1.5) | {gross:.0f} m² |",
+            f"| Ren/smutsig separation | {sep or '–'} |",
+            f"",
+            f"---",
+            f"",
+        ]
+
+        for zone_label, zone_rooms in sorted(by_zone.items()):
+            zone_total = sum(r.get("min_area_m2", 0) for r in zone_rooms)
+            lines += [
+                f"## {zone_label}",
+                f"",
+                f"*Zonens totala nettoarea: {zone_total:.0f} m²*",
+                f"",
+                f"| Rum-ID | Rumsnamn | Kategori | Yta (m²) | Bredd × Djup | Krav | Standard | Anm. |",
+                f"|--------|----------|----------|----------|-------------|------|----------|------|",
+            ]
+            for r in zone_rooms:
+                rid = r.get("room_id", "")
+                name = r.get("room_name", "")
+                cat = r.get("functional_category", "")
+                area = r.get("min_area_m2", 0)
+                w = r.get("width_hint_m", "")
+                d = r.get("depth_hint_m", "")
+                dims = f"{w} × {d}" if w and d else "–"
+                reqs = ", ".join(r.get("special_requirements", []) or []) or "–"
+                acoustic = r.get("acoustic_class", "")
+                if acoustic and acoustic != "none":
+                    reqs += f", akustik klass {acoustic}"
+                note = r.get("notes", "")
+                flag = " ⚠️" if r.get("compliance_flag") else ""
+                lines.append(f"| {rid} | {name}{flag} | {cat} | {area:.1f} | {dims} | {reqs} | {note} | |")
+            lines += ["", ""]
+
+        lines += [
+            f"---",
+            f"",
+            f"## Krav per zon — Checklista",
+            f"",
+            f"- [ ] Varje klinisk zon har **ren diskrum** och **smutsig diskrum**",
+            f"- [ ] Ren och smutsig trafik korsas **aldrig** (rätt-och-fel-flöde, SS 91 42 21)",
+            f"- [ ] Personalomklädning > klinisk zon (aldrig omvänt)",
+            f"- [ ] Minst ett **städrum** per zon",
+            f"- [ ] Alla konsultationsrum har **handtvättplats** (SS 91 42 21 §4.2)",
+            f"- [ ] Tillgängliga WC: minst 4,5 m², D=1500 mm svängcirkel",
+            f"- [ ] Väntrum: ≥ 2 m²/person + rullstolsplats",
+            f"- [ ] Akustikklass ≥ B i samtalsrum (Rw ≥ 42 dB)",
+            f"",
+            f"---",
+            f"",
+            f"*Dokumentet är genererat automatiskt av AI Nightingale. Granskas och godkänns vid Milstolpe 1 (M1).*",
+        ]
+
+        md_content = "\n".join(lines)
+
+        # Save to outputs directory
+        out_dir = self.memory.root / "outputs"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / "rumsfunktionsprogram.md"
+        out_path.write_text(md_content, encoding="utf-8")
+
+        logger.success(f"[{self.AGENT_ID}] RFP document exported → {out_path}")
+        return str(out_path)
+

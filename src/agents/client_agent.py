@@ -22,7 +22,7 @@ Rules: JSON only. Healthcare gross_factor=1.5. 10-bed ward≈440m² net. Site=fo
 
 class ClientAgent(BaseAgent):
     AGENT_ID = "client"
-    DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3-flash"
 
     def run(self, inputs: dict) -> dict:
         """

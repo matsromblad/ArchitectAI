@@ -38,4 +38,5 @@ def test_pm_kickoff(monkeypatch):
         
         res = pm.kickoff("prompt", {}, "SE")
         assert res["action"] == "proceed"
-        assert memory.state["phase"] == "briefing"
+        # PMAgent.kickoff() sets phase to "m1_brief", not "briefing"
+        assert memory.state["phase"] == "m1_brief"

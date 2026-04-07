@@ -42,7 +42,7 @@ class BaseAgent(ABC):
 
     # Override in subclass
     AGENT_ID: str = "base"
-    DEFAULT_MODEL: str = "claude-sonnet-4-6"
+    DEFAULT_MODEL = "gemini-3.1-pro"
 
     def __init__(self, memory: ProjectMemory, model: str = None):
         self.memory = memory
@@ -59,9 +59,55 @@ class BaseAgent(ABC):
         messages: list[dict],
         max_tokens: int = 4096,
         temperature: float = 0.2,
+        response_format: dict = None,
     ) -> str:
-        """Send a chat request. If model is Claude, tries OpenClaw first, then falls back to Ollama."""
+        """Send a chat request. If model is Gemini or Claude, routes to them first, then falls back to Ollama."""
         
+        if self.model.startswith("gemini"):
+            try:
+                gemini_key = os.getenv("GEMINI_API_KEY")
+                
+                # Map marketing names to actual API endpoints
+                api_model_name = self.model
+                if "3.1-pro" in self.model:
+                    api_model_name = "gemini-3.1-pro-preview"
+                elif "3-flash" in self.model:
+                    api_model_name = "gemini-3-flash-preview"
+                    
+                if gemini_key and gemini_key != "dummy":
+                    gemini_client = OpenAI(
+                        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+                        api_key=gemini_key,
+                    )
+                    logger.debug(f"[{self.AGENT_ID}] → Google Gemini API ({self.model})")
+                    
+                    full_messages = [{"role": "system", "content": system}] + messages
+                    kwargs = {
+                        "model": api_model_name,
+                        "max_tokens": max_tokens,
+                        "temperature": temperature,
+                        "messages": full_messages,
+                    }
+                    if response_format:
+                        kwargs["response_format"] = response_format
+                        
+                    response = gemini_client.chat.completions.create(**kwargs)
+                    content = response.choices[0].message.content
+                    
+                    usage = getattr(response, "usage", None)
+                    in_tok = getattr(usage, "prompt_tokens", 0) if usage else 0
+                    out_tok = getattr(usage, "completion_tokens", 0) if usage else 0
+                    
+                    # Rough cost tracking for Gemini 1.5 (varies by context length)
+                    cost = (in_tok / 1_000_000) * 1.25 + (out_tok / 1_000_000) * 5.00
+                    self.memory.log_cost(cost)
+                    logger.info(f"[{self.AGENT_ID}] ← {len(content)} chars | tokens: {in_tok} in / {out_tok} out | cost: ${cost:.4f} (Gemini: {self.model})")
+                    return content
+                else:
+                    logger.warning(f"[{self.AGENT_ID}] No valid GEMINI_API_KEY found, falling back to Ollama.")
+            except Exception as e:
+                logger.warning(f"[{self.AGENT_ID}] Gemini API failed: {e}. Falling back to Ollama.")
+                
         # 1. Try OpenClaw if model is Claude
         if self.model.startswith("claude"):
             try:
@@ -210,13 +256,54 @@ class BaseAgent(ABC):
             except json.JSONDecodeError as e:
                 logger.debug(f"[_extract_json] slice parse failed at pos {e.pos}: {repr(text[start:end+1][max(0,e.pos-30):e.pos+30])}")
 
-        # Last resort: try to fix common issues (trailing commas, etc.)
-        try:
-            import ast
-            # ast.literal_eval can handle some JSON-like structures
-            candidate = text[text.find("{"):text.rfind("}")+1] if "{" in text else text
-            return json.loads(candidate)
-        except Exception:
-            pass
+        # Truncation repair: Gemini Flash often cuts output mid-stream.
+        # Find last complete JSON value boundary then close open structures.
+        def _repair_truncated(s: str) -> str:
+            """Trim to last complete value/boundary, then close all open brackets in order."""
+            import re as _re
+            s = s.rstrip()
+            # Find last complete JSON value using regex
+            tail_re = _re.compile(r'(?:"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|true|false|null|[}\]])(?=\s*(?:,|\n|]|}|$))')
+            last_m = None
+            for m in tail_re.finditer(s):
+                last_m = m
+            if last_m:
+                s = s[:last_m.end()].rstrip()
+            s = s.rstrip(',')
+            # Walk the trimmed string to build the open-bracket stack (respecting strings)
+            stack = []
+            in_str = False
+            esc = False
+            for ch in s:
+                if esc:
+                    esc = False; continue
+                if ch == '\\' and in_str:
+                    esc = True; continue
+                if ch == '"':
+                    in_str = not in_str; continue
+                if in_str:
+                    continue
+                if ch == '{':
+                    stack.append('}')
+                elif ch == '[':
+                    stack.append(']')
+                elif ch in ('}', ']') and stack:
+                    stack.pop()
+            # Close all open structures innermost-first
+            if stack:
+                s += ''.join(reversed(stack))
+            return s
+
+        start = text.find("{")
+        if start == -1:
+            start = text.find("[")
+        if start != -1:
+            try:
+                repaired = _repair_truncated(text[start:])
+                result = json.loads(repaired)
+                logger.warning(f"[_extract_json] Repaired truncated JSON — response was cut mid-stream (repaired to {len(repaired)} chars)")
+                return result
+            except json.JSONDecodeError:
+                pass
 
         raise ValueError(f"Could not extract JSON from response (len={len(text)}): {repr(text[:300])}...")
