@@ -256,13 +256,54 @@ class BaseAgent(ABC):
             except json.JSONDecodeError as e:
                 logger.debug(f"[_extract_json] slice parse failed at pos {e.pos}: {repr(text[start:end+1][max(0,e.pos-30):e.pos+30])}")
 
-        # Last resort: try to fix common issues (trailing commas, etc.)
-        try:
-            import ast
-            # ast.literal_eval can handle some JSON-like structures
-            candidate = text[text.find("{"):text.rfind("}")+1] if "{" in text else text
-            return json.loads(candidate)
-        except Exception:
-            pass
+        # Truncation repair: Gemini Flash often cuts output mid-stream.
+        # Find last complete JSON value boundary then close open structures.
+        def _repair_truncated(s: str) -> str:
+            """Trim to last complete value/boundary, then close all open brackets in order."""
+            import re as _re
+            s = s.rstrip()
+            # Find last complete JSON value using regex
+            tail_re = _re.compile(r'(?:"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|true|false|null|[}\]])(?=\s*(?:,|\n|]|}|$))')
+            last_m = None
+            for m in tail_re.finditer(s):
+                last_m = m
+            if last_m:
+                s = s[:last_m.end()].rstrip()
+            s = s.rstrip(',')
+            # Walk the trimmed string to build the open-bracket stack (respecting strings)
+            stack = []
+            in_str = False
+            esc = False
+            for ch in s:
+                if esc:
+                    esc = False; continue
+                if ch == '\\' and in_str:
+                    esc = True; continue
+                if ch == '"':
+                    in_str = not in_str; continue
+                if in_str:
+                    continue
+                if ch == '{':
+                    stack.append('}')
+                elif ch == '[':
+                    stack.append(']')
+                elif ch in ('}', ']') and stack:
+                    stack.pop()
+            # Close all open structures innermost-first
+            if stack:
+                s += ''.join(reversed(stack))
+            return s
+
+        start = text.find("{")
+        if start == -1:
+            start = text.find("[")
+        if start != -1:
+            try:
+                repaired = _repair_truncated(text[start:])
+                result = json.loads(repaired)
+                logger.warning(f"[_extract_json] Repaired truncated JSON — response was cut mid-stream (repaired to {len(repaired)} chars)")
+                return result
+            except json.JSONDecodeError:
+                pass
 
         raise ValueError(f"Could not extract JSON from response (len={len(text)}): {repr(text[:300])}...")
