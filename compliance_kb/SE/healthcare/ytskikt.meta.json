@@ -1,0 +1,14 @@
+{
+  "filename": "YtskiktPdf.pdf",
+  "category": "ytskikt",
+  "type": "surface_materials",
+  "title": "Ytskikt och Material",
+  "description": "Surface materials and finishes specifications",
+  "relevant_agents": [
+    "architect",
+    "compliance"
+  ],
+  "extracted_at": "2026-04-07T14:30:38.631373+00:00",
+  "text_file": "ytskikt.txt",
+  "char_count": 8011
+}

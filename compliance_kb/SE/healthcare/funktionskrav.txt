@@ -1,0 +1,1689 @@
+
+--- Page 1 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+D60 Dörrbredd
+D60-12 Dörrbredd. Ger fritt mått 1600 mm (vid 90° och pardörr)
+Värde (M):
+18
+Beskrivning:
+D61 Dörrar
+D61-17 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+740
+Beskrivning:
+D61-18 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+840
+Beskrivning:
+D61-19 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+940
+Beskrivning:
+D61-20 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+1040
+Beskrivning:
+D61-21 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+1140
+Beskrivning:
+D61-22 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+1200
+Beskrivning:
+D61-23 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+1300
+Beskrivning:
+D61-24 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+1400
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 1 av 41
+
+--- Page 2 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+D61-25 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+1500
+Beskrivning:
+D61-27 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+1700
+Beskrivning:
+D61-28 Dörrar Fritt passagemått vid 90°
+Värde (mm):
+1800
+Beskrivning:
+D62 Visuell kontakt
+D62-1 Visuell kontakt
+Värde ():
+Inga krav
+Beskrivning:
+D62-2 Visuell kontakt
+Värde ():
+Glasad öppning i vägg
+Beskrivning:
+D62-3 Visuell kontakt
+Värde ():
+Glasad öppning i dörr
+Beskrivning:
+D62-4 Visuell kontakt
+Värde ():
+Observationsglas
+Beskrivning:
+D62-5 Visuell kontakt
+Värde ():
+speciella krav
+Beskrivning:
+D62-6 Visuell kontakt. Glasad öppning i dörr "titt-in-fönster"
+Värde ():
+Glas i läkemedelsrum får vara max 15x30 cm och ska beklädas med film för insynsskydd
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 2 av 41
+
+--- Page 3 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+D62-7 Visuell kontakt
+Värde ():
+Glas mot manöverrum
+Beskrivning:
+D63 Insynsskydd
+D63-1 Insynsskydd
+Värde ():
+inga krav
+Beskrivning:
+D63-2 Insynsskydd
+Värde ():
+persienner
+Beskrivning:
+D63-3 Insynsskydd
+Värde ():
+annat än persienner
+Beskrivning:
+D63-4 Insynsskydd. Inne i vårdrum (mot sluss)
+Värde ():
+rullgardin i glas i dörr mot vårdrum
+Beskrivning:
+D63-5 Insynsskydd. Placeras inne i sluss mot vårdrum.
+Värde ():
+rullgardin i glas i dörr
+Beskrivning:
+D63-6 Insynsskydd
+Värde ():
+speciella krav
+Beskrivning:
+D63-7 Insynsskydd
+Värde ():
+Beskrivning:
+D64 Portar
+D64-1 Garageport
+Värde ():
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 3 av 41
+
+--- Page 4 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+D64-2 Rullport Rullport
+Värde ():
+Beskrivning:
+E10 Strålskydd
+E10-1 Strålskydd
+Värde ():
+Beskrivning:
+E10-2 Vågfälla
+Värde ():
+Beskrivning:
+F11 Komfortklass
+F11-5 Komfortklass
+Värde ():
+Speciella krav
+Beskrivning:
+F11-7 Komfortklass
+Värde ():
+Inga krav på kyla
+Beskrivning:
+F11-12 Komfortklass Komfortkyla, rumstemperatur +23°C 2,0°C (min +21°, max +25°C) individuellt
+reglerad kyla
+Värde ():
+Alternativt zonindelad
+Beskrivning:
+F11-16 Komfortklass Rumstemperatur nominellt 23°C +- 1,5 C
+Värde ():
+Beskrivning:
+F31 Min temperaturkrav
+F31-2 Min temperaturkrav
+Värde (°C):
+15
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 4 av 41
+
+--- Page 5 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+F31-3 Min temperaturkrav
+Värde (°C):
+18
+Beskrivning:
+F31-5 Min temperaturkrav
+Värde (°C):
+21
+Beskrivning:
+F31-6 Min temperaturkrav
+Värde (°C):
+23
+Beskrivning:
+F31-9 Min temperaturkrav
+Värde (°C):
+Speciella krav
+Beskrivning:
+F31-11 Golvvärme
+Värde (°C):
+Beskrivning:
+F32 Max temperaturkrav
+F32-1 Max temperatur. Max temperatur för utrustning
+Värde (°C):
+25
+Beskrivning:
+F32-2 Max temperatur. Temperatur över 25°C undvikes under längre perioder
+Värde (°C):
+Max 25
+Beskrivning:
+F32-4 Max temperatur
+Värde (°C):
+Speciella krav
+Beskrivning:
+F32-5 Max temperatur
+Värde (°C):
+23
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 5 av 41
+
+--- Page 6 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+F32-7 Max temperatur
+Värde (°C):
+25
+Beskrivning:
+G10 SIS
+G10-1 SIS-TS39 Gällande komfortklass, temperaturkrav, min filtreringsgrad, min luftflöden,
+tryckförhållanden
+Värde ():
+Beskrivning:
+G10-2 SIS-TR57 Gällande komfortklass, temperaturkrav, min filtreringsgrad, min luftflöden,
+tryckförhållanden
+Värde ():
+Beskrivning:
+G11 Min filtreringsgrad
+G11-5 Min filtreringsgrad
+Värde ():
+Speciella krav
+Beskrivning:
+G31 Min luftflöden l/s
+G31-1 Min luftflöden l/s
+Värde (l/s):
+10
+Beskrivning:
+G31-2 Min luftflöden l/s
+Värde (l/s):
+15
+Beskrivning:
+G31-3 Min luftflöden l/s
+Värde (l/s):
+20
+Beskrivning:
+G31-4 Min luftflöden l/s
+Värde (l/s):
+25
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 6 av 41
+
+--- Page 7 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+G31-7 Min luftflöden l/s
+Värde (l/s):
+Speciella krav
+Beskrivning:
+G31-10 Min luftflöden l/s
+Värde (l/s):
+30
+Beskrivning:
+G33 Min luftflöden l/s m²
+G33-1 Min luftflöden l/s m²
+Värde (l/s m²):
+0,35
+Beskrivning:
+G33-5 Min luftflöden l/s m²
+Värde (l/s m²):
+2,5
+Beskrivning:
+G33-6 Min luftflöden l/s m²
+Värde (l/s m²):
+3
+Beskrivning:
+G33-8 Min luftflöden l/s m²
+Värde (l/s m²):
+4
+Beskrivning:
+G33-9 Min luftflöden l/s m²
+Värde (l/s m²):
+5
+Beskrivning:
+G33-15 Min luftflöden l/s m²
+Värde (l/s m²):
+Speciella krav
+Beskrivning:
+G33-21 Min luftflöden l/s m²
+Värde (l/s m²):
+0,7
+Beskrivning:
+G35 Min luftflöden l/s person
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 7 av 41
+
+--- Page 8 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+G35-4 Min luftflöden l/s person
+Värde (l/s person):
+10
+Beskrivning:
+G35-6 Min luftflöden l/s person
+Värde (l/s person):
+15
+Beskrivning:
+G35-11 Min luftflöden l/s person
+Värde (l/s person):
+40
+Beskrivning:
+G35-13 Min luftflöden l/s person
+Värde (l/s person):
+Speciella krav
+Beskrivning:
+G39 Min luftflöden
+G39-1 Min luftflöden
+Värde ():
+Speciella krav
+Beskrivning:
+G39-2 Min luftflöde + forcering
+Värde ():
+Beskrivning:
+G39-3 Min luftflöde + forcering
+Värde ():
+0,35 l/s m² + forcering 10 l/pers
+Beskrivning:
+G39-7 Min luftflöde + forcering
+Värde ():
+1 l/s.m² + forcering 4 l/s.m²
+Beskrivning:
+G41 Tryckförhållanden till andra rum
+G41-1 Tryckförhållanden till andra rum
+Värde ():
+Balanserat
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 8 av 41
+
+--- Page 9 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+G41-3 Tryckförhållanden till andra rum. Till-och frånluft med tilluftsunderskott
+Värde ():
+FT-
+Beskrivning:
+G41-4 Tryckförhållanden till andra rum. Endast tilluft
+Värde ():
+T+
+Beskrivning:
+G41-5 Tryckförhållanden till andra rum. Endast frånluft
+Värde ():
+F-
+Beskrivning:
+G41-6 Tryckförhållanden till andra rum
+Värde ():
+Speciella krav
+Beskrivning:
+G41-8 Tryckförhållanden till andra rum
+Värde ():
+Övertryck
+Beskrivning:
+G49 Tryckförhållanden
+G49-1 Tryckförhållanden
+Värde ():
+Speciella krav
+Beskrivning:
+G49-3 Täthetskrav Max 0,2 l/s, m² vid 50 Pa övertryck
+Värde ():
+Beskrivning:
+H11 Belysningskrav
+H11-1 Belysningskrav. Enligt branschrekommendationer.
+Värde ():
+Beskrivning:
+H12 Synkrav
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 9 av 41
+
+--- Page 10 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+H12-1 Synkrav. Synkrav enligt branchrekommendationer för denna typ av rum
+Värde ():
+Normala
+Beskrivning:
+H12-2 Synkrav. Synkrav än branchrekommendationer för denna typ av rum
+Värde ():
+Högre
+Beskrivning:
+H12-3 Synkrav. Synkrav än branchrekomendationer för denna typ av rum.
+Värde ():
+Mycket högre
+Beskrivning:
+H12-4 Synkrav
+Värde ():
+Speciella krav
+Beskrivning:
+H13 Artificiell belysning
+H13-1 Allmän belysning
+Värde ():
+Beskrivning:
+H13-2 Miljöbelysning
+Värde ():
+Beskrivning:
+H13-3 Platsbelysning
+Värde ():
+Beskrivning:
+H13-4 Special belysning
+Värde ():
+Beskrivning:
+H13-5 Ergonomiskt ljus. Zonindelat färgat ljus
+Värde ():
+Beskrivning:
+H14 Ljuskällor
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 10 av 41
+
+--- Page 11 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+H14-7 LED
+Värde ():
+Beskrivning:
+H14-8 Ljuskälla
+Värde ():
+Speciella krav
+Beskrivning:
+H16 Belysningsstyrka
+H16-1 Belysningsstyrka. Belysningsstyrka enligt branschrekommendation för denna typ av rum.
+Värde ():
+Normal
+Beskrivning:
+H16-2 Belysningsstyrka. Belysningsstyrka än enligt branschrekommendation för denna typ av rum.
+Värde ():
+Högre
+Beskrivning:
+H16-3 Belysningsstyrka. Belysningsstyrka än enligt branschrekommendation för denna typ av rum.
+Värde ():
+Mycket högre
+Beskrivning:
+H16-4 Belysningsstyrka
+Värde ():
+Speciella krav
+Beskrivning:
+H16-5 Belysningsstyrka/synkrav
+Värde ():
+Normal med tillgång till undersökningsljus
+Beskrivning:
+H31 Färgåtergivning
+H31-1 Färgåtergivning Färgåtergivningsindex Ra > 84
+Värde ():
+Normal
+Beskrivning:
+H31-2 Färgåtergivning Färgåtergivningsindex större än Ra > 90
+Värde ():
+God
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 11 av 41
+
+--- Page 12 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+H31-3 Färgåtergivning Färgåtergivningsindex större än Ra > 98
+Värde ():
+Mycket god
+Beskrivning:
+H31-4 Färgåtergivning
+Värde ():
+Speciella krav
+Beskrivning:
+H31-5 Färgåtergivning Färgåtergivningsindex Ra > 80
+Värde ():
+Normal
+Beskrivning:
+H32 Färgtemperatur
+H32-1 Färgtemperatur (<3000K)
+Värde ():
+Varm
+Beskrivning:
+H32-2 Färgtemperatur (3000K-4500K)
+Värde ():
+Neutral
+Beskrivning:
+H32-3 Färgtemperatur (>4500K)
+Värde ():
+Kall
+Beskrivning:
+H32-4 Färgtemperatur
+Värde ():
+Speciella krav
+Beskrivning:
+H32-5 Färgtemperatur 4000K
+Värde ():
+Neutral
+Beskrivning:
+H33 Bländning
+H33-1 Bländfri belysning
+Värde ():
+Normal
+Beskrivning:
+krav på bländfri belysning
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 12 av 41
+
+--- Page 13 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+H33-2 Bländfri belysning
+Värde ():
+Höga
+Beskrivning:
+krav på bländfri belysning
+H33-3 Bländfri belysning
+Värde ():
+Mycket höga
+Beskrivning:
+krav på bländfri belysning
+H33-4 Bländfri belysning
+Värde ():
+Speciella krav
+Beskrivning:
+H81 Belysningsstyrning
+H81-1 Belysningsstyrning - strömbrytare. Normala krav (manuell styrning).
+Värde ():
+Strömställare
+Beskrivning:
+Styrning via strömställare i rummet.
+H81-2 Belysningsstyrning - flera strömbrytare. Normala krav olika styrningar (manuell styrning).
+Värde ():
+Flera strömbrytare
+Beskrivning:
+Styrning via strömställare i rummet. Styrningen fördelas på flera strömställare
+H81-3 Belysningsstyrning - dimmer. Ljusreglering - manuell styrning via dimmer
+Värde ():
+Dimmer
+Beskrivning:
+H81-4 Belysningsstyrning - närvarostyrning. Automatisk tändning/släckning vid närvaro i rum
+Värde ():
+Närvarostyrning
+Beskrivning:
+H81-5 Belysningsstyrning - frånvarostyrd. Manuell tändning med frånvarostyrd släckning
+Värde ():
+Frånvaro
+Beskrivning:
+H81-6 Belysningsstyrning - dagsljusreglering. Manuell eller automatisk tändning samt dagsljusreglering.
+Värde ():
+Dagsljusreglering
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 13 av 41
+
+--- Page 14 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+H81-7 Belysningsstyrning - tid. Styrning via tidfunktion
+Värde ():
+Tid
+Beskrivning:
+H81-8 Belysningsstyrning - ljusrelä. Styrning via ljusreläfunktion
+Värde ():
+Ljusrelä
+Beskrivning:
+H81-9 Belysningsstyrning - frånvarodämpning. Frånvarodämpning av ljusnivån.
+Värde ():
+0-10 - 100%
+Beskrivning:
+H81-10 Belysningsstyrning
+Värde ():
+Speciella krav
+Beskrivning:
+H81-14 Belysningsstyrning Scenariestyrd
+Värde ():
+Beskrivning:
+H81-15 Belysningsstyrning Frånvarodämpning.
+Värde ():
+ca 20 - 90%
+Beskrivning:
+I10 Akustik
+I10-1 Akustikkrav enligt Riktlinje Akustikkrav i vårdlokaler
+Värde ():
+Beskrivning:
+I11 Ljudisolering
+I11-1 Ljudisolering. Utrymmen för kommunikation och rum med låga krav på ljudisolering.
+Värde (R'w):
+35dB
+Beskrivning:
+I11-2 Ljudisolering. Utrymmen för kommunikation och rum med måttliga krav på ljudisolering.
+Värde (R'w):
+40dB
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 14 av 41
+
+--- Page 15 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+I11-3 Ljudisolering. Utrymmen för kommunikation och rum med krav på relativt god ljudisolering.
+Värde (R'w):
+44dB
+Beskrivning:
+I11-4 Ljudisolering. Rum med krav på fullgod ljudisolering vid samtal med måttlig röststyrka och
+utrymmen för vila och sömn.
+Värde (R'w):
+48dB
+Beskrivning:
+I11-5 Ljudisolering. Rum med speciellt stränga sekretesskrav, krav på relativt god isolering mot
+Värde (R'w):
+52dB
+Beskrivning:
+I11-6 Ljudisolering. Rum för speciellt känsliga mätningar, eller rum med hög bullernivå.
+Värde (R'w):
+>52dB
+Beskrivning:
+I11-7 Ljudisolering
+Värde (R'w):
+speciell
+Beskrivning:
+I11-8 Ljudisolering. Inga särskilda krav
+Värde (R'w):
+Inga särskilda krav
+Beskrivning:
+I11-10 Ljudisolering. R´w mot annat rum (dB)
+Värde (R'w):
+35
+Beskrivning:
+I11-11 Ljudisolering. R´w mot korridor (dB)
+Värde (R'w):
+30
+Beskrivning:
+I11-13 Ljudkrav. Enligt Akustikriktlinje
+Värde (R'w):
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 15 av 41
+
+--- Page 16 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+I11-14 Ljudisolering. Ljudklass B
+Värde (R'w):
+Beskrivning:
+I11-15 Ljudisolering R´w mot korridor (dB)
+Värde (R'w):
+35
+Beskrivning:
+I11-16 Ljudisolering R´w mot korridor (dB)
+Värde (R'w):
+40
+Beskrivning:
+I11-17 Ljudisolering R´w mot annat rum (dB)
+Värde (R'w):
+44
+Beskrivning:
+I11-18 Ljudisolering R´w mot annat rum (dB)
+Värde (R'w):
+48
+Beskrivning:
+I11-19 Ljudisolering R´w mot annat rum (dB)
+Värde (R'w):
+52
+Beskrivning:
+I12 Stegljudsnivå
+I12-1 Stegljudsnivå. Inga särskilda krav
+Värde (dB):
+Inga särskilda krav
+Beskrivning:
+I12-2 Stegljudsnivå. Högsta tillåtna stegljudsnivå L,n’W=65dB
+Värde (dB):
+65
+Beskrivning:
+I12-3 Stegljudsnivå. Högsta tillåtna stegljudsnivå L,n’W=60dB
+Värde (dB):
+60
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 16 av 41
+
+--- Page 17 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+I12-4 Stegljudsnivå. Högsta tillåtna stegljudsnivå L,n’W=48dB
+Värde (dB):
+48
+Beskrivning:
+I12-5 Stegljudsnivå. Högsta tillåtna stegljudsnivå L,n’W=64dB
+Värde (dB):
+64
+Beskrivning:
+I13 Rumsakustik
+I13-1 Rumsakustik. Inga särskilda krav
+Värde ():
+Inga särskilda krav
+Beskrivning:
+I13-2 Rumsakustik. Krav på reglerad efterklangstid
+Värde ():
+1,2s
+Beskrivning:
+I13-3 Rumsakustik. Låga krav på kort efterklangstid
+Värde ():
+1,0s
+Beskrivning:
+I13-4 Rumsakustik. Måttliga krav på kort efterklangstid
+Värde ():
+0,8s
+Beskrivning:
+I13-5 Rumsakustik. Krav på kort efterklangstid
+Värde ():
+0,6s
+Beskrivning:
+I13-6 Rumsakustik. Krav på extrem dämpning
+Värde ():
+0,4s
+Beskrivning:
+I13-7 Rumsakustik. Specialdimensionering
+Värde ():
+speciella krav
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 17 av 41
+
+--- Page 18 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+I13-9 Rumsakustik. Längsta efterklangstid (s)
+Värde ():
+0,6s
+Beskrivning:
+I13-11 Rumsakustik Längsta efterklangstid (s)
+Värde ():
+0,5s
+Beskrivning:
+I13-12 Rumsakustik Längsta efterklangstid (s)
+Värde ():
+0,8s
+Beskrivning:
+I14 Buller från installationer
+I14-1 Buller från installationer. Inga särskilda krav
+Värde (dB(A)):
+Inga särskilda krav
+Beskrivning:
+I14-2 Buller från installationer.
+Värde (dB(A)):
+50
+Beskrivning:
+I14-3 Buller från installationer. Rum med låga krav på ljudnivåer. Allmänna utrymmen.
+Värde (dB(A)):
+45
+Beskrivning:
+I14-4 Buller från installationer. Rum med låga krav på ljudnivåer.
+Värde (dB(A)):
+40
+Beskrivning:
+I14-5 Buller från installationer. Rum med måttliga krav på ljudnivåer.
+Värde (dB(A)):
+35
+Beskrivning:
+I14-6 Buller från installationer. Rum med krav på låga ljudnivåer
+Värde (dB(A)):
+33
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 18 av 41
+
+--- Page 19 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+I14-7 Buller från installationer. Rum med krav på låga ljudnivåer.
+Värde (dB(A)):
+30
+Beskrivning:
+I14-8 Buller från installationer. Rum för speciellt känsliga undersökningar (hörselundersökningar), krav
+på mycket låga ljudnivåer.
+Värde (dB(A)):
+22
+Beskrivning:
+I14-9 Buller från installationer
+Värde (dB(A)):
+speciella krav
+Beskrivning:
+I14-10 Högsta ljudtrycksnivå från installationer LpA (dB)
+Värde (dB(A)):
+35
+Beskrivning:
+I14-11 Högsta ljudtrycksnivå från installationer LpC (dB)
+Värde (dB(A)):
+55
+Beskrivning:
+I14-12 Högsta ljudtrycksnivå från installationer LpA (dB)
+Värde (dB(A)):
+30
+Beskrivning:
+I14-13 Högsta ljudtrycksnivå från installationer LpA (dB)
+Värde (dB(A)):
+40
+Beskrivning:
+I14-14 Högsta ljudtrycksnivå från installationer LpA (dB)
+Värde (dB(A)):
+45
+Beskrivning:
+I14-15 Högsta ljudtrycksnivå från installationer LpC (dB)
+Värde (dB(A)):
+45
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 19 av 41
+
+--- Page 20 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+I14-16 Högsta ljudtrycksnivå från installationer LpC (dB)
+Värde (dB(A)):
+50
+Beskrivning:
+I14-17 Högsta ljudtrycksnivå från installationer LpC (dB)
+Värde (dB(A)):
+60
+Beskrivning:
+I15 Trafikbuller
+I15-1 Trafikbuller. Inga särskilda krav
+Värde (dB):
+Inga särskilda krav
+Beskrivning:
+I15-2 Trafikbuller. Rum med måttliga krav på ljudnivåer.
+Värde (dB):
+40
+Beskrivning:
+I15-3 Trafikbuller. Rum med krav på låga ljudnivåer.
+Värde (dB):
+30
+Beskrivning:
+I15-4 Trafikbuller. Rum för speciellt känsliga undersökningar (hörselundersökningar), krav på mycket
+låga ljudnivåer.
+Värde (dB):
+22
+Beskrivning:
+I15-5 Trafikbuller. Utrymme för aktivt vårdarbete, enskilt arbete, samtal eller personalens vila
+Värde (dB):
+35
+Beskrivning:
+I15-6 Högsta ekvivalenta ljudtrycksnivå från trafik LAeq (dB)
+Värde (dB):
+35
+Beskrivning:
+I15-7 Högsta maximala ljudtrycksnivå från trafik LAFmax (dB)
+Värde (dB):
+50
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 20 av 41
+
+--- Page 21 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+I15-8 Högsta ekvivalenta ljudtrycksnivå från trafik LAeq (dB)
+Värde (dB):
+30
+Beskrivning:
+I15-9 Högsta ekvivalenta ljudtrycksnivå från trafik LAeq (dB)
+Värde (dB):
+40
+Beskrivning:
+I15-10 Högsta maximala ljudtrycksnivå från trafik LAFmax (dB)
+Värde (dB):
+45
+Beskrivning:
+I15-11 Högsta maximala ljudtrycksnivå från trafik LAFmax (dB)
+Värde (dB):
+55
+Beskrivning:
+J32 Mörkläggning
+J32-1 Mörkläggning
+Värde ():
+Inga krav
+Beskrivning:
+J32-2 Mörkläggning. Ex: mörk rullgardin
+Värde ():
+Fördunkling
+Beskrivning:
+J32-3 Mörkläggning. Ex: mörkläggningsridå
+Värde ():
+Möjlighet till total mörkläggning
+Beskrivning:
+J32-4 Mörkläggning
+Värde ():
+Speciella krav
+Beskrivning:
+J33 Dagsljus
+J33-1 Dagsljus
+Värde ():
+Inga krav
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 21 av 41
+
+--- Page 22 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+J33-2 Dagsljus
+Värde ():
+Krav föreligger
+Beskrivning:
+J33-3 Dagsljus
+Värde ():
+Speciella krav
+Beskrivning:
+J33-4 Dagsljus
+Värde ():
+Krav förligger direkt eller indirekt
+Beskrivning:
+K11 Elmiljö
+K11-1 Elmiljö. Normala krav på immunitet och emmision
+Värde ():
+1 klass
+Beskrivning:
+-SS-EN 61000-6-1 Elektromagnetisk kompatibilitet (EMC) - Del 6-1: Generella fordringar - Imuunitet hos utrustning i
+bostäder, kontor, butiker och liknande miljöer -SS-EN 61000-6-2 Elektromagnetisk kompatibilitet (EMC) - Del 6-2:
+Generella fordringar - Im
+K11-2 Elmiljö. Speciella krav på immunitet och emmission
+Värde ():
+2 klass
+Beskrivning:
+-SS-EN 61000-6-3 Elektromagnetisk kompatibilitet (EMC) - Del 6-3: Generella fordringar - Emission från utrustning i
+bostäder, kontor, butiker och liknande -SS-EN 61000-6-2 Elektromagnetisk kompatibilitet (EMC) - Del 6-2: Generella
+fordringar - Immunitet,
+K11-3 Elmiljö. Speciella krav på immunitet och emmission
+Värde ():
+3 klass
+Beskrivning:
+-SS-EN 61000-6-3 Elektromagnetisk kompatibilitet (EMC) - Del 6-3: Generella fordringar - Emission från utrustning i
+bostäder, kontor, butiker och liknande -SS-EN 61000-6-2 Elektromagnetisk kompatibilitet (EMC) - Del 6-2: Generella
+fordringar - Immunitet,
+K11-4 Elmiljö
+Värde ():
+Speciella krav
+Beskrivning:
+K12 Potentialutjämning
+K12-1 Potentialutjämning. Där all metall med större utbredning är anslutna till gemensam
+huvudpotentialutjämningsskena
+Värde ():
+Normal
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 22 av 41
+
+--- Page 23 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K12-2 Potentialutjämning. Kompletteranade skyddsutjämning
+Värde ():
+Höga krav
+Beskrivning:
+Kompletteranade skyddsutjämning. För medicinska utrymmen i grupp 1 enligt SS 437 10 02. Fasta ledande icke-elektriska
+patientstöd skall anslutas såvida de inte är avsedda att isoleras från jord.
+K12-3 Potentialutjämning. Kompletteranade skyddsutjämning
+Värde ():
+Mycket höga krav
+Beskrivning:
+Kompletteranade skyddsutjämning. För medicinska utrymmen i grupp 2 enligt SS 437 10 02. Ledare med lämlig area skall
+användas för att säkerställa att resistansen inte överstiger 0,2 Ohm enligt standarden.
+K12-4 Potentialutjämning
+Värde ():
+Speciella krav
+Beskrivning:
+K23 Kraftförsörjning belysning
+K23-1 Kraft belysning. Övrig Last
+Värde ():
+ÖL 100%
+Beskrivning:
+Övrig Last. I % ansluten belysning anslutna via försörjnings- och distributionsnät ej matat med reservkraftaggregat.
+Oprioriterad kraftförsörjning
+K23-2 Kraft belysning. Viktig Last
+Värde ():
+VL 100%
+Beskrivning:
+Viktig Last.I % ansluten belysning anslutna via försörjnings- och distributionsnät matat med reservkraftaggregat. Prioriterad
+kraftförsörjning
+K23-3 Kraft belysning. Mycket Viktig Last
+Värde ():
+MVL 100%
+Beskrivning:
+Mycket Viktig Last. I % ansluten belysning matad via försörjnings- och distributionsnät och avbrottsfria
+kraftförsörjningssystem (UPS). Avbrottsfri kraftförsörjning
+K23-4 Kraft belysning. I % ansluten belysning
+Värde ():
+ÖL 75% VL 25%
+Beskrivning:
+K23-5 Kraft belysning
+Värde ():
+ÖL 75%, MVL 25%
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 23 av 41
+
+--- Page 24 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K23-6 Kraft belysning. I % ansluten belysning
+Värde ():
+ÖL 50% VL 50%
+Beskrivning:
+K23-7 Kraft belysning. I % ansluten belysning
+Värde ():
+ÖL 50% VL 25% MVL 25%
+Beskrivning:
+K23-10 Kraft belysning. Speciella krav
+Värde ():
+Speciella krav
+Beskrivning:
+K23-12 Kraft belysning kraftförsörjning skall utföras redundant mot samma typ av rum
+Värde ():
+Beskrivning:
+K24 Kraftförsörjning uttag 230V
+K24-1 Kraftuttag 230V. Övrig Last.
+Värde ():
+ÖL 100%
+Beskrivning:
+I % anslutna uttag eller laster anslutna via försörjnings- och distributionsnät ej matat med reservkraftaggregat. Oprioriterad
+kraftförsörjning
+K24-2 Kraftuttag 230V. Viktig Last
+Värde ():
+VL 100%
+Beskrivning:
+I % anslutna uttag eller laster anslutna via försörjnings- och distributionsnät matat med reservkraftaggregat. Prioriterad
+kraftförsörjning
+K24-3 Kraftuttag 230V. Mycket Viktig Last.
+Värde ():
+MVL 100%
+Beskrivning:
+I % anslutna uttag eller laster matade via försörjnings- och distributionsnät och avbrottsfria kraftförsörjningssystem (UPS) .
+Avbrottsfri kraftförsörjning
+K24-4 Kraftuttag 230V. I % anslutna uttag eller laster
+Värde ():
+ÖL 75% VL 25%
+Beskrivning:
+K24-5 Kraftuttag 230V. I % anslutna uttag eller laster
+Värde ():
+ÖL 75% MVL 25%
+Beskrivning:
+uttag på expeditioner inom vårdcentraler eller liknande
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 24 av 41
+
+--- Page 25 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K24-6 Kraftuttag 230V. I % anslutna uttag eller laster
+Värde ():
+ÖL 50% VL 50%
+Beskrivning:
+K24-7 Kraftuttag 230V. I % anslutna uttag eller laster
+Värde ():
+ÖL 50% VL 25% MVL 25%
+Beskrivning:
+K24-10 Kraftuttag 230V. Speciella krav
+Värde ():
+Speciella krav
+Beskrivning:
+K25 Kraftförsörjning uttag 230V data
+K25-1 Kraftuttag 230V data. Övrig Last.
+Värde ():
+ÖL 100%
+Beskrivning:
+I % anslutna uttag anslutna via försörjnings- och distributionsnät ej matat med reservkraftaggregat. Oprioriterad
+kraftförsörjning
+K25-2 Kraftuttag 230V data. Viktig Last
+Värde ():
+VL 100%
+Beskrivning:
+I % anslutna uttag anslutna via försörjnings- och distributionsnät matat med reservkraftaggregat. Prioriterad kraftförsörjning
+K25-3 Kraftuttag 230V data. Mycket Viktig Last
+Värde ():
+MVL 100%
+Beskrivning:
+I % anslutna uttag matade via försörjnings- och distributionsnät och avbrottsfria kraftförsörjningssystem (UPS). Avbrottsfri
+kraftförsörjning
+K25-4 Kraftuttag 230V data
+Värde ():
+Speciella krav
+Beskrivning:
+K26 Kraftförsörjning övrigt
+K26-1 OP-lampa. Operations- och undersökningslampor ansluts till MVL (Mycket viktig last)
+Värde ():
+100% MVL
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 25 av 41
+
+--- Page 26 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K26-2 OP-lampa. Operations- och undersökningslampor ansluts till ÖL (Övrig last)
+Värde ():
+100% ÖL
+Beskrivning:
+K26-3 OP-lampa. Operations- och undersökningslampor ansluts till VL (Viktig last)
+Värde ():
+100% VL
+Beskrivning:
+K26-4 Spoldesinfektor. ansluts till ÖL (Övrig last)
+Värde ():
+100% ÖL
+Beskrivning:
+K26-5 Spoldesinfektor. ansluts till VL (Viktig last)
+Värde ():
+100% VL
+Beskrivning:
+K26-6 Patientlyft mm. Patienlyftar och liknade ansluts till VL (Viktig last)
+Värde ():
+100% VL
+Beskrivning:
+K26-7 Värmeapparater. Värmeaggregat ansluts till ÖL (Övrig last)
+Värde ():
+100% ÖL
+Beskrivning:
+K26-8 Fast anslutna apparater. Ansluts till ÖL (Övrig last)
+Värde ():
+100% ÖL
+Beskrivning:
+K26-9 Diskdesinfektor. Ansluts till MVL (Myckt viktig last)
+Värde ():
+MVL
+Beskrivning:
+K26-10 Autoklav. Ansluts till MVL
+Värde ():
+MVL
+Beskrivning:
+K28 Kraftförsörjning övrig teknik
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 26 av 41
+
+--- Page 27 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K28-1 DUC, PLC. Ansluts till MVL (Mycket viktig last)
+Värde ():
+100% MVL
+Beskrivning:
+K28-2 UPS. Ansluts till VL (Viktig last)
+Värde ():
+100% VL
+Beskrivning:
+K28-3 Fläktluftkylare. Ansluts till VL (Viktig last)
+Värde ():
+100% VL
+Beskrivning:
+K28-4 Dörrautomatik. Ansluts till MVL (Mycket viktig last)
+Värde ():
+100% MVL
+Beskrivning:
+K28-5 Pentryenhet. Ansluts till ÖL (Övrig last)
+Värde ():
+100% ÖL
+Beskrivning:
+K28-6 Anslutning av apparater / utrustningar. Elanslutning av övriga apparater och utrustningar upptagna
+under rubriken "inredning/utrustning".
+Värde ():
+Beskrivning:
+K28-7 Dörrautomatik. Ansluts till VL (Viktig last)
+Värde ():
+100% VL
+Beskrivning:
+K29 Medicinska utrymmen
+K29-1 Medicinska utrymmen. Enligt SS 436 40 00 kap. 710
+Värde ():
+Grupp 0
+Beskrivning:
+K29-2 Medicinska utrymmen. Enligt SS 436 40 00 kap. 710
+Värde ():
+Grupp 1
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 27 av 41
+
+--- Page 28 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K29-3 Medicinska utrymmen. Enligt SS 436 40 00 kap. 710
+Värde ():
+Grupp 2
+Beskrivning:
+IT-system utreds (isolerat nät)
+K29-4 Medicinska utrymmen. Enligt SS 436 40 00 kap. 710
+Värde ():
+Utreds
+Beskrivning:
+K29-5 Medicinska utrymmen. Enligt SS 436 40 00 kap. 710
+Värde ():
+Oklassificerat utrymme
+Beskrivning:
+K36 Motordrift
+K36-1 Nödstopp
+Värde ():
+Beskrivning:
+K51 Datakommunikationsnät
+K51-1 Datakommunikationsnät
+Värde ():
+normala
+Beskrivning:
+K51-2 Datakommunikationsnät
+Värde ():
+på god bandbredd
+Beskrivning:
+K51-3 Datakommunikationsnät. Fiberoptisk spridningsnät i multimodeutförande
+Värde ():
+på hög bandbredd och störkänslighet
+Beskrivning:
+K51-4 Datakommunikationsnät
+Värde ():
+för medicinsk övervakning
+Beskrivning:
+K51-5 Datakommunikationsnät
+Värde ():
+Speciella
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 28 av 41
+
+--- Page 29 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K51-6 Trådlöst datanät
+Värde ():
+Beskrivning:
+K51-7 Flerfunktionsnät. Kommunikation med övriga apparater och utrustningar upptagna under rubriken
+"inredning/utrustning". Exempelvis tv, spoldesinfektor m.fl.
+Värde ():
+Beskrivning:
+K51-8 Rakel
+Värde ():
+Beskrivning:
+K51-9 GPS
+Värde ():
+Beskrivning:
+K51-10 Mobilnät
+Värde ():
+Beskrivning:
+K52 Telefoninät
+K52-3 Telefoninät. Trådlös telefoni
+Värde ():
+DECT-system
+Beskrivning:
+K52-5 Telefoninät
+Värde ():
+Speciella krav
+Beskrivning:
+K52-6 Telefoninät. Generellt ledningsnät enligt standard SS-EN 50 173-1 utg 1:2003, kategori 3 för
+stamnät och kategori 6 för spridningsnät
+Värde ():
+Rikstelefon
+Beskrivning:
+K61 Entrésignalsystem
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 29 av 41
+
+--- Page 30 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K61-1 Entrésignalsystem. Akustisk momentan signal
+Värde ():
+Momentan signal
+Beskrivning:
+K61-2 Entrésignalsystem. Akustisk momenta signal och optisk kvarstående signal
+Värde ():
+Kvarstående signal
+Beskrivning:
+K61-3 Entrésignalsystem
+Värde ():
+Speciella krav
+Beskrivning:
+K62 Upptagetsignal
+K62-1 Upptagetsignal. Indikeringstablå för upptagetmarkering.
+Värde ():
+Till- och frånkoppling vid dörr
+Beskrivning:
+Manöverapparat för till- och frånkoppling placeras vid dörr.
+K62-2 Upptagetsignal. Indikeringstablå för upptagetmarkering.
+Värde ():
+Till- och frånkoppling vid arbetsplats
+Beskrivning:
+Manöverapparat för till- och frånkoppling placeras vid arbetsplatsen.
+K62-3 Upptagetsignal
+Värde ():
+Speciella krav
+Beskrivning:
+K62-4 Upptagetindikering. Skylt upptagen/ledigt
+Värde ():
+Skylt upptagen/ledigt
+Beskrivning:
+K63 Kallelsesignalsystem - system
+K63-1 Kallelsesignal
+Värde ():
+Larmindikering utanför rummet
+Beskrivning:
+K63-2 Kallelsesignal
+Värde ():
+Larmindikering på separat larmtablå
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 30 av 41
+
+--- Page 31 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K63-3 Kallelsesignal
+Värde ():
+Larmindikering i displaysystem
+Beskrivning:
+K63-4 Kallelsesignal och överfallslarm
+Värde ():
+Larmindikering i displaysystem
+Beskrivning:
+K63-5 Kallelsesignal
+Värde ():
+Speciella krav
+Beskrivning:
+K64 Kallelsesignalsystem - funktion
+K64-1 Kallelsesignalsystem
+Värde ():
+Patientanrop
+Beskrivning:
+K64-2 Kallelsesignalsystem
+Värde ():
+Närvaromarkering
+Beskrivning:
+K64-3 Kallelsesignalsystem
+Värde ():
+Patientanrop och närvaromarkering
+Beskrivning:
+K64-4 Kallelsesignalsystem
+Värde ():
+Direktnöd
+Beskrivning:
+K64-5 Kallelsesignalsystem
+Värde ():
+Telefonindikering
+Beskrivning:
+K64-6 Överfallslarm
+Värde ():
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 31 av 41
+
+--- Page 32 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K64-7 Entrésignal
+Värde ():
+Beskrivning:
+K64-8 Kallelsesignalsystem
+Värde ():
+Speciella krav
+Beskrivning:
+K64-9 Kallelsesignalsystem - patientanrop och närvaromarkering
+Värde ():
+Kallelsesignalsystem - patientanrop och närvaromarkering
+Beskrivning:
+K64-10 Kallelsesignalsystem
+Värde ():
+Överfallslarm
+Beskrivning:
+K64-11 Kallelsesignalsystem
+Värde ():
+Entrésignal
+Beskrivning:
+K64-12 Nödsignal-Frysrum
+Värde ():
+Beskrivning:
+K64-13 Kallelsesignalsystem
+Värde ():
+Assistanslarm
+Beskrivning:
+K65 Kallelsesignalsystem - tekniska larm
+K65-1 Tekniskt larm
+Värde ():
+Beskrivning:
+K65-2 Gaslarm
+Värde ():
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 32 av 41
+
+--- Page 33 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K65-3 Brandlarm
+Värde ():
+Beskrivning:
+K65-4 Lättgods
+Värde ():
+Beskrivning:
+K65-5 Rörpost
+Värde ():
+Beskrivning:
+K65-6 Speciella krav
+Värde ():
+Beskrivning:
+K66 Kösignal
+K66-1 Kösignal. För en kassa
+Värde ():
+enkel
+Beskrivning:
+K66-2 Kösignal. För flera kassor
+Värde ():
+flera
+Beskrivning:
+K66-3 Kösignal. Tillgänglighetsanpassad med talandeinformation
+Värde ():
+Beskrivning:
+K67 Personsökarsystem
+K67-1 Hjärtlarm. System för att larma hjärtläkare via personsökningssystem
+Värde ():
+Beskrivning:
+K67-2 Akutlarm
+Värde ():
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 33 av 41
+
+--- Page 34 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+K68 Tidsvisnings- och tidregistreringssystem
+K68-2 Tidvisningssystem
+Värde ():
+Med tim, minutvisare och släpande sekundvisare
+Beskrivning:
+K68-4 Tidvisningssystem
+Värde ():
+Beskrivning:
+K68-5 Tidregistreringssystem
+Värde ():
+Beskrivning:
+K73 Ljudsystem
+K73-1 Ljudsystem
+Värde ():
+Speciella krav
+Beskrivning:
+K74 Ljudöverföring via teleslinga
+K74-1 Teleslinga i rum
+Värde ():
+Beskrivning:
+Teleslinga för hörselskadade för att medge lyssning av TV- och radioljud. Programljud överfört via teleslinga.
+K74-2 Teleslinga i reception
+Värde ():
+Beskrivning:
+Teleslinga för hörselskadade för talförstärkning, I reception monteras slinga i receptionslucka för talförstärkning
+K74-4 Ljudöverföring via teleslinga
+Värde ():
+Speciella krav
+Beskrivning:
+N13 Nödbelysning
+N13-1 Nödbelysning - Centralmatade system
+Värde ():
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 34 av 41
+
+--- Page 35 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+N13-2 Nödbelysning - System med inbyggda aggregat
+Värde ():
+Beskrivning:
+N13-3 Nödbelysning för medicinskt klassade rum Enligt SS 436 40 00 kap. 710
+Värde ():
+Beskrivning:
+N13-4 Nödbelysning
+Värde ():
+Speciella krav
+Beskrivning:
+N21 Inbrottslarm
+N21-1 Skalskydd. Invändigt försåtskydd / delskydd.
+Värde ():
+1
+Beskrivning:
+Mindre enskilda vårdenheter som vårdcentraler och folktandvård med verksamhet endast på vardagar
+N21-2 Skalskydd. Kompletterat med försåtskydd
+Värde ():
+1
+Beskrivning:
+skalskydd och försåtskydd i vissa utrymmen, Enskilda utrymmen med krav på hög säkerhetet och sekretess. Datahall,
+serverum, läkemedelsutrymmen belägna i lokaler med eller utan inbrottslarm
+N21-3 Skalskydd. Vårdenheter, vårdcentraler och folktandvård med verksamhet endast på vardagar
+Värde ():
+2
+Beskrivning:
+N21-4 Skalskydd. Kompletterat med försåtskydd
+Värde ():
+2
+Beskrivning:
+skalskydd med krav på försåtsskydd i vissa utrymmen, Vårdenheter, lab, vårdcentraler och folktandvård med verksamhet
+endast på vardagar och med verksamhet som lider stor skada vid inbrott
+N21-5 Försåtsskydd. Övervakning av enskilda rum
+Värde ():
+Beskrivning:
+N21-6 Skalskydd
+Värde ():
+Speciella krav
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 35 av 41
+
+--- Page 36 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+N21-7 Inbrottslarm Kraven måste särskilt motiveras.
+Värde ():
+Ska uppfyllas enligt RÖ-s riktlinje Säkerhetsanläggning för person och egendomsskydd
+Beskrivning:
+N22 Överfallslarm
+N22-1 Överfallslarm. Fast monterade larmtryckknappar anslutna till inbrottlarmsystem som egna
+adresser i inbrottlsarmsystem samt kallelsesignalsystem
+Värde ():
+Fasta larmtyckknappar
+Beskrivning:
+N22-2 Överfallslarm. Trådlösa larmtyckknappar med ultraljud- eller IR-överföring till larmmottagare och
+integrerade med kallelsesignalsystem
+Värde ():
+Trådllösa larmtryckknappar
+Beskrivning:
+N22-3 Överfallslarm. Larm till lokal övervakningscentral, väktare eller liknande
+Värde ():
+Till lokal övervakningscentral
+Beskrivning:
+N22-4 Överfallslarm. Övervakad larmöverföring till Polis via SOS AB
+Värde ():
+Till Polisen via SOS AB
+Beskrivning:
+N22-5 Överfallslarm
+Värde ():
+Speciella krav
+Beskrivning:
+N25 Passersystem
+N25-1 Kortläsare - inpassering. Kortläsare med kodtastatur för dörrar till utrymmen med krav på
+kontrollerad inpassering. Tryckknapp för utpassering
+Värde ():
+Beskrivning:
+N25-2 Kortläsare - in- och utpassering. Kortläsare med kodtastatur för dörrar till utrymmen med krav på
+kontrollerad in- och utpassering.
+Värde ():
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 36 av 41
+
+--- Page 37 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+N25-3 Kodlås. Kodlås med kodtastatur för dörrar till utrymmen utan krav på kontrollerad passage
+Värde ():
+Beskrivning:
+N25-4 Passersystem
+Värde ():
+Speciella krav
+Beskrivning:
+N25-5 Lås- och passersystem
+Värde ():
+Ska uppfyllas enligt regionens riktlinje för dörrbeslag och funktioner
+Beskrivning:
+N26 Ellåssystem
+N26-1 Låskista med mikrobytare. Lås med indikering av låskolvenslägen
+Värde ():
+Beskrivning:
+N26-2 Låskista med magnetkontakt och mikrobytare. Lås med indikering av låskolvensläge samt
+indikering på öppen respektive stängd dörr
+Värde ():
+Beskrivning:
+N26-3 Ellås med tryckesfunktion. Elektromagnetskt lås med indikering av låskolvensläge samt indikering
+på öppen respektive stängd dörr.
+Värde ():
+Beskrivning:
+N26-4 Motorlås med draghandtag. Motorlås lås med indikering av låskolvensläge samt indikering på
+öppen respektive stängd dörr.
+Värde ():
+Beskrivning:
+N26-5 Ellåssystem
+Värde ():
+Speciella krav
+Beskrivning:
+N31 Hygienklasser
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 37 av 41
+
+--- Page 38 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+N31-1 Hygienklass
+Värde ():
+0
+Beskrivning:
+Inga vårdhygieniska krav.
+N31-2 Hygienklass
+Värde ():
+1
+Beskrivning:
+Ytskikt golv ska tåla rengöringsmedel och punktdesinfektion. Uppvikt matta eller motsvarande. Möbler ska ha avtorkbar
+ytbeklädnad alternativt avtagbar och tvättbar (lägst 60°) klädsel, undantaget privata möbler i särskilt boende.
+N31-3 Hygienklass
+Värde ():
+2
+Beskrivning:
+Som hygienklass 1 och dessutom: undertak i form av icke-perforerade plattor utan mellanrum. Möbler ska ha avtorkbar
+ytbeklädnad med lättåtkomliga ytor. Långa gardiner, utanpåliggande persienner och draperier får inte förekomma. Tvättställ
+med tillhörande utrustning. Plats för handskar och skyddsförkläde
+N31-4 Hygienklass
+Värde ():
+3
+Beskrivning:
+Som hygienklass 2 och dessutom:
+släta och lätt avtorkbara tak utförda i
+material som tål rengöring. Material
+som installeras ovanför undertak ska
+vara rent och mögelfritt.
+För vissa installeras/övervägs:
+- kvalificerad ventilation
+- luftsluss eller förrum
+- vattenrening
+N61 Låsning
+N61-1 Låsning
+Värde ():
+Inga uttalade krav
+Beskrivning:
+N61-2 Låsning
+Värde ():
+Mekaniskt lås
+Beskrivning:
+N61-3 Låsning. Med elektriskt lås menas kort eller bricka-styrning
+Värde ():
+Elektriskt lås
+Beskrivning:
+N61-4 Låsning
+Värde ():
+Speciella krav
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 38 av 41
+
+--- Page 39 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+N61-6 Låsning Panikregel, vertikal
+Värde ():
+Beskrivning:
+N61-7 Låsning
+Värde ():
+RWC-behör
+Beskrivning:
+N61-8 Låsning
+Värde ():
+WC-behör
+Beskrivning:
+T10 Miljökrav förbud
+T10-1 Miljökrav förbud
+Värde ():
+Asbest
+Beskrivning:
+T10-2 Miljökrav förbud
+Värde ():
+CFC (freoner)
+Beskrivning:
+T10-3 Miljökrav förbud
+Värde ():
+HCFC (mjuka freoner)
+Beskrivning:
+T10-4 Miljökrav förbud
+Värde ():
+Formaldehyd
+Beskrivning:
+T10-5 Miljökrav förbud
+Värde ():
+Haloner
+Beskrivning:
+T10-6 Miljökrav förbud
+Värde ():
+Kadmium och deras föreningar
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 39 av 41
+
+--- Page 40 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+T10-7 Miljökrav förbud
+Värde ():
+Krom, kreosot- och arsenikföreningar för träskyddsbehandling
+Beskrivning:
+T10-8 Miljökrav förbud. Med undantag för när kvicksilver används i lågenergilampor och lysrör
+Värde ():
+Kvicksilver och dess föreningar
+Beskrivning:
+T10-9 Miljökrav förbud
+Värde ():
+PCB/PCT
+Beskrivning:
+T20 Miljökrav avveckling
+T20-1 Miljökrav avveckling. Får ej innehålla
+Värde ():
+bly eller blyföreningar
+Beskrivning:
+T20-2 Miljökrav avveckling. Får ej innehålla
+Värde ():
+bromerade flamskyddsmedel
+Beskrivning:
+T20-3 Miljökrav avveckling. Får ej innehålla
+Värde ():
+ftalater
+Beskrivning:
+T20-4 Miljökrav avveckling. Får ej innehålla
+Värde ():
+klorparaffiner
+Beskrivning:
+T20-5 Miljökrav avveckling. Får ej innehålla
+Värde ():
+koppar och kopparföreningar
+Beskrivning:
+T20-6 Miljökrav avveckling
+Värde ():
+Icke förnybara råvaror
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 40 av 41
+
+--- Page 41 ---
+Funktionskravsrapport
+Dokumenttyp: Styrdokument Ändrat datum: 2026-04-07
+T20-7 Miljökrav avveckling
+Värde ():
+Exotisk träslag
+Beskrivning:
+© Copyright Region Jönköpings län, upplåten till PTS Forum. All obehörig användning är förbjuden. Sida 41 av 41

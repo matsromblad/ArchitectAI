@@ -16,6 +16,12 @@ from loguru import logger
 
 from src.agents.base_agent import BaseAgent
 from src.tools.se_dimensions import SE, snap_mm, room_dims_snapped
+from src.memory.kb_loader import get_loader
+
+
+# Load KB documents for Brief Agent
+_kb_loader = get_loader()
+_kb_context = _kb_loader.get_documents_for_agent("brief")
 
 
 # System prompt for initial generation
@@ -85,10 +91,30 @@ RULES:
 - Always include at least one städrum per floor/zone
 - notes: max 60 chars, cite PTS or SS standard if relevant
 - Keep adjacencies to direct functional neighbours only
+
+---
+
+### PTS COMPLIANCE DOCUMENTS (extracted knowledge base)
+
+FUNKTIONSKRAV (Functional Requirements):
+{funktionskrav}
+
+TYPRUM (Standard Room Types):
+{typrum}
+
+---
 """
 
-# Revision prompt — instructs patch output only
-REVISION_SYSTEM_PROMPT = """You are the Brief Agent for ArchitectAI fixing a QA-rejected room program.
+# Build dynamic system prompt with KB context
+def _build_system_prompt():
+    """Build system prompt with KB context."""
+    return SYSTEM_PROMPT.format(
+        funktionskrav=_kb_context.get("funktionskrav", "")[:3000] if _kb_context.get("funktionskrav") else "[Funktionskrav not loaded]",
+        typrum=_kb_context.get("typrum", "")[:5000] if _kb_context.get("typrum") else "[Typrum not loaded]"
+    )
+
+# Build dynamic revision prompt too
+REVISION_SYSTEM_PROMPT_BASE = """You are the Brief Agent for ArchitectAI fixing a QA-rejected room program.
 You are an expert in Swedish healthcare RFP (Rumsfunktionsprogram) per SS 91 42 21 and PTS.
 
 Output ONLY a JSON patch — do NOT output the full room_program.
@@ -110,7 +136,6 @@ Rules:
 - adjacencies: list only direct neighbours, not corridor (corridor is auto-wired).
 - Ensure clean/dirty flow is maintained after patch.
 """
-
 
 
 class BriefAgent(BaseAgent):
@@ -267,7 +292,7 @@ class BriefAgent(BaseAgent):
                 f"Output corrected room_program JSON. Same rooms, fix only the listed issues."
             )
             response = self.chat(
-                system=SYSTEM_PROMPT,
+                system=_build_system_prompt(),
                 messages=[{"role": "user", "content": user_message}],
                 max_tokens=8192,
             )
@@ -300,7 +325,7 @@ class BriefAgent(BaseAgent):
                 f"Use width_hint_m and depth_hint_m snapped to multiples of 0.1 m (= 100 mm)."
             )
             response = self.chat(
-                system=SYSTEM_PROMPT,
+                system=_build_system_prompt(),
                 messages=[{"role": "user", "content": user_message}],
                 max_tokens=8192,
             )

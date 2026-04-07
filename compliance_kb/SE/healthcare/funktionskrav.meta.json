@@ -1,0 +1,14 @@
+{
+  "filename": "FunktionskravPdf.pdf",
+  "category": "funktionskrav",
+  "type": "functional_requirements",
+  "title": "Funktionskrav",
+  "description": "Functional requirements for rooms and spaces",
+  "relevant_agents": [
+    "brief",
+    "architect"
+  ],
+  "extracted_at": "2026-04-07T14:30:27.589180+00:00",
+  "text_file": "funktionskrav.txt",
+  "char_count": 42106
+}

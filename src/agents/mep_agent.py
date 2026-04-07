@@ -11,6 +11,7 @@ from loguru import logger
 from src.agents.base_agent import BaseAgent
 from src.tools.se_fire import SE_FIRE
 from src.tools.se_hvac import SE_HVAC
+from src.memory.kb_loader import get_loader
 
 
 SYSTEM_PROMPT = """You are the MEP Agent (Mechanical, Electrical, Plumbing) for ArchitectAI,
@@ -31,7 +32,7 @@ Shaft placement rules:
 - Shafts should not break structural cores or remove columns
 - Wet rooms (WC, sluice) should stack vertically for drainage
 - Prefer compact, accessible shaft positions at core perimeters
-- Shaft sizing per SS-EN ISO 5806: min cross-section {shaft_min_m}×{shaft_min_m}m
+- Shaft sizing per SS-EN ISO 5806: min cross-section {shaft_min}×{shaft_min}m
 
 Ventilation rules (Swedish BBR 6 / SS 25268):
 - See HVAC spec per room type for l/s/m², ACH, pressure regime
@@ -69,6 +70,12 @@ class MEPAgent(BaseAgent):
         shaft_min = SE_HVAC.min_shaft_size_m()
         duct_vel = SE_HVAC.max_duct_velocity_m_s("supply")
         duct_vel_return = SE_HVAC.max_duct_velocity_m_s("return")
+        
+        # Load KB documents
+        kb_loader = get_loader()
+        kb_docs = kb_loader.get_documents_for_agent("mep")
+        kb_tekniska = kb_docs.get("tekniska_krav", "")[:2000] if kb_docs.get("tekniska_krav") else ""
+        kb_brand = kb_docs.get("brand", "")[:1500] if kb_docs.get("brand") else ""
 
         self._se_fire_block = f"""
 - Max {max_comp:.0f} m² per fire compartment in healthcare (Vk3C+Br1)
@@ -78,12 +85,22 @@ class MEPAgent(BaseAgent):
 - Compartment boundaries must align with structural elements (load-bearing walls)
 - Fire resistance: R90 for load-bearing structures in Br1 buildings
 """
+        
+        # Build full system prompt with KB context
+        kb_section = ""
+        if kb_tekniska or kb_brand:
+            kb_section = "\n### PTS REGULATORY CONTEXT (From Knowledge Base)\n"
+            if kb_tekniska:
+                kb_section += f"\n**TEKNISKA KRAV:**\n{kb_tekniska}\n"
+            if kb_brand:
+                kb_section += f"\n**BRAND (Fire Safety):**\n{kb_brand}\n"
+        
         self._sys_prompt_template = SYSTEM_PROMPT.format(
             se_fire_block=self._se_fire_block,
             shaft_min=shaft_min,
             duct_vel_m_s=duct_vel,
             duct_vel_return=duct_vel_return,
-        )
+        ) + kb_section
 
     def run(self, inputs: dict) -> dict:
         """

@@ -16,6 +16,7 @@ from src.agents.base_agent import BaseAgent
 from src.tools.se_fire import SE_FIRE
 from src.tools.se_hvac import SE_HVAC
 from src.tools.se_lighting import SE_LIGHTING
+from src.memory.kb_loader import get_loader
 
 
 _SYSTEM_PROMPT_TEMPLATE = """\
@@ -37,6 +38,14 @@ Use these for Swedish rules — do NOT rely solely on LLM training for BBR value
 {hvac_block}
 
 {lighting_block}
+
+### PTS & HEALTHCARE KNOWLEDGE BASE (Extracted from regulatory documents)
+
+{kb_tekniska_krav}
+
+{kb_miljokrav}
+
+{kb_brand}
 
 Rules you MUST follow:
 1. NEVER invent a regulation. If you don't know, say so.
@@ -68,11 +77,23 @@ class ComplianceAgent(BaseAgent):
     def __init__(self, memory, model=None):
         super().__init__(memory, model)
         self.kb_dir = Path(os.getenv("COMPLIANCE_KB_DIR", "./compliance_kb"))
-        # Build system prompt with deterministic SE rule blocks
+        
+        # Load KB documents
+        kb_loader = get_loader()
+        kb_docs = kb_loader.get_documents_for_agent("compliance")
+        
+        # Build system prompt with deterministic SE rule blocks + KB context
+        kb_tekniska = kb_docs.get("tekniska_krav", "")[:2500] if kb_docs.get("tekniska_krav") else ""
+        kb_miljö = kb_docs.get("miljokrav", "")[:1500] if kb_docs.get("miljokrav") else ""
+        kb_fire = kb_docs.get("brand", "")[:2000] if kb_docs.get("brand") else ""
+        
         self._sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
             se_fire_block=SE_FIRE.prompt_block(),
             hvac_block=SE_HVAC.prompt_block(),
             lighting_block=SE_LIGHTING.prompt_block(),
+            kb_tekniska_krav=f"**TEKNISKA KRAV (Technical Requirements):**\n{kb_tekniska}" if kb_tekniska else "",
+            kb_miljokrav=f"**MILJÖKRAV (Environmental Requirements):**\n{kb_miljö}" if kb_miljö else "",
+            kb_brand=f"**BRAND (Fire Safety):**\n{kb_fire}" if kb_fire else "",
         )
 
     def run(self, inputs: dict) -> dict:

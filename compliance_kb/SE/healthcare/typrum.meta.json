@@ -1,0 +1,14 @@
+{
+  "filename": "TyprumPdf.pdf",
+  "category": "typrum",
+  "type": "room_types",
+  "title": "Typrum (Rumstyper)",
+  "description": "Standard room types with dimensions and specifications",
+  "relevant_agents": [
+    "brief",
+    "architect"
+  ],
+  "extracted_at": "2026-04-07T14:30:38.386049+00:00",
+  "text_file": "typrum.txt",
+  "char_count": 339209
+}
