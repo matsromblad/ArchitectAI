@@ -114,7 +114,7 @@ Output ONLY valid JSON, no markdown."""
         )
         
         response = client.chat.completions.create(
-            model="gemini-3.1-pro-preview",
+            model="gemini-flash-latest",
             max_tokens=2048,
             messages=[{
                 "role": "user",
