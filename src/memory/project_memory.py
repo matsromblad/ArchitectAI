@@ -39,9 +39,17 @@ class ProjectMemory:
 
     def _load_state(self):
         state_file = self.root / "state.json"
+        loaded = False
         if state_file.exists():
-            self.state = json.loads(state_file.read_text())
-        else:
+            try:
+                content = state_file.read_text(encoding="utf-8").strip()
+                if content:
+                    self.state = json.loads(content)
+                    loaded = True
+            except (json.JSONDecodeError, OSError):
+                # File is empty or corrupt (e.g. process killed mid-write) — reset
+                pass
+        if not loaded:
             self.state = {
                 "project_id": self.project_id,
                 "created_at": self._now(),
@@ -54,9 +62,9 @@ class ProjectMemory:
                     "M4": {"status": "pending", "approved_at": None},
                     "M5": {"status": "pending", "approved_at": None},
                 },
-                "current_schemas": {},   # schema_type → latest approved version
-                "decisions": [],         # log of PM decisions
-                "reflections": [],       # log of agent learnings
+                "current_schemas": {},
+                "decisions": [],
+                "reflections": [],
                 "jurisdiction": None,
                 "building_type": None,
                 "total_cost_usd": 0.0,
@@ -64,9 +72,13 @@ class ProjectMemory:
             self._save_state()
 
     def _save_state(self):
-        (self.root / "state.json").write_text(
-            json.dumps(self.state, indent=2, ensure_ascii=False)
+        state_file = self.root / "state.json"
+        tmp_file = state_file.with_suffix(".json.tmp")
+        tmp_file.write_text(
+            json.dumps(self.state, indent=2, ensure_ascii=False),
+            encoding="utf-8"
         )
+        tmp_file.replace(state_file)  # Atomic rename — never leaves an empty file
 
     def update_phase(self, phase: str):
         self.state["phase"] = phase
