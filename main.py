@@ -249,11 +249,19 @@ def main():
         summary_txt = "completed"
     console.print(f"[green]✓ Compliance: {summary_txt}[/green]")
     
+    # ---- Export Rumsfunktionsprogram for M1 review ----
+    console.print("\n[bold cyan]📋 Exporting Rumsfunktionsprogram for M1 review...[/bold cyan]")
+    try:
+        rfp_path = brief.export_rfp_document(room_program)
+        console.print(f"[green]✓ RFP document saved → {rfp_path}[/green]")
+    except Exception as e:
+        console.print(f"[yellow]⚠ RFP export failed (non-critical): {e}[/yellow]")
+
     # --- MILESTONE 1 (M1) ---
-    milestone_gate(memory, "M1", 
-                   reflecting_agents=[brief, compliance], 
+    milestone_gate(memory, "M1",
+                   reflecting_agents=[brief, compliance],
                    context_data={"room_program": room_program, "compliance": comp_results},
-                   schemas=["site_data.json", "room_program.json", "compliance_brief.json"])
+                   schemas=["site_data.json", "room_program.json", "compliance_brief.json", "rumsfunktionsprogram.md"])
 
     # ---- PHASE 5: Architect Agent — spatial layout (with retry) ----
     console.print("\n[bold]Phase 5: Architect laying out rooms...[/bold]")
