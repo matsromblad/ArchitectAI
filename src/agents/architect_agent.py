@@ -3,11 +3,13 @@ Architect Agent — places rooms onto the site using a deterministic double-load
 Produces spatial_layout.json with guaranteed collision-free geometry.
 """
 
+import re
 import json
 from datetime import datetime, timezone
 from loguru import logger
 from src.agents.base_agent import BaseAgent
 from src.tools.se_dimensions import SE, snap_mm
+from src.memory.kb_loader import get_loader
 
 
 class ArchitectAgent(BaseAgent):
@@ -19,7 +21,21 @@ class ArchitectAgent(BaseAgent):
                          "passage", "lobby", "entrance hall", "ingång",
                          "airlock", "buffer", "pass-through", "pass-thro", "circulation"}
 
-    def run(self, inputs: dict) -> dict:
+    def __init__(self, memory, model=None):
+        super().__init__(memory, model)
+        # Load KB for Architect
+        self.kb_loader = get_loader()
+        kb_docs = self.kb_loader.get_documents_for_agent("architect")
+
+        # Basic doc prefix context (truncated)
+        self._kb_funktionskrav = (
+            kb_docs.get("funktionskrav", "")[:5000]
+            if kb_docs.get("funktionskrav") else "[Funktionskrav not loaded]"
+        )
+        self._kb_tekniska = (
+            kb_docs.get("tekniska_krav", "")[:5000]
+            if kb_docs.get("tekniska_krav") else "[Tekniska krav not loaded]"
+        )
         room_program    = inputs["room_program"]
         site_data       = inputs.get("site_data", {})
         qa_feedback     = inputs.get("qa_feedback")
@@ -35,6 +51,24 @@ class ArchitectAgent(BaseAgent):
             "status": "working",
             "task": f"Spatial layout ({attempt_label}) — {len(rooms_input)} rooms",
         })
+
+        # Get semantic context for the specific project type if needed
+        # (Using 'query' as project_brief['description'] or building_type)
+        kb_project_context = self.kb_loader.get_semantic_context(
+            f"{building_type} {project_brief.get('description', '')}",
+            self.AGENT_ID,
+            n_results=3
+        )
+
+        # Build system prompt with KB context
+        self._sys_prompt = f"""You are the Architect Agent.
+Use the following regulatory guidelines for your reasoning:
+{self._kb_funktionskrav}
+{self._kb_tekniska}
+{kb_project_context}
+
+Your task is to place rooms onto the site based on the room program.
+"""
 
         # Prefer project_brief dimensions (realistic), fall back to site_data, then defaults
         pb_size = project_brief.get("size", {})
@@ -118,7 +152,22 @@ class ArchitectAgent(BaseAgent):
             placed = []
             x, y, row_max_d = 0.0, y0, 0.0
             for r in room_list:
+                name = r.get("room_name") or r.get("name") or "Room"
                 area = float(r.get("min_area_m2") or 12)
+                
+                # SPREAD: Use RAG to find optimal dimensions for this room type
+                # We search 'typrum' for the specific room name.
+                room_kb = self.kb_loader.get_semantic_context(name, self.AGENT_ID, n_results=1, category="typrum")
+                
+                # Heuristic: LLM is not used for geometry yet, but we can parse KB string for area matches
+                # e.g. "AKUTRUM 50 m²" or "KONTOR 12 m²"
+                kb_area_match = re.search(r'(\d+)\s*mÂ²', room_kb) # Notice messy encoding from PDF
+                if kb_area_match:
+                    kb_area = float(kb_area_match.group(1))
+                    if kb_area > area:
+                        logger.info(f"[{self.AGENT_ID}] KB suggests larger area for {name}: {kb_area}m2 (vs {area}m2)")
+                        area = kb_area
+
                 # Use snapped hint dims from BriefAgent; fall back to computed square
                 w_hint = r.get("width_hint_m")
                 d_hint = r.get("depth_hint_m")
@@ -134,7 +183,7 @@ class ArchitectAgent(BaseAgent):
                     row_max_d = 0.0
                 placed.append({
                     "room_id":   r.get("room_id", f"R{len(placed)+1:02d}"),
-                    "name":      (r.get("room_name") or r.get("name") or "Room")[:50],
+                    "name":      name[:50],
                     "x_m":       _snap(x),
                     "y_m":       _snap(y),
                     "width_m":   w,

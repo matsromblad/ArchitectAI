@@ -215,18 +215,6 @@ class BriefAgent(BaseAgent):
     def run(self, inputs: dict) -> dict:
         """
         Generate a room program from user prompt and site data.
-
-        Args:
-            inputs: {
-                "prompt": str,               # User's building brief
-                "site_data": dict,           # From InputParserAgent
-                "jurisdiction": str,         # e.g. "SE"
-                "qa_feedback": dict|None,    # QA issues on revision
-                "prior_room_program": dict|None,  # TOKEN-OPT: previous version for patch mode
-            }
-
-        Returns:
-            room_program dict
         """
         prompt              = inputs["prompt"]
         site_data           = inputs.get("site_data", {})
@@ -247,7 +235,7 @@ class BriefAgent(BaseAgent):
         logger.info(f"[{self.AGENT_ID}] [{attempt_label}] Generating room program for: {prompt[:80]}...")
         self.send_message("pm", "status_update", {"status": "working", "task": f"Room program ({attempt_label})"})
 
-        # Build feedback text (shared across patch and non-patch revision)
+        # Build feedback section (shared across patch and non-patch revision)
         feedback_section = ""
         if qa_feedback:
             if isinstance(qa_feedback, dict):
@@ -263,10 +251,13 @@ class BriefAgent(BaseAgent):
                 + (f"Fix guidance: {fix_text}" if fix_text else "")
             )
 
+        # SPREAD: Fetch semantic context based on user prompt (RAG)
+        kb_query = f"{prompt[:200]} {project_brief.get('description', '')}"
+        extra_kb_context = _kb_loader.get_semantic_context(kb_query, self.AGENT_ID, n_results=5)
+
         # ── Build prompt and call LLM ────────────────────────────────────────
         if use_patch_mode:
             # TOKEN-OPT: Send only the affected rooms + QA issues.
-            # Compress prior rooms to a compact representation for context.
             prior_rooms_compact = json.dumps(
                 [{"id": r.get("room_id"), "n": r.get("room_name","")[:25],
                   "z": r.get("zone"), "a": r.get("min_area_m2"),
@@ -281,21 +272,20 @@ class BriefAgent(BaseAgent):
                 f"Output ONLY a patch JSON to fix the listed issues. "
                 f"Do not output rooms that are already correct."
             )
+            
+            sys_prompt = REVISION_SYSTEM_PROMPT
+            if extra_kb_context:
+                sys_prompt += f"\n\n{extra_kb_context}"
+                
             response = self.chat(
-                system=REVISION_SYSTEM_PROMPT,
+                system=sys_prompt,
                 messages=[{"role": "user", "content": user_message}],
-                max_tokens=2000,  # TOKEN-OPT: patch is much smaller than full regen
+                max_tokens=2000,
             )
             patch = self._extract_json(response)
-            # Unwrap if nested
             if "patch" in patch and isinstance(patch["patch"], dict):
                 patch = patch["patch"]
-            # Apply patch to prior version
             room_program = self._apply_patch(prior_room_program, patch)
-            logger.info(f"[{self.AGENT_ID}] Patch applied — "
-                        f"{len(patch.get('modified_rooms') or [])} modified, "
-                        f"{len(patch.get('added_rooms') or [])} added, "
-                        f"{len(patch.get('removed_room_ids') or [])} removed")
 
         elif qa_feedback:
             # Fallback non-patch revision: compact prompt, full regen
@@ -304,8 +294,13 @@ class BriefAgent(BaseAgent):
                 f"{feedback_section}\n"
                 f"Output corrected room_program JSON. Same rooms, fix only the listed issues."
             )
+            
+            sys_prompt = _build_system_prompt()
+            if extra_kb_context:
+                sys_prompt += f"\n\n{extra_kb_context}"
+                
             response = self.chat(
-                system=_build_system_prompt(),
+                system=sys_prompt,
                 messages=[{"role": "user", "content": user_message}],
                 max_tokens=8192,
             )
@@ -321,24 +316,24 @@ class BriefAgent(BaseAgent):
             constraints = project_brief.get("constraints", {})
             building_type = project_brief.get("building_type", "healthcare")
             se_dims = SE.prompt_block(building_type)
+            
             user_message = (
                 f'User request: "{prompt}"\n\n'
-                f"Project parameters (from Client Agent):\n"
+                f"Project parameters:\n"
                 f"- Building type: {building_type}\n"
-                f"- Jurisdiction: {jurisdiction} ({project_brief.get('jurisdiction_name', 'Sweden')})\n"
                 f"- Target net area: {size.get('target_net_area_m2', 280)} m²\n"
-                f"- Target gross area: {size.get('target_gross_area_m2', 420)} m²\n"
                 f"- Patient beds: {prog.get('patient_beds', 4)}\n"
-                f"- Key rooms required: {', '.join(prog.get('key_rooms', [])[:6])}\n"
-                f"- Isolation rooms: {constraints.get('isolation_rooms_required', 1)}\n"
-                f"- Standards: {', '.join(standards[:3])}\n"
-                f"- Min corridor width: {constraints.get('min_corridor_width_m', 2.4)} m\n\n"
+                f"- Key rooms: {', '.join(prog.get('key_rooms', [])[:6])}\n\n"
                 f"{se_dims}\n\n"
-                f"Generate compact room program JSON. Max 25 rooms. Short strings. No corridors.\n"
-                f"Use width_hint_m and depth_hint_m snapped to multiples of 0.1 m (= 100 mm)."
+                f"Generate room program JSON. Max 25 rooms."
             )
+            
+            sys_prompt = _build_system_prompt()
+            if extra_kb_context:
+                sys_prompt += f"\n\n{extra_kb_context}"
+
             response = self.chat(
-                system=_build_system_prompt(),
+                system=sys_prompt,
                 messages=[{"role": "user", "content": user_message}],
                 max_tokens=8192,
             )

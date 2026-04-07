@@ -194,23 +194,15 @@ Provide your compliance verdict as JSON."""
         return result
 
     def _get_kb_context(self, jurisdiction: str, building_type: str, query: str) -> str:
-        """Retrieve context from local knowledge base, if available."""
-        kb_path = self.kb_dir / jurisdiction
-        if not kb_path.exists():
-            return (
-                f"No local knowledge base found for {jurisdiction}. "
-                "Using deterministic SE rule modules + LLM training knowledge."
-            )
-        docs = list(kb_path.glob("*.pdf")) + list(kb_path.glob("*.txt"))
-        if not docs:
-            return (
-                f"Knowledge base directory exists for {jurisdiction} but contains no documents. "
-                "Using deterministic SE rule modules."
-            )
-        doc_list = "\n".join(f"- {d.name}" for d in docs)
-        return (
-            f"Available regulatory documents for {jurisdiction}:\n{doc_list}\n\n"
-            "(ChromaDB RAG integration pending — using training knowledge for now)"
+        """Fetch targeted semantic context from the KB based on the specific query."""
+        if jurisdiction != "SE" or building_type != "healthcare":
+            return ""
+
+        # Use semantic search for the specific compliance query
+        return self.kb_loader.get_semantic_context(
+            query,
+            self.AGENT_ID,
+            n_results=5
         )
 
     def check_room_program(self, room_program: dict) -> dict:

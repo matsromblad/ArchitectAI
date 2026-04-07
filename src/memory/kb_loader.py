@@ -12,7 +12,10 @@ Improvements over v1:
 import re
 import json
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
+
+from loguru import logger
+from src.memory.vector_store import get_vector_store
 
 
 class KnowledgeBaseLoader:
@@ -44,6 +47,13 @@ class KnowledgeBaseLoader:
         self.index = self._load_index()
         # Cache full document texts so we can search them without re-reading disk
         self._doc_cache: Dict[str, str] = {}
+        
+        # Initialize vector store
+        try:
+            self.vector_store = get_vector_store()
+        except Exception as e:
+            logger.warning(f"[KB-Loader] Failed to init vector store: {e}. Semantic search disabled.")
+            self.vector_store = None
 
     def _load_index(self) -> dict:
         """Load the KB index."""
@@ -157,6 +167,51 @@ class KnowledgeBaseLoader:
             return ""
 
         return "\n\n---\n\n".join(excerpts)
+
+    def get_semantic_context(
+        self,
+        query: str,
+        agent_id: str,
+        n_results: int = 5,
+        category: str = None
+    ) -> str:
+        """
+        Retrieves relevant text chunks from the vector store using RAG.
+        
+        Args:
+            query: The semantic search query (e.g. "brandskyddskrav fÃ¶r vÃ¥rdcentral")
+            agent_id: The search context agent
+            n_results: Number of chunks to return
+            category: Optional filter by KB category (e.g. "typrum")
+            
+        Returns:
+            Formatted context string for LLM injection.
+        """
+        if not self.vector_store or self.vector_store.get_count() == 0:
+            # Fallback to prefix-based context if RAG index not ready
+            logger.warning(f"[KB-Loader] Vector store empty or disabled, falling back to prefix.")
+            return self.get_prompt_context(agent_id)
+        
+        where = {"category": category} if category else None
+        
+        # If no category, we can search all documents the agent is interested in
+        # Note: ChromaDB 'where' with '$in' is supported if we wanted to filter by multiple
+        
+        logger.info(f"[KB-Loader] Querying vector store for '{query}' (agent={agent_id})...")
+        hits = self.vector_store.query(query, n_results=n_results, where=where)
+        
+        if not hits:
+            return ""
+            
+        lines = [f"\n### REGULATORY KNOWLEDGE (Semantic Retrieval for: '{query}')\n"]
+        for i, hit in enumerate(hits, 1):
+            meta = hit["metadata"]
+            source = meta.get("title", meta.get("source", "Unknown"))
+            page = meta.get("page", "N/A")
+            lines.append(f"#### Match {i} — {source} [Page {page}]\n")
+            lines.append(hit["document"].strip() + "\n")
+            
+        return "\n".join(lines)
 
     def get_targeted_context(
         self,
