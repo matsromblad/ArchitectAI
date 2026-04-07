@@ -217,6 +217,7 @@ class BriefAgent(BaseAgent):
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_message}],
                 max_tokens=4000,
+                response_format={"type": "json_object"}
             )
             room_program = self._extract_json(response)
             if "room_program" in room_program and isinstance(room_program["room_program"], dict):
@@ -250,6 +251,7 @@ class BriefAgent(BaseAgent):
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_message}],
                 max_tokens=4000,
+                response_format={"type": "json_object"}
             )
             room_program = self._extract_json(response)
             if "room_program" in room_program and isinstance(room_program["room_program"], dict):

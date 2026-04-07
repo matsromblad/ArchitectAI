@@ -59,6 +59,7 @@ class BaseAgent(ABC):
         messages: list[dict],
         max_tokens: int = 4096,
         temperature: float = 0.2,
+        response_format: dict = None,
     ) -> str:
         """Send a chat request. If model is Gemini or Claude, routes to them first, then falls back to Ollama."""
         
@@ -81,12 +82,16 @@ class BaseAgent(ABC):
                     logger.debug(f"[{self.AGENT_ID}] → Google Gemini API ({self.model})")
                     
                     full_messages = [{"role": "system", "content": system}] + messages
-                    response = gemini_client.chat.completions.create(
-                        model=api_model_name,
-                        max_tokens=max_tokens,
-                        temperature=temperature,
-                        messages=full_messages,
-                    )
+                    kwargs = {
+                        "model": api_model_name,
+                        "max_tokens": max_tokens,
+                        "temperature": temperature,
+                        "messages": full_messages,
+                    }
+                    if response_format:
+                        kwargs["response_format"] = response_format
+                        
+                    response = gemini_client.chat.completions.create(**kwargs)
                     content = response.choices[0].message.content
                     
                     usage = getattr(response, "usage", None)

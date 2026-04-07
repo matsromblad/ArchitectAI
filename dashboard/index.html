@@ -417,7 +417,8 @@
     </div>
   </div>
 </div>
-<div class="terminal-panel" style="height:200px; min-height:200px; background:#F8F9FA; color:#212529; font-family:monospace; font-size:11px; border-top:2px solid rgba(0,0,0,0.12); display:flex; flex-direction:column;">
+<div class="terminal-panel" id="terminalPanel" style="height:200px; min-height:100px; max-height:80vh; background:#F8F9FA; color:#212529; font-family:monospace; font-size:11px; border-top:2px solid rgba(0,0,0,0.12); display:flex; flex-direction:column; position:relative;">
+  <div id="terminalResizer" style="height:8px; width:100%; position:absolute; top:-4px; cursor:ns-resize; z-index:10;"></div>
   <div style="padding:4px 10px; background:#FFFFFF; border-bottom:1px solid rgba(0,0,0,0.12); display:flex; justify-content:space-between; align-items:center;">
     <span style="color:#40C057; font-weight:bold;">>_ SYSTEM TERMINAL (LIVE)</span>
     <button id="btnApprove" disabled style="background:#2EA043; color:white; border:none; border-radius:4px; padding:4px 12px; font-weight:bold; font-size:11px; cursor:not-allowed;" onclick="approveMilestone()">APPROVE MILESTONE</button>
@@ -1409,10 +1410,24 @@ function renderAgentCards() {
     // Agent statuses
     if (s.agents) {
       const STATUS = { working:'working', done:'approved', waiting:'waiting', qa:'qa', blocked:'blocked' };
+      const STATION_MAP = {
+        'pm': 'meeting', 'parser': 'input', 'brief': 'brief',
+        'compliance': 'compliance', 'architect': 'design',
+        'structural': 'structure', 'mep': 'mep', 'ifc': 'ifc', 'qa': 'qa'
+      };
+      
       Object.entries(s.agents).forEach(([sid, status]) => {
         const did = AGENT_MAP.hasOwnProperty(sid) ? AGENT_MAP[sid] : sid;
         if (!did || !agentState[did]) return;
-        agentState[did].status = STATUS[status] || 'waiting';
+        const newStatus = STATUS[status] || 'waiting';
+        agentState[did].status = newStatus;
+        
+        // Ensure agent is moved to their work station when they start working
+        if (newStatus === 'working') {
+           agentState[did].targetStation = STATION_MAP[did];
+        } else if (newStatus === 'qa') {
+           agentState[did].targetStation = 'qa';
+        }
       });
     }
 
@@ -1539,6 +1554,34 @@ async function approveMilestone() {
 // ============================================================
 // INIT
 // ============================================================
+let isResizing = false;
+let lastDownY = 0;
+const terminalPanel = document.getElementById('terminalPanel');
+const resizer = document.getElementById('terminalResizer');
+
+resizer.addEventListener('mousedown', function(e) {
+  isResizing = true;
+  lastDownY = e.clientY;
+  document.body.style.cursor = 'ns-resize';
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', function(e) {
+  if (!isResizing) return;
+  const delta = lastDownY - e.clientY;
+  lastDownY = e.clientY;
+  const newHeight = terminalPanel.offsetHeight + delta;
+  if (newHeight >= 100 && newHeight <= window.innerHeight * 0.8) {
+    terminalPanel.style.height = newHeight + 'px';
+    resize(); // Trigger canvas layout fix
+  }
+});
+
+document.addEventListener('mouseup', function(e) {
+  isResizing = false;
+  document.body.style.cursor = '';
+});
+
 window.addEventListener('resize', () => { resize(); });
 resize();
 updateMilestoneUI();
