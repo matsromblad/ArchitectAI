@@ -427,11 +427,11 @@
 </div>
 </div><!-- end tab-live -->
 
-<div id="tab-agents" class="tab-content" style="overflow-y:auto;">
+<div id="tab-agents" class="tab-content" style="overflow-y:auto; background:var(--bg);">
   <div class="agents-grid" id="agentsGrid"></div>
 </div>
 
-<div id="tab-outputs" class="tab-content" style="overflow-y:auto; flex-direction:column;">
+<div id="tab-outputs" class="tab-content" style="overflow-y:auto; flex-direction:column; background:var(--bg);">
   <div id="outputsRoot" style="padding:16px 20px;"></div>
 </div>
 
@@ -464,6 +464,7 @@ const STATIONS = [
   { id:'qa',         label:'🔍 QA REVIEW',    x:0.60, y:0.05, w:0.14, h:0.25 },
   { id:'ifc',        label:'🏛 IFC BUILD',    x:0.76, y:0.32, w:0.12, h:0.14 },
   { id:'milestone',  label:'✅ MILESTONE',    x:0.76, y:0.05, w:0.11, h:0.14 },
+  { id:'waiting_area',label:'☕ LOUNGE',      x:0.05, y:0.80, w:0.25, h:0.16 },
 ];
 
 // ============================================================
@@ -1021,12 +1022,12 @@ function draw() {
   // Stations
   STATIONS.forEach(st => drawStation(st));
 
-  // Agents — always draw, snap to waiting area if not yet placed
+  // Agents — always draw
   AGENTS.forEach((a, idx) => {
     const s = agentState[a.id];
     if (!s.x || !s.y) {
-      s.x = W * 0.25 + (idx % 5) * 30;
-      s.y = H * 0.88 - Math.floor(idx / 5) * 36;
+      s.x = W * 0.10 + (idx % 5) * 30;
+      s.y = H * 0.85 - Math.floor(idx / 5) * 30;
     }
     drawPixelAgent(s.x, s.y, a.color, a.hat, SCALE, s.status, s.bobPhase, s.rejected);
     drawAgentLabel(s.x, s.y, a.abbr, SCALE);
@@ -1108,134 +1109,91 @@ function switchTab(name) {
 // OUTPUTS DATA & RENDERING
 // ============================================================
 
-// Document registry — updated by sim events
-const OUTPUT_DOCS = {
-  m1: [
-    { id:'site_data',     name:'site_data.json',        icon:'🗺️', discipline:'Input Parser',   meta:'Site boundary + constraints', status:'pending' },
-    { id:'room_program',  name:'room_program.json',      icon:'📋', discipline:'Brief Agent',     meta:'Room list, areas, adjacency', status:'pending' },
-    { id:'compliance_m1', name:'compliance_brief.json',  icon:'📜', discipline:'Compliance',      meta:'SE healthcare rules check',   status:'pending' },
-    { id:'qa_m1',         name:'qa_report_m1.json',      icon:'🔍', discipline:'QA Agent',        meta:'Brief quality report',        status:'pending' },
-  ],
-  m2: [
-    { id:'spatial_layout', name:'spatial_layout.json',   icon:'📐', discipline:'Architect',       meta:'Room positions + circulation', status:'pending' },
-    { id:'compliance_m2',  name:'compliance_layout.json',icon:'📜', discipline:'Compliance',      meta:'BBR corridor + fire check',    status:'pending' },
-    { id:'qa_m2',          name:'qa_report_m2.json',     icon:'🔍', discipline:'QA Agent',        meta:'Layout quality report',        status:'pending' },
-  ],
-  m3: [
-    { id:'structural',    name:'structural_schema.json', icon:'🏗️', discipline:'Structural',      meta:'Grid, columns, cores',        status:'pending' },
-    { id:'mep',           name:'mep_schema.json',        icon:'⚙️', discipline:'MEP Agent',       meta:'Shafts, plant, distribution', status:'pending' },
-    { id:'compliance_m3', name:'compliance_mep.json',    icon:'📜', discipline:'Compliance',      meta:'Ventilation + fire zones',    status:'pending' },
-    { id:'qa_m3',         name:'qa_report_m3.json',      icon:'🔍', discipline:'QA Agent',        meta:'Systems quality report',      status:'pending' },
-  ],
-  m4: [
-    { id:'ifc_model',     name:'building.ifc',           icon:'🏛️', discipline:'IFC Builder',     meta:'Full IFC4 building model',    status:'pending' },
-    { id:'qa_m4',         name:'qa_report_m4.json',      icon:'🔍', discipline:'QA Agent',        meta:'Model validation report',     status:'pending' },
-  ],
-  m5: [
-    { id:'ifc_export',    name:'building_final.ifc',     icon:'✅', discipline:'IFC Builder',     meta:'Final export — all approved', status:'pending' },
-    { id:'qa_final',      name:'qa_report_final.json',   icon:'🔍', discipline:'QA Agent',        meta:'Full project QA summary',     status:'pending' },
-  ],
-};
+// Document registry
+const OUTPUT_DOCS = {};
 
-const MILESTONE_META = [
-  { key:'m1', label:'M1 — Brief & Compliance', desc:'Room program, site data, initial compliance check', icon:'📋' },
-  { key:'m2', label:'M2 — Concept Layout',     desc:'Floor plan, circulation, layout compliance',         icon:'📐' },
-  { key:'m3', label:'M3 — Technical Systems',  desc:'Structure, MEP routing, technical compliance',       icon:'⚙️' },
-  { key:'m4', label:'M4 — Full Building Model',desc:'Complete IFC model, all disciplines coordinated',    icon:'🏛️' },
-  { key:'m5', label:'M5 — Final Export',        desc:'Validated IFC4 file ready for handover',            icon:'📦' },
-];
-
-function setDocStatus(id, status, version) {
-  for (const phase of Object.values(OUTPUT_DOCS)) {
-    const doc = phase.find(d => d.id === id);
-    if (doc) {
-      doc.status = status;
-      if (version) doc.version = version;
-      doc.updatedAt = new Date().toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'});
-    }
-  }
+let originURL = window.location.origin;
+if (originURL === 'null' || originURL.includes('file://')) {
+  originURL = 'http://localhost:8765';
 }
 
-function getMilestoneStatus(key) {
-  const idx = ['m1','m2','m3','m4','m5'].indexOf(key);
-  if (idx < currentMilestone) return 'done';
-  if (idx === currentMilestone) return 'active';
-  return 'pending';
-}
-
-function renderOutputs() {
+async function renderOutputs() {
   const root = document.getElementById('outputsRoot');
+  const sel = document.getElementById('projectSelector');
+  const project = sel ? sel.value : null;
 
-  // Group docs by discipline within each milestone
-  const html = MILESTONE_META.map(m => {
-    const docs = OUTPUT_DOCS[m.key] || [];
-    const status = getMilestoneStatus(m.key);
-    const doneCount = docs.filter(d => d.status === 'done').length;
-    const statusLabel = status === 'done' ? 'Complete' : status === 'active' ? 'In Progress' : 'Pending';
+  if (!project) {
+    root.innerHTML = '<div style="padding:20px; color:#868E96; text-align:center;">No project selected.</div>';
+    return;
+  }
 
-    // Group by discipline
-    const byDiscipline = {};
-    docs.forEach(d => {
-      if (!byDiscipline[d.discipline]) byDiscipline[d.discipline] = [];
-      byDiscipline[d.discipline].push(d);
+  try {
+    const res = await fetch(`${originURL}/files/${project}`);
+    if (!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
+    
+    // Check locked files based on working agents
+    const workingOutputs = [];
+    AGENT_CARDS.forEach(a => {
+      const state = agentState[a.id];
+      if (state && state.status === 'working') {
+        workingOutputs.push(...a.outputs);
+      }
     });
 
-    const disciplineHTML = Object.entries(byDiscipline).map(([disc, items]) => {
-      const itemsHTML = items.map(doc => {
-        const badgeLabel = doc.status === 'done' ? (doc.version || 'Done') :
-                           doc.status === 'active' ? 'Working…' :
-                           doc.status === 'rejected' ? 'Rejected' : '—';
-        return `
-          <div class="doc-item status-${doc.status}">
-            <span class="doc-icon">${doc.icon}</span>
-            <div class="doc-info">
-              <div class="doc-name">${doc.name}</div>
-              <div class="doc-meta">${doc.meta}${doc.updatedAt ? ' · ' + doc.updatedAt : ''}</div>
-            </div>
-            <span class="doc-badge ${doc.status}">${badgeLabel}</span>
-          </div>`;
-      }).join('');
+    if (!data.files || data.files.length === 0) {
+      root.innerHTML = `
+        <div class="outputs-header"><h2>📁 PROJECT FILES — ${project}</h2></div>
+        <div style="padding:20px; background:#FFFFFF; border:1px dashed rgba(0,0,0,0.12); border-radius:6px; color:#868E96; text-align:center; margin-top:10px;">
+          Pipeline is empty. No files produced yet.
+        </div>
+      `;
+      return;
+    }
+
+    const filesHTML = data.files.map(f => {
+      // Basic match to see if locked
+      const isLocked = workingOutputs.some(o => f.name.includes(o) || o.includes(f.name.split('.')[0]));
+      const sizeStr = (f.size / 1024).toFixed(1) + ' KB';
+      const dateStr = new Date(f.updated).toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'});
+      const ext = f.name.split('.').pop() || '';
+      const icon = ext === 'json' ? '📄' : ext === 'ifc' ? '🏛' : ext === 'png' ? '🖼' : '📁';
+      
+      const badgeHTML = isLocked 
+        ? `<span class="doc-badge active">⏳ LOCKED (Working)</span>` 
+        : `<span class="doc-badge done">${sizeStr}</span>`;
+
+      const wrapperStyle = isLocked ? `opacity:0.6; cursor:not-allowed; border-color:#FA525244; background:#FFF5F5;` : `cursor:pointer;`;
+      const onclickAttr = isLocked ? `` : `onclick="window.open('${originURL}/download/${project}/${f.path}', '_blank')"`;
+
       return `
-        <div class="discipline-group">
-          <div class="discipline-label">${disc}</div>
-          ${itemsHTML}
-        </div>`;
+        <div class="doc-item" style="${wrapperStyle}" ${onclickAttr}>
+          <span class="doc-icon">${icon}</span>
+          <div class="doc-info">
+            <div class="doc-name" style="font-weight:bold">${f.name}</div>
+            <div class="doc-meta">${dateStr}</div>
+          </div>
+          ${badgeHTML}
+        </div>
+      `;
     }).join('');
 
-    return `
-      <div class="milestone-folder">
-        <div class="milestone-folder-header" onclick="toggleFolder('${m.key}')">
-          <span class="mf-icon">${m.icon}</span>
-          <span class="mf-title">${m.label}</span>
-          <span style="font-size:10px;color:#868E96;margin-right:8px">${doneCount}/${docs.length} files</span>
-          <span class="mf-status ${status}">${statusLabel}</span>
-          <span class="mf-chevron">▼</span>
-        </div>
-        <div class="milestone-folder-body" id="folder-${m.key}">
-          <div style="grid-column:1/-1;font-size:10px;color:#868E96;margin-bottom:6px">${m.desc}</div>
-          ${disciplineHTML}
-        </div>
-      </div>`;
-  }).join('');
-
-  root.innerHTML = `
-    <div class="outputs-header">
-      <h2>📁 PROJECT OUTPUT FILES</h2>
-      <div class="legend">
-        <span><span class="legend-dot" style="background:#2ECC71"></span>Done</span>
-        <span><span class="legend-dot" style="background:#58A6FF"></span>Active</span>
-        <span><span class="legend-dot" style="background:#E74C3C"></span>Rejected</span>
-        <span><span class="legend-dot" style="background:rgba(0,0,0,0.12)"></span>Pending</span>
+    root.innerHTML = `
+      <div class="outputs-header">
+        <h2>📁 PROJECT FILES — ${project}</h2>
       </div>
-    </div>
-    ${html}`;
-}
-
-function toggleFolder(key) {
-  const body = document.getElementById(`folder-${key}`);
-  const header = body.previousElementSibling;
-  body.classList.toggle('hidden');
-  header.classList.toggle('collapsed');
+      <div class="milestone-folder">
+        <div class="milestone-folder-body">
+          <div class="discipline-group">
+            <div class="discipline-label">All Generated Artifacts</div>
+            ${filesHTML}
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    root.innerHTML = `<div style="padding:20px; color:#E74C3C;">Failed to load files: ${err.message}</div>`;
+  }
 }
 
 // ============================================================
@@ -1312,19 +1270,32 @@ function renderAgentCards() {
   grid.innerHTML = AGENT_CARDS.map(a => {
     const agent = AGENTS.find(ag => ag.id === a.id);
     const color = agent ? agent.color : '#495057';
-    const inputTags = a.inputs.map(i => `<span class="tag input-tag">${i}</span>`).join('');
-    const outputTags = a.outputs.map(o => `<span class="tag output-tag">${o}</span>`).join('');
+    const hat = agent ? agent.hat : '#000000';
+    const inputTags = a.inputs.map(i => `<span class="tag input-tag">${i}</span>`).join('');      
+    const outputTags = a.outputs.map(o => `<span class="tag output-tag">${o}</span>`).join('');   
+    
+    // Render the agent on a hidden canvas to get a data URL for the card avatar!
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = 40;
+    offCanvas.height = 40;
+    const offCtx = offCanvas.getContext('2d');
+    const oldCtx = ctx; 
+    window.ctx = offCtx; // Temporary hijack of global ctx used by drawPixelAgent
+    drawPixelAgent(20, 20, color, hat, 1.2, 'waiting', 0.5, false);
+    window.ctx = oldCtx;
+    const avatarUrl = offCanvas.toDataURL();
+
     return `
       <div class="agent-card" style="--agent-color:${color}">
         <div class="agent-card-header">
-          <div class="agent-card-avatar" style="background:${color}">${a.emoji}</div>
+          <div class="agent-card-avatar" style="background:transparent; border:none;"><img src="${avatarUrl}" style="width:36px;height:36px;border-radius:4px;" /></div>
           <div class="agent-card-title">
-            <h4>${a.name} <span style="font-size:10px;color:#868E96;font-weight:normal">· shown as <span style="color:${color};font-weight:bold">${agent ? agent.abbr : ''}</span> in Live View</span></h4>
+            <h4>${a.name} <span style="font-size:10px;color:#868E96;font-weight:normal">· Live tag: <span style="color:${color};font-weight:bold">${agent ? agent.abbr : ''}</span></span></h4>
             <span class="model-badge ${a.modelType}">${a.model}</span>
           </div>
         </div>
         <p>${a.role}</p>
-        <div class="how">⚙️ ${a.how}</div>
+        <div class="how" style="margin-top:8px; border-top:1px solid rgba(0,0,0,0.04); padding-top:8px;"><strong>Workflow:</strong> ${a.how}</div>
         <div class="agent-card-row" style="margin-top:10px">
           <span style="font-size:9px;color:#868E96;margin-right:2px">IN:</span>${inputTags}
         </div>

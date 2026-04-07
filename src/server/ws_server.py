@@ -345,6 +345,38 @@ else:
                         pass
         return {"projects": projects}
 
+    @app.get("/files/{project_id}")
+    async def list_files(project_id: str):
+        """List files in the project directory."""
+        from fastapi.responses import JSONResponse
+        import os, datetime
+        p_dir = Path(PROJECTS_DIR) / project_id
+        if not p_dir.exists():
+            return JSONResponse({"files": []})
+            
+        files = []
+        for file_path in p_dir.rglob("*"):
+            if file_path.is_file() and file_path.name != "state.json":
+                stat = file_path.stat()
+                rel_path = file_path.relative_to(p_dir).as_posix()
+                files.append({
+                    "name": file_path.name,
+                    "path": rel_path,
+                    "size": stat.st_size,
+                    "updated": datetime.datetime.fromtimestamp(stat.st_mtime).isoformat()
+                })
+        return {"files": sorted(files, key=lambda f: f["updated"], reverse=True)}
+
+    @app.get("/download/{project_id}/{file_path:path}")
+    async def download_file(project_id: str, file_path: str):
+        """Serve a file from the project directory."""
+        from fastapi.responses import FileResponse, JSONResponse
+        p_dir = Path(PROJECTS_DIR) / project_id
+        target = p_dir / file_path
+        if not target.exists() or not target.is_relative_to(p_dir):
+            return JSONResponse({"error": "File not found"}, status_code=404)
+        return FileResponse(str(target), filename=target.name)
+
     async def _read_stream(stream, project_id):
         while True:
             line = await stream.readline()
