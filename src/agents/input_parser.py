@@ -48,8 +48,34 @@ class InputParserAgent(BaseAgent):
         Returns:
             site_data dict (also saved to project memory)
         """
-        file_path = Path(inputs["file_path"])
+        file_path_input = inputs.get("file_path")
         jurisdiction = inputs.get("jurisdiction")
+
+        if not file_path_input:
+            # No file provided — fall back to a default site_data derived from prompt/context
+            logger.info(f"[{self.AGENT_ID}] No input file provided, using default mock site_data")
+            site_data = {
+                "boundary": {"points": [[0,0],[50,0],[50,40],[0,40]], "area_m2": 2000, "width_m": 50, "depth_m": 40},
+                "scale": None,
+                "orientation": 0,
+                "constraints": {},
+                "jurisdiction": jurisdiction or "SE",
+                "notes": ["Default site used (no file supplied) — replace with real input for accuracy"]
+            }
+
+            # Enrich and save (same as below)
+            site_data["project_id"] = self.memory.project_id
+            site_data["source_file"] = None
+            site_data["source_type"] = "none"
+            from datetime import datetime, timezone
+            site_data["created_at"] = datetime.now(timezone.utc).isoformat()
+            site_data["created_by"] = self.AGENT_ID
+            version = self.memory.save_schema("site_data", site_data)
+            logger.success(f"[{self.AGENT_ID}] default site_data saved as {version}")
+            self.send_message("pm", "status_update", {"status": "done", "schema": "site_data", "version": version})
+            return site_data
+
+        file_path = Path(file_path_input)
         suffix = file_path.suffix.lower()
 
         logger.info(f"[{self.AGENT_ID}] Parsing {file_path.name} ({suffix})")

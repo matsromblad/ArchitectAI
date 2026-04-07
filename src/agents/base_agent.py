@@ -31,7 +31,12 @@ class BaseAgent(ABC):
     def __init__(self, memory: ProjectMemory, model: str = None):
         self.memory = memory
         self.model = model or os.getenv(f"{self.AGENT_ID.upper()}_MODEL", self.DEFAULT_MODEL)
-        self.client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        # Support a MOCK_MODE to allow offline testing without Anthropic credentials
+        self.mock = os.getenv("MOCK_MODE", "0").lower() in ("1", "true", "yes")
+        if not self.mock:
+            self.client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        else:
+            self.client = None
         logger.info(f"[{self.AGENT_ID}] Initialized with model: {self.model}")
 
     def chat(
@@ -42,6 +47,10 @@ class BaseAgent(ABC):
         temperature: float = 0.2,
     ) -> str:
         """Send a chat request to Claude. Returns the text response."""
+        if self.mock:
+            logger.debug(f"[{self.AGENT_ID}] MOCK chat called — returning canned response")
+            return self._mock_response(system, messages, max_tokens)
+
         logger.debug(f"[{self.AGENT_ID}] → Claude ({self.model}), {len(messages)} messages")
         response = self.client.messages.create(
             model=self.model,
@@ -53,6 +62,55 @@ class BaseAgent(ABC):
         content = response.content[0].text
         logger.debug(f"[{self.AGENT_ID}] ← {len(content)} chars")
         return content
+
+    def _mock_response(self, system: str, messages: list[dict], max_tokens: int) -> str:
+        """Return deterministic mock responses per agent to enable offline testing."""
+        import json
+        aid = getattr(self, "AGENT_ID", "base")
+        if aid == "brief":
+            room_program = {
+                "building_type": "office",
+                "rooms": [
+                    {"room_id": "R001", "name": "Open Office", "room_type": "open_office", "quantity": 1, "min_area_m2": 120},
+                    {"room_id": "R002", "name": "Meeting Room", "room_type": "meeting", "quantity": 2, "min_area_m2": 20},
+                    {"room_id": "R003", "name": "WC", "room_type": "toilet", "quantity": 2, "min_area_m2": 4}
+                ],
+                "notes": [],
+            }
+            return json.dumps(room_program)
+        if aid == "qa":
+            verdict = {
+                "verdict": "APPROVED",
+                "checks": [{"check": "basic", "result": "pass", "detail": "Mock pass"}],
+                "issues": [],
+                "fix_instructions": "",
+                "approved_at": None
+            }
+            return json.dumps(verdict)
+        if aid == "architect":
+            spatial = {
+                "building_type": "office",
+                "floors": [
+                    {
+                        "floor_id": "G",
+                        "level_m": 0.0,
+                        "rooms": [
+                            {"room_id": "R001", "name": "Open Office", "room_type": "open_office", "x_m": 0, "y_m": 0, "width_m": 12, "depth_m": 10, "area_m2": 120, "zone": "public", "access_type": "public", "floor": "G"},
+                            {"room_id": "R002", "name": "Meeting Room 1", "room_type": "meeting", "x_m": 12.5, "y_m": 0, "width_m": 5, "depth_m": 4, "area_m2": 20, "zone": "public", "access_type": "public", "floor": "G"}
+                        ],
+                        "corridors": [],
+                        "stairs": [],
+                        "lifts": []
+                    }
+                ],
+                "clean_dirty_flow": {},
+                "adjacency_violations": [],
+                "layout_notes": []
+            }
+            return json.dumps(spatial)
+
+        # Default generic mock
+        return json.dumps({"mock": True, "agent": aid, "note": "generic mock response"})
 
     def send_message(
         self,
