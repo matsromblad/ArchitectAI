@@ -326,13 +326,23 @@ else:
 
     @app.get("/projects")
     async def list_projects():
-        """List available project directories."""
+        """List available project directories that have passed Phase 0 (client)."""
+        import json
         projects_dir = Path(PROJECTS_DIR)
         projects = []
         if projects_dir.exists():
             for d in projects_dir.iterdir():
-                if d.is_dir() and (d / "state.json").exists():
-                    projects.append(d.name)
+                state_file = d / "state.json"
+                if d.is_dir() and state_file.exists():
+                    try:
+                        with open(state_file, 'r', encoding='utf-8') as f:
+                            st = json.load(f)
+                            # Only show projects that passed milestone 1 (client)
+                            client_status = st.get("milestones", {}).get("client", {}).get("status")
+                            if client_status in ("approved", "completed"):
+                                projects.append(d.name)
+                    except Exception:
+                        pass
         return {"projects": projects}
 
     async def _read_stream(stream, project_id):

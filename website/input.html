@@ -1220,7 +1220,7 @@
     .then(async res => {
       if(res.ok) {
         showToast('System Launched!', 'A terminal should pop up to run your architecture. You can close this tab and open the dashboard.');
-        setTimeout(() => { window.location.href = 'http://127.0.0.1:8765/'; }, 3000);
+        setTimeout(() => { window.location.href = `http://127.0.0.1:8765/?project=${payload.projectName}`; }, 3000);
       } else {
         showToast('Error', await res.text());
       }

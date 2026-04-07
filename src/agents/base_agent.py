@@ -69,16 +69,16 @@ class BaseAgent(ABC):
                 # Map marketing names to actual API endpoints
                 api_model_name = self.model
                 if "3.1-pro" in self.model:
-                    api_model_name = "gemini-1.5-pro-latest"
+                    api_model_name = "gemini-3.1-pro-preview"
                 elif "3-flash" in self.model:
-                    api_model_name = "gemini-1.5-flash-latest"
+                    api_model_name = "gemini-3-flash-preview"
                     
                 if gemini_key and gemini_key != "dummy":
                     gemini_client = OpenAI(
                         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
                         api_key=gemini_key,
                     )
-                    logger.debug(f"[{self.AGENT_ID}] → Google Gemini API ({self.model} mapping to {api_model_name})")
+                    logger.debug(f"[{self.AGENT_ID}] → Google Gemini API ({self.model})")
                     
                     full_messages = [{"role": "system", "content": system}] + messages
                     response = gemini_client.chat.completions.create(
