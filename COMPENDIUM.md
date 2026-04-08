@@ -1,6 +1,6 @@
 # ArchitectAI — Project Compendium
-**Version:** 0.2 — Architecture Decisions  
-**Date:** 2026-03-27  
+**Version:** 0.3 — Updated to reflect implemented system  
+**Date:** 2026-04-07  
 **Author:** James (AI Assistant) & Mats Romblad  
 **Status:** Living document — update as the project evolves
 
@@ -99,23 +99,47 @@ The system is structured as a classic construction project organization. Each ag
 
 ---
 
-### 5.3 Brief Agent
-**Role:** Creates a detailed room program and functional brief from the user's prompt.
+### 5.3 Client Agent
+**Role:** Interprets the user's natural language prompt and translates it into a structured, realistic project brief with concrete parameters.
 
 **Responsibilities:**
-- Parse the natural language prompt
-- Identify building type, department, and program requirements
-- Generate a structured room list (room type, quantity, area, adjacency requirements)
-- Flag ambiguities for user clarification
+- Parse the user prompt and infer building type, scale, and programme requirements
+- Map vague descriptions to well-defined project parameters (capacity, number of beds, department type, etc.)
+- Produce a structured `project_brief.json` that downstream agents can work from
+- Flag underspecified inputs for clarification
 
-**Inputs:** User prompt, building type taxonomy  
-**Outputs:** `room_program.json` — room list with areas, requirements, adjacency matrix  
-**Model:** `claude-sonnet-4-5` — well-defined extraction task from structured prompt  
-**Communicates with:** Compliance Agent (to validate area requirements)
+**Inputs:** User prompt, site data  
+**Outputs:** `project_brief.json` — building type, capacity, department, functional requirements  
+**Model:** `claude-sonnet-4-6`  
+**Communicates with:** Brief Agent (hands off structured brief for room program generation)
 
 ---
 
-### 5.4 Compliance Agent
+### 5.4 Brief Agent
+**Role:** Creates a detailed room program and functional brief from the structured project brief.
+
+**Responsibilities:**
+- Translate the project brief into a detailed, structured room list
+- Look up PTS (Program för Teknisk Standard) room requirements from the knowledge base
+- Generate a room list with areas, adjacency requirements, and functional requirements
+- At milestone M1 export a `rumsfunktionsprogram.md` — a formal Swedish room programme document
+- Flag ambiguities for user clarification
+
+**Inputs:** `project_brief.json`, PTS regulatory knowledge base (via RAG)  
+**Outputs:** `room_program.json` — room list with areas, requirements, adjacency matrix; `rumsfunktionsprogram.md` at M1  
+**Model:** `claude-sonnet-4-6` — well-defined extraction task augmented with regulatory documents  
+**Communicates with:** Compliance Agent (to validate area requirements)
+
+**Knowledge Base Integration:**  
+The Brief Agent has direct access to PTS documents injected into its system prompt:
+- `funktionskrav.txt` — functional requirements per room type
+- `typrum.txt` — standard room dimensions and configurations
+
+It can also perform semantic queries against ChromaDB: `kb_loader.get_semantic_context(query, "brief")`
+
+---
+
+### 5.5 Compliance Agent
 **Role:** The regulatory expert. Owns all local building codes, standards, and regulations. All other agents consult this agent before finalizing decisions.
 
 **Responsibilities:**
@@ -127,18 +151,20 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** Compliance query + jurisdiction context  
 **Outputs:** Compliance verdict (pass/fail/conditional) + rule reference + suggested fix  
-**Model:** `claude-sonnet-4-5` with RAG over regulatory documents — upgrade to Opus if complex legal interpretation is required (e.g., conflicting local ordinances)  
+**Model:** `claude-sonnet-4-6` with RAG over regulatory documents — upgrade to Opus if complex legal interpretation is required (e.g., conflicting local ordinances)  
 
 **Knowledge acquisition strategy:**
-1. **Self-sourcing first:** Agent uses web search to find and download applicable regulations for the given jurisdiction + building type combination. It caches PDFs locally and indexes them into ChromaDB.
-2. **Ask PM if stuck:** If the agent cannot find a required document (paywalled, unavailable, jurisdiction unknown), it sends an `escalation` message to PM with a specific request: *"Need: Socialstyrelsen SOSFS 2013:7 — URL or PDF"*. PM decides whether to ask the user or provide an alternative source.
-3. **No hallucination policy:** If a rule cannot be sourced and verified, the agent must report `unknown` — never invent a regulation.
+1. **Pre-loaded KB first:** The agent receives relevant PTS documents injected directly into its system prompt (`tekniska_krav.txt`, `funktionskrav.txt`, `brand.txt`, `ytskikt.txt`, `miljokrav.txt`).
+2. **Semantic RAG:** For targeted queries, agent calls `kb_loader.get_semantic_context(query, "compliance")` against the ChromaDB vector index of all six PTS documents.
+3. **Self-sourcing (web):** Agent uses DuckDuckGo web search to find and download applicable regulations not covered by the local KB, caching them for future use.
+4. **Ask PM if stuck:** If a required document is paywalled or unavailable, the agent sends an `escalation` message to PM: *"Need: Socialstyrelsen SOSFS 2013:7 — URL or PDF"*.
+5. **No hallucination policy:** If a rule cannot be sourced and verified, the agent must report `unknown` — never invent a regulation.
 
 **Note:** This agent is the only one that holds jurisdiction-specific knowledge. All others are jurisdiction-agnostic.
 
 ---
 
-### 5.5 Architect Agent
+### 5.6 Architect Agent
 **Role:** Spatial design. Creates the floor plan layout — room placement, circulation, adjacencies, and spatial flow.
 
 **Responsibilities:**
@@ -150,12 +176,14 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** `room_program.json`, `site_data.json`, compliance rules  
 **Outputs:** `spatial_layout.json` — room positions, dimensions, circulation paths  
-**Model:** `claude-sonnet-4-5` — well-scoped spatial reasoning task with structured input/output  
+**Model:** `claude-sonnet-4-6` — well-scoped spatial reasoning task with structured input/output  
+**Algorithm:** Double-loaded corridor layout (rooms on both sides of a central corridor) per Swedish healthcare standards  
+**Tools:** `se_dimensions.py` (corridor widths, door clearances, structural grid options)  
 **Communicates with:** Compliance Agent, QA Agent, Structural Agent
 
 ---
 
-### 5.6 Structural Agent
+### 5.7 Structural Agent
 **Role:** Structural logic. Reviews and proposes structural systems compatible with the architectural layout.
 
 **Responsibilities:**
@@ -165,13 +193,14 @@ The system is structured as a classic construction project organization. Each ag
 - Ensure structural continuity between floors
 
 **Inputs:** `spatial_layout.json`  
-**Outputs:** `structural_schema.json` — grid, load-bearing elements, core positions  
-**Model:** `claude-sonnet-4-5`  
+**Outputs:** `structural_schema.json` — grid (stomlinjer), load-bearing elements, column positions, flagged spans  
+**Model:** `claude-sonnet-4-6`  
+**Tools:** `se_dimensions.py` (standard Swedish structural grids)  
 **Communicates with:** Architect Agent (may require layout changes), QA Agent, Compliance Agent
 
 ---
 
-### 5.7 MEP Agent (Mechanical, Electrical, Plumbing)
+### 5.8 MEP Agent (Mechanical, Electrical, Plumbing)
 **Role:** Technical systems. Handles HVAC, electrical distribution, plumbing, and fire safety.
 
 **Responsibilities:**
@@ -181,13 +210,14 @@ The system is structured as a classic construction project organization. Each ag
 - Ensure compliance with technical standards (ventilation rates, fire compartments, etc.)
 
 **Inputs:** `spatial_layout.json`, `structural_schema.json`  
-**Outputs:** `mep_schema.json` — shaft positions, plant rooms, distribution strategy  
-**Model:** `claude-sonnet-4-5`  
+**Outputs:** `mep_schema.json` — shaft positions, plant rooms, fire compartments, HVAC zones, distribution strategy  
+**Model:** `claude-sonnet-4-6`  
+**Tools:** `se_hvac.py` (ventilation specs, air change rates), `se_fire.py` (BBR 2023 fire compartment rules), `se_lighting.py` (lux levels per room type)  
 **Communicates with:** Compliance Agent, QA Agent, Architect Agent
 
 ---
 
-### 5.8 IFC Builder Agent
+### 5.9 IFC Builder Agent
 **Role:** The constructor. Translates all approved schemas into a valid IFC4 building model.
 
 **Responsibilities:**
@@ -198,13 +228,14 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** Approved `spatial_layout.json`, `structural_schema.json`, `mep_schema.json`  
 **Outputs:** `building.ifc`  
-**Model:** `claude-sonnet-4-5` — primarily code generation; consider `claude-haiku-4-5` for cost if tasks are repetitive and well-templated  
+**Model:** `claude-haiku-4-5-20251001` — rule-based IFC entity generation is well-suited to the fastest/cheapest model  
 **Libraries:** ifcopenshell, ifcopenshell-utils  
+**Tools:** `ifc_codes.py` (IFC4 entity and property codes)  
 **Note:** This agent only runs after QA approval of all upstream schemas.
 
 ---
 
-### 5.9 Component Library Agent
+### 5.10 Component Library Agent
 **Role:** Owns the library of parametric room templates and building element definitions. The IFC equivalent of Revit families.
 
 **Responsibilities:**
@@ -222,13 +253,14 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** Room type request (building_type + room_name + jurisdiction)
 **Outputs:** `component_template.json` — geometry params, MEP hookups, compliance refs, adjacency rules
-**Model:** No LLM needed for lookup — template retrieval is deterministic. LLM only invoked to *generate* a new template when one doesn't exist.
-**Storage:** `/component_library/<building_type>/<room_type>.json` — shared across all projects
+**Model:** No LLM needed for lookup — template retrieval is deterministic. LLM (`claude-sonnet-4-6`) only invoked to *generate* a new template when one doesn't exist.  
+**Tools:** `se_room_types.py` (standard Swedish room type definitions and dimensions)  
+**Storage:** `/component_library/<building_type>/<room_type>.json` — shared across all projects  
 **Note:** This is the IFC-native equivalent of Revit families. No separate family files needed — geometry is described parametrically in JSON and realized by the IFC Builder.
 
 ---
 
-### 5.10 QA Agent
+### 5.11 QA Agent
 **Role:** Quality gatekeeper. Reviews all deliverables from all disciplines and approves or rejects them before they proceed.
 
 **Responsibilities:**
@@ -241,8 +273,8 @@ The system is structured as a classic construction project organization. Each ag
 
 **Inputs:** Any agent's output schema  
 **Outputs:** QA verdict (approved / rejected + comments)  
-**Model:** `claude-sonnet-4-5` — upgrade to Opus if QA decisions involve complex multi-discipline trade-offs  
-**Note:** The QA Agent is the only agent that can block progress. Its approvals are logged and visible in the dashboard.
+**Model:** `claude-haiku-4-5-20251001` — checklist validation is well-suited to the fastest model; upgrade to Opus if QA decisions involve complex multi-discipline trade-offs  
+**Note:** The QA Agent runs in an isolated subprocess to prevent memory bloat. It is the only agent that can block progress. Its approvals are logged and visible in the dashboard.
 
 ---
 
@@ -338,33 +370,55 @@ The system has two types of feedback loops:
 | Component | Technology |
 |-----------|------------|
 | Agent framework | Python + **LangGraph** (state machine, checkpointing) |
-| LLM provider | **Anthropic** (Claude API, local API key) |
+| LLM provider | **Anthropic Claude** via **OpenClaw Gateway** (Mode B runtime); direct Anthropic API as fallback |
+| LLM fallback chain | OpenClaw → Google Gemini → Ollama (local) |
 | IFC generation | ifcopenshell + ifcopenshell-utils |
 | DWG parsing | ezdxf |
 | PDF parsing | pdfplumber / pymupdf |
-| Image understanding | claude-sonnet-4-5 (vision) |
-| Compliance knowledge | Web search + RAG over downloaded regulatory PDFs (LlamaIndex + ChromaDB) |
+| Image understanding | Claude vision (via OpenClaw) |
+| Compliance knowledge | PTS documents (pre-loaded) + ChromaDB semantic search + DuckDuckGo web search |
+| Knowledge base | **ChromaDB** vector store (`compliance_kb/SE/healthcare/vector_index/`) |
+| Swedish regulatory tools | `se_fire.py`, `se_hvac.py`, `se_lighting.py`, `se_dimensions.py`, `se_room_types.py`, `ifc_codes.py` |
 | Message bus | LangGraph state (MVP) → Redis pub/sub (scale-out) |
 | Dashboard | Standalone HTML + Canvas + WebSocket for live state |
-| Storage | Local filesystem (`/project/<id>/`) — structured by phase |
+| WebSocket server | FastAPI + Uvicorn + watchfiles |
+| Storage | Local filesystem (`projects/<id>/`) — structured by phase, versioned schemas |
 | User interaction | Dashboard (browser) — milestone gates, approval buttons |
 | Notifications | Future: Telegram/OpenClaw push notifications |
 | Dev environment | **Stationär dator** (development), **RPi5** (deployment/serving) |
+
+### LLM Routing (Mode B — current)
+
+All agents send requests through the OpenClaw gateway which proxies to Anthropic Claude:
+
+```python
+client = OpenAI(base_url="http://127.0.0.1:18789/v1", api_key=OPENCLAW_TOKEN)
+response = client.chat.completions.create(
+    model="openclaw",
+    messages=[...],
+    extra_headers={"x-openclaw-model": "anthropic/claude-opus-4-6"},
+)
+```
+
+If OpenClaw is unavailable, agents fall back to Google Gemini (via `GEMINI_API_KEY`), then Ollama local inference.
 
 ### Model Assignment Summary
 
 | Agent | Model | Rationale |
 |-------|-------|-----------|
-| Project Manager | `claude-opus-4-5` | Complex orchestration, conflict resolution, escalation decisions |
-| Input Parser | `claude-sonnet-4-5` | Vision + structured extraction |
-| Brief Agent | `claude-sonnet-4-5` | Prompt-to-JSON extraction |
-| Compliance Agent | `claude-sonnet-4-5` *(→ Opus if needed)* | RAG-augmented rule lookup; upgrade for complex legal interpretation |
-| Architect Agent | `claude-sonnet-4-5` | Spatial reasoning with structured I/O |
-| Structural Agent | `claude-sonnet-4-5` | Structural logic, well-scoped task |
-| MEP Agent | `claude-sonnet-4-5` | Technical system routing |
+| Project Manager | `claude-opus-4-6` | Complex orchestration, conflict resolution, escalation decisions |
+| Input Parser | `claude-sonnet-4-6` | Vision + structured extraction |
+| Client Agent | `claude-sonnet-4-6` | Brief interpretation, prompt-to-parameters |
+| Brief Agent | `claude-sonnet-4-6` | KB-augmented room programme generation |
+| Compliance Agent | `claude-sonnet-4-6` *(→ Opus if needed)* | RAG-augmented rule lookup |
+| Architect Agent | `claude-sonnet-4-6` | Spatial reasoning with structured I/O |
+| Structural Agent | `claude-sonnet-4-6` | Structural logic, well-scoped task |
+| MEP Agent | `claude-sonnet-4-6` | Technical system routing |
 | Component Library | none (deterministic) *(→ Sonnet for new templates)* | Template lookup is code; LLM only for generating new templates |
-| IFC Builder | `claude-sonnet-4-5` *(→ Haiku if templated)* | Code generation; downgrade possible for repetitive tasks |
-| QA Agent | `claude-sonnet-4-5` *(→ Opus if needed)* | Checklist validation; upgrade for complex multi-discipline trade-offs |
+| IFC Builder | `claude-haiku-4-5-20251001` | Rule-based IFC generation — cheapest/fastest model sufficient |
+| QA Agent | `claude-haiku-4-5-20251001` *(→ Opus if needed)* | Checklist validation |
+
+Each agent logs token usage and estimated cost. Rates (per 1M tokens): Opus=$15/$75, Sonnet=$3/$15, Haiku=$1/$5. Total project cost accumulates in `state.json`.
 
 ---
 
@@ -406,18 +460,22 @@ Stored in `/projects/<project_id>/`:
 - Dashboard reads from this directory for the Outputs tab
 
 **3. Compliance Knowledge Base (vector store)**
-Stored in `/compliance_kb/<jurisdiction>/`:
+Stored in `compliance_kb/<jurisdiction>/`:
 ```
-/compliance_kb/
-  ├── SE/
-  │   ├── BBR_2023.pdf
-  │   ├── SOSFS_2013-7.pdf
-  │   └── chroma/             ← ChromaDB vector index
-  └── AE/
-      └── ...
+compliance_kb/
+  └── SE/healthcare/
+      ├── index.json             ← KB manifest
+      ├── tekniska_krav.txt      ← PTS technical requirements
+      ├── funktionskrav.txt      ← PTS functional requirements
+      ├── typrum.txt             ← PTS room types & dimensions
+      ├── miljokrav.txt          ← PTS environmental requirements
+      ├── brand.txt              ← Fire safety (BBR 2023 + Gävleborg guidelines)
+      ├── ytskikt.txt            ← Surface finish requirements
+      └── vector_index/          ← ChromaDB index (gitignored)
 ```
+- Source PDFs in `docs/` — extracted via `scripts/extract_pdf_kb.py`
+- Vector index built via `scripts/vectorize_kb.py` (uses all-MiniLM-L6-v2 embeddings)
 - Shared across projects (jurisdiction-scoped, not project-scoped)
-- Compliance Agent self-populates by downloading + indexing documents
 - ChromaDB persists embeddings — only re-indexed when source docs change
 
 ### Memory & Dashboard Integration
@@ -449,46 +507,49 @@ The dashboard visualizes the live state of all agents as pixel-art characters mo
 
 ## 11. Development Roadmap
 
-### Phase 1 — Foundation
-- [ ] Define data schemas (site_data, room_program, spatial_layout, structural_schema, mep_schema)
-- [ ] Implement Input Parser Agent (PNG first, then PDF, then DWG)
-- [ ] Implement Brief Agent
-- [ ] Implement basic Compliance Agent with Swedish healthcare rules
-- [ ] Build message bus and Project Manager orchestration
+### Phase 1 — Foundation ✅ Complete
+- [x] Define data schemas (site_data, room_program, spatial_layout, structural_schema, mep_schema)
+- [x] Implement Input Parser Agent (PNG, PDF, DWG, IFC)
+- [x] Implement Client Agent + Brief Agent
+- [x] Implement Compliance Agent with Swedish healthcare rules
+- [x] Build message bus and Project Manager orchestration (LangGraph)
+- [x] JSON schema versioning + project memory (disk-persisted)
 
-### Phase 2 — Design Loop
-- [ ] Implement Architect Agent (simple room placement)
-- [ ] Implement QA Agent (basic validation rules)
-- [ ] Connect feedback loop between Architect ↔ QA
-- [ ] Reach Milestone M2 with a single-floor healthcare layout
+### Phase 2 — Design Loop ✅ Complete
+- [x] Implement Architect Agent (double-loaded corridor algorithm)
+- [x] Implement QA Agent (subprocess isolation)
+- [x] Connect feedback loop: QA reject → originating agent → resubmit (max 3 iterations)
+- [x] Milestone gates M1–M5
 
-### Phase 3 — Technical Systems
-- [ ] Implement Structural Agent
-- [ ] Implement MEP Agent
-- [ ] Full three-discipline coordination
-- [ ] Reach Milestone M3
+### Phase 3 — Technical Systems ✅ Complete
+- [x] Implement Structural Agent (stomlinjer, column placement)
+- [x] Implement MEP Agent (HVAC zones, fire compartments, shafts)
+- [x] Swedish regulatory tools (se_fire.py, se_hvac.py, se_lighting.py, se_dimensions.py)
+- [x] Full three-discipline coordination
 
-### Phase 4 — IFC Output
-- [ ] Implement IFC Builder Agent
-- [ ] Generate valid IFC4 from approved schemas
-- [ ] Verify in BlenderBIM/Bonsai
-- [ ] Reach Milestone M5
+### Phase 4 — IFC Output ✅ Complete
+- [x] Implement IFC Builder Agent (ifcopenshell, 567 LOC)
+- [x] Generate valid IFC4 from approved schemas
+- [ ] Verify output in BlenderBIM/Bonsai (pending)
 
-### Phase 5 — Dashboard
-- [ ] Build pixel-art dashboard UI
-- [ ] Connect to live agent state
-- [ ] Deploy as local web app
+### Phase 5 — Dashboard ✅ Complete
+- [x] Pixel-art dashboard UI (HTML5 Canvas, animated agents)
+- [x] FastAPI + WebSocket server (watchfiles-driven live updates)
+- [x] Marketing website + intake UI
 
-### Phase 6 — Multi-floor & Full Building
-- [ ] Extend spatial model to multiple floors
-- [ ] Vertical coordination (structure, MEP shafts)
-- [ ] Full building IFC output
+### Phase 6 — Knowledge Base & RAG ✅ Complete
+- [x] Extract PTS regulatory PDFs to text (extract_pdf_kb.py)
+- [x] ChromaDB vector index (vectorize_kb.py)
+- [x] KB injected into Brief Agent and Compliance Agent system prompts
+- [x] Semantic RAG queries (LangChain-Chroma, all-MiniLM-L6-v2)
+- [x] Brief Agent exports `rumsfunktionsprogram.md` at M1
 
-### Phase 7 — Hardening & UX
-- [ ] Add more jurisdictions to Compliance Agent
-- [ ] Improve input parsing (more formats, better accuracy)
-- [ ] User-facing interface for non-expert users
-- [ ] Drawing export (nice-to-have)
+### Phase 7 — End-to-End Validation ⏳ In Progress
+- [ ] Full end-to-end run with a real project brief
+- [ ] IFC output verification in BIM viewer
+- [ ] Performance tuning and cost optimization
+- [ ] More jurisdictions in Compliance Agent
+- [ ] Drawing export (plans, sections as SVG/PDF via BlenderBIM)
 
 ---
 
@@ -509,13 +570,16 @@ The dashboard visualizes the live state of all agents as pixel-art characters mo
 
 | Question | Decision |
 |----------|----------|
-| LLM provider | Anthropic (local API key) |
+| LLM provider | Anthropic Claude via OpenClaw Gateway (Mode B); direct API as fallback |
 | Agent communication | LangGraph state machine + structured JSON messages |
-| Dashboard interaction | Browser-based, WebSocket for live updates |
-| Regulatory documents | Self-sourced by Compliance Agent; escalates to PM if unavailable |
+| Dashboard interaction | Browser-based, WebSocket for live updates (FastAPI + watchfiles) |
+| Regulatory documents | PTS documents pre-loaded + ChromaDB RAG; web search for additional sources |
 | Deployment | Dev on workstation, serve on RPi5 |
 | Notifications | Future: Telegram/OpenClaw push (post-MVP) |
-| Dashboard type | Standalone HTML + lightweight Python WebSocket server |
+| Dashboard type | Standalone HTML + FastAPI WebSocket server |
+| QA isolation | QA runs in a subprocess to prevent memory bloat |
+| Cost tracking | Per-agent token logging, accumulated in state.json |
+| GitHub Pages | Not yet configured (no gh-pages branch or workflow) |
 
 ---
 
