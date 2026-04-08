@@ -45,7 +45,7 @@ class QAAgent(BaseAgent):
     AGENT_ID = "qa"
     # TOKEN-OPT: Use Haiku for QA — it does structured rule-checking, not creative reasoning.
     # Override with QA_MODEL env var if Sonnet is needed for complex multi-discipline checks.
-    DEFAULT_MODEL = "gemini-3.1-pro"
+    DEFAULT_MODEL = "gemini-3.1-pro-preview"
     MAX_REJECTIONS = 2  # TOKEN-OPT: Was 3 — cut to 2 to stop the QA-Brief loop earlier
 
     def run(self, inputs: dict) -> dict:

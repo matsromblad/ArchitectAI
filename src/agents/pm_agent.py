@@ -47,7 +47,7 @@ You always respond with a structured JSON action:
 
 class PMAgent(BaseAgent):
     AGENT_ID = "pm"
-    DEFAULT_MODEL = "gemini-3.1-pro"
+    DEFAULT_MODEL = "gemini-3.1-pro-preview"
 
     def run(self, inputs: dict) -> dict:
         """

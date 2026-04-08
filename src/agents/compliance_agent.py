@@ -17,6 +17,7 @@ from src.tools.se_fire import SE_FIRE
 from src.tools.se_hvac import SE_HVAC
 from src.tools.se_lighting import SE_LIGHTING
 from src.memory.kb_loader import get_loader
+from src.memory.project_memory import ProjectMemory
 
 
 _SYSTEM_PROMPT_TEMPLATE = """\
@@ -48,98 +49,67 @@ Use these for Swedish rules — do NOT rely solely on LLM training for BBR value
 {kb_brand}
 
 Rules you MUST follow:
-1. NEVER invent a regulation. If you don't know, say so.
-2. Always cite the specific document, section, and clause when referencing a rule.
-3. If a document is in your knowledge base, use it. If not, flag it as "source needed".
-4. Give verdict as: PASS, FAIL, CONDITIONAL, or UNKNOWN.
-5. For CONDITIONAL and FAIL: always suggest a fix.
-6. Output ONLY valid JSON.
+1. Always cite a specific section (e.g., 'BBR 5:211' or 'PTS 4.2.1') if possible.
+2. If a rule is unknown, set source_status to "source_needed" and name the regulation.
+3. Be strict. Do not 'assume' safety.
+4. Output ONLY valid JSON.
 
-Output format:
+JSON Schema:
 {{
   "verdict": "PASS|FAIL|CONDITIONAL|UNKNOWN",
-  "rule_ref": "BBR 3:412 — Gangbredd i vårdutrymmen",
-  "rule_text": "...",
-  "proposed_value": "...",
-  "required_value": "...",
-  "fix": "...",
-  "confidence": "high|medium|low",
-  "source_status": "verified|inferred|source_needed",
-  "notes": "..."
+  "rule_ref": "Regulation name and section",
+  "requirement": "What the rule actually says",
+  "observation": "What you found in the proposal",
+  "remedy": "How to fix it (if FAIL/CONDITIONAL)",
+  "source_status": "verified|inferred|source_needed"
 }}
 """
 
 
 class ComplianceAgent(BaseAgent):
     AGENT_ID = "compliance"
-    DEFAULT_MODEL = "gemini-3-flash"
+    DEFAULT_MODEL = "gemini-3.1-flash-lite-preview"
 
-    def __init__(self, memory, model=None):
+    def __init__(self, memory: ProjectMemory, model: str = None):
         super().__init__(memory, model)
-        self.kb_dir = Path(os.getenv("COMPLIANCE_KB_DIR", "./compliance_kb"))
-
-        # Load KB documents and store strings on self so run() can use them
-        # per-call when the building_type changes the SE rule blocks.
-        kb_loader = get_loader()
-        kb_docs = kb_loader.get_documents_for_agent("compliance")
-
+        self.kb_loader = get_loader()
+        
+        # Pre-load core standard documents
+        kb_docs = self.kb_loader.get_documents_for_agent("compliance")
+        
         # Store KB strings — use the new larger limits from kb_loader
         self._kb_tekniska = (
-            f"**TEKNISKA KRAV (Technical Requirements):**\n"
-            + kb_docs["tekniska_krav"][:10_000]
-            if kb_docs.get("tekniska_krav") else ""
+            f"**TEKNISKA KRAV (Technical Requirements):**\n" + (kb_docs["tekniska_krav"][:10_000] if kb_docs.get("tekniska_krav") else "")
         )
         self._kb_miljokrav = (
-            f"**MILJÖKRAV (Environmental Requirements):**\n"
-            + kb_docs["miljokrav"][:5_000]
-            if kb_docs.get("miljokrav") else ""
+            f"**MILJÖKRAV (Environmental Requirements):**\n" + (kb_docs["miljokrav"][:5_000] if kb_docs.get("miljokrav") else "")
         )
         self._kb_brand = (
-            f"**BRAND (Fire Safety):**\n"
-            + kb_docs["brand"][:6_000]
-            if kb_docs.get("brand") else ""
-        )
-
-        # Pre-build default prompt (healthcare / no specific building_type yet)
-        self._sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
-            se_fire_block=SE_FIRE.prompt_block(),
-            hvac_block=SE_HVAC.prompt_block(),
-            lighting_block=SE_LIGHTING.prompt_block(),
-            kb_tekniska_krav=self._kb_tekniska,
-            kb_miljokrav=self._kb_miljokrav,
-            kb_brand=self._kb_brand,
+            f"**BRAND (Fire Safety):**\n" + (kb_docs["brand"][:6_000] if kb_docs.get("brand") else "")
         )
 
     def run(self, inputs: dict) -> dict:
         """
-        Answer a compliance query.
+        Validate a building component or rule against regulations.
 
         Args:
             inputs: {
-                "query": str,               # Natural language question
-                "jurisdiction": str,        # e.g. "SE"
-                "building_type": str,       # e.g. "healthcare"
-                "proposed_value": Any,      # What the agent wants to do
-                "unit": str,                # e.g. "mm"
-                "context": dict,            # Additional context
+                "query": str,             # specific rule to check
+                "jurisdiction": str,      # e.g. "SE", "UAE"
+                "building_type": str,     # e.g. "healthcare", "residential"
+                "proposed_value": any,    # e.g. 2.4 (metres)
+                "unit": str,              # e.g. "m"
+                "context": dict,          # extra data (room category, etc.)
             }
-
-        Returns:
-            compliance response dict
         """
         query         = inputs["query"]
         jurisdiction  = inputs.get("jurisdiction", "SE")
         building_type = inputs.get("building_type", "general")
 
-        logger.info(f"[{self.AGENT_ID}] Query [{jurisdiction}/{building_type}]: {query}")
-        self.send_message("pm", "status_update", {
-            "status": "working",
-            "task": f"Compliance check: {query[:60]}",
-        })
+        logger.info(f"[{self.AGENT_ID}] Checking compliance: {query} ({jurisdiction})")
+        self.send_message("pm", "status_update", {"status": "working", "task": f"Compliance check: {query}"})
 
         # Rebuild prompt with building-type-specific SE rule blocks + KB context.
-        # Previously this was missing the kb_* variables, causing a KeyError crash
-        # or silently omitting the KB from every live query.
         sys_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
             se_fire_block=SE_FIRE.prompt_block(building_type),
             hvac_block=SE_HVAC.prompt_block(building_type),
@@ -158,10 +128,7 @@ Building type: {building_type}
 Question: {query}
 Proposed value: {inputs.get('proposed_value', 'N/A')} {inputs.get('unit', '')}
 
-Additional context:
-{json.dumps(inputs.get('context', {}), indent=2)}
-
-Knowledge base context:
+### SEMANTIC KB CONTEXT (Relevant extracts for this specific query)
 {kb_context}
 
 Provide your compliance verdict as JSON."""
@@ -185,7 +152,7 @@ Provide your compliance verdict as JSON."""
                 context={"query": query, "jurisdiction": jurisdiction, "building_type": building_type},
             )
 
-        self.send_message("pm", "compliance_response", {
+        self.send_message("pm", "compliance_result", {
             "verdict":  result.get("verdict"),
             "query":    query,
             "rule_ref": result.get("rule_ref"),

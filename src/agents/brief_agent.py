@@ -60,12 +60,12 @@ CLEAN/DIRTY FLOW RULES (SS 91 42 21):
 - Staff changing route: street → change → clinical zone (never reverse)
 
 JSON SCHEMA — output exactly this structure:
-{
+{{
   "building_type": "healthcare",
   "jurisdiction": "SE",
   "building_subtype": "primary_care|hospital_ward|...",
   "rooms": [
-    {
+    {{
       "room_id": "R01",
       "room_name": "Konsultationsrum 1",
       "functional_category": "mottagning",
@@ -80,11 +80,11 @@ JSON SCHEMA — output exactly this structure:
       "acoustic_class": "A|B|C|none",
       "compliance_flag": false,
       "notes": "SS 91 42 21 §4.2"
-    }
+    }}
   ],
   "total_net_area_m2": 0,
   "clean_dirty_separation": "<describe the clean/dirty flow>"
-}
+}}
 
 RULES:
 - JSON only. No corridors (corridors are calculated automatically). No markdown.
@@ -133,11 +133,11 @@ You are an expert in Swedish healthcare RFP (Rumsfunktionsprogram) per SS 91 42 
 Output ONLY a JSON patch — do NOT output the full room_program.
 
 Patch schema:
-{
+{{
   "modified_rooms": [<full room objects that need changes>],
   "added_rooms":    [<new room objects to insert>],
   "removed_room_ids": ["R_id1", "R_id2"]
-}
+}}
 
 Rules:
 - JSON only. No prose, no markdown.
@@ -153,7 +153,7 @@ Rules:
 
 class BriefAgent(BaseAgent):
     AGENT_ID = "brief"
-    DEFAULT_MODEL = "gemini-3-flash"
+    DEFAULT_MODEL = "gemini-3.1-flash-lite-preview"
 
     # TOKEN-OPT: Patch-based revision threshold.
     # If prior_room_program is available AND qa_feedback is set, use patch mode.

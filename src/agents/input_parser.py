@@ -33,7 +33,7 @@ Output format: strict JSON only, no prose, no markdown.
 
 class InputParserAgent(BaseAgent):
     AGENT_ID = "input_parser"
-    DEFAULT_MODEL = "gemini-3-flash"
+    DEFAULT_MODEL = "gemini-3.1-flash-lite-preview"
 
     def run(self, inputs: dict) -> dict:
         """
@@ -66,14 +66,16 @@ class InputParserAgent(BaseAgent):
         else:
             raise ValueError(f"Unsupported file type: {suffix}")
 
+        # Ensure site_data is a dictionary
+        if isinstance(site_data, list) and len(site_data) > 0:
+            site_data = site_data[0]
+        
+        if not isinstance(site_data, dict):
+            logger.error(f"[{self.AGENT_ID}] Failed to extract valid site_data dict. Got: {type(site_data)}")
+            site_data = {"error": "Invalid JSON structure from LLM"}
+
         # Enrich with metadata
         site_data["project_id"] = self.memory.project_id
-        site_data["source_file"] = file_path.name
-        site_data["source_type"] = suffix.lstrip(".")
-        site_data["created_at"] = datetime.now(timezone.utc).isoformat()
-        site_data["created_by"] = self.AGENT_ID
-        if jurisdiction:
-            site_data["jurisdiction"] = jurisdiction
 
         # Save to project memory
         version = self.memory.save_schema("site_data", site_data)
@@ -103,19 +105,9 @@ class InputParserAgent(BaseAgent):
 
 Output ONLY valid JSON, no markdown."""
 
-        import os
-        from openai import OpenAI
-        gemini_key = os.getenv("GEMINI_API_KEY")
-        
-        # Use Gemini Vision specifically
-        client = OpenAI(
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-            api_key=gemini_key,
-        )
-        
-        response = client.chat.completions.create(
-            model="gemini-flash-latest",
-            max_tokens=2048,
+        # Use the modernized BaseAgent.chat() which handles vision payload translation to REST
+        response = self.chat(
+            system=SYSTEM_PROMPT,
             messages=[{
                 "role": "user",
                 "content": [
@@ -123,8 +115,9 @@ Output ONLY valid JSON, no markdown."""
                     {"type": "text", "text": prompt},
                 ]
             }],
+            max_tokens=2048,
         )
-        return self._extract_json(response.choices[0].message.content)
+        return self._extract_json(response)
 
     def _parse_pdf(self, path: Path, jurisdiction: Optional[str]) -> dict:
         """Extract site data from a PDF (convert first page to image, then vision)."""
