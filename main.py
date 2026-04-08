@@ -268,7 +268,6 @@ def main():
     from src.agents.architect_agent import ArchitectAgent
     architect = ArchitectAgent(memory)
 
-    import json as _json
     site_data_path = memory.root / "schemas" / "site_data_v1.json"
     if site_data_path.exists():
         with open(site_data_path) as f:
