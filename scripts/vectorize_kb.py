@@ -3,9 +3,14 @@
 Vectorize the Knowledge Base — chunks PTS text files and stores them in ChromaDB.
 """
 
+import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path so 'src' imports work when run as a script
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import re
 import json
-from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Dict, Any
 
