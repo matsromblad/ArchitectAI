@@ -79,7 +79,7 @@
     margin-bottom: 10px;
   }
   .agent-card-avatar {
-    width: 32px; height: 32px;
+    width: 100px; height: 120px;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -246,6 +246,12 @@
   }
   .milestone.done { background: #1A3C2A; border-color: #2ECC71; color: #2ECC71; }
   @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
+  @keyframes flyIn {
+    from { transform: translateX(40px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+  .doc-item { animation: flyIn 0.3s ease-out both; }
 
   /* WebSocket connection status indicator */
   .ws-status {
@@ -480,6 +486,7 @@ let tick = 0;
 let simPaused = false;
 const logs = [];
 const qaQueue = [];
+const handoffs = [];
 
 const agentState = {};
 AGENTS.forEach(a => {
@@ -817,64 +824,83 @@ function drawStation(st) {
 }
 
 // Pixel humanoid (16×24 grid, scale factor)
-function drawPixelAgent(x, y, color, hat, scale, status, bobPhase, rejected) {
+// targetCtx is optional — defaults to the global canvas ctx
+function drawPixelAgent(x, y, color, hat, scale, status, bobPhase, rejected, targetCtx) {
+  const _ctx = targetCtx || ctx;
   const s = scale;
   const bop = rejected ? Math.sin(bobPhase * 3) * 2 : Math.sin(bobPhase) * (status === 'working' ? 2 : 0.5);
   const ry = Math.round(y + bop);
 
   // shadow
-  ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.beginPath();
-  ctx.ellipse(x, ry + s*12, s*6, s*2, 0, 0, Math.PI*2);
-  ctx.fill();
+  _ctx.save();
+  _ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  _ctx.beginPath();
+  _ctx.ellipse(x, ry + s*12, s*6, s*2, 0, 0, Math.PI*2);
+  _ctx.fill();
 
   // legs
-  ctx.fillStyle = '#2C3E50';
+  _ctx.fillStyle = '#2C3E50';
   if (status === 'working') {
     // walking animation
     const walk = Math.sin(bobPhase * 4) * s * 2;
-    ctx.fillRect(x - s*3, ry + s*7, s*2, s*5 + walk);
-    ctx.fillRect(x + s*1, ry + s*7, s*2, s*5 - walk);
+    _ctx.fillRect(x - s*3, ry + s*7, s*2, s*5 + walk);
+    _ctx.fillRect(x + s*1, ry + s*7, s*2, s*5 - walk);
   } else {
-    ctx.fillRect(x - s*3, ry + s*7, s*2, s*5);
-    ctx.fillRect(x + s*1, ry + s*7, s*2, s*5);
+    _ctx.fillRect(x - s*3, ry + s*7, s*2, s*5);
+    _ctx.fillRect(x + s*1, ry + s*7, s*2, s*5);
   }
 
   // body
-  ctx.fillStyle = color + 'CC';
-  ctx.fillRect(x - s*4, ry + s*1, s*8, s*7);
+  _ctx.fillStyle = color + 'CC';
+  _ctx.fillRect(x - s*4, ry + s*1, s*8, s*7);
 
   // arms
-  ctx.fillStyle = color + '99';
+  _ctx.fillStyle = color + '99';
   if (status === 'working') {
     const arm = Math.sin(bobPhase * 4 + 1) * s * 2;
-    ctx.fillRect(x - s*6, ry + s*2 + arm, s*2, s*4);
-    ctx.fillRect(x + s*4, ry + s*2 - arm, s*2, s*4);
+    _ctx.fillRect(x - s*6, ry + s*2 + arm, s*2, s*4);
+    _ctx.fillRect(x + s*4, ry + s*2 - arm, s*2, s*4);
+  } else if (status === 'done' || status === 'approved') {
+    // Arms raised in celebration
+    _ctx.fillRect(x - s*6, ry - s*1, s*2, s*4);
+    _ctx.fillRect(x + s*4, ry - s*1, s*2, s*4);
   } else {
-    ctx.fillRect(x - s*6, ry + s*2, s*2, s*4);
-    ctx.fillRect(x + s*4, ry + s*2, s*2, s*4);
+    _ctx.fillRect(x - s*6, ry + s*2, s*2, s*4);
+    _ctx.fillRect(x + s*4, ry + s*2, s*2, s*4);
   }
 
   // head
-  ctx.fillStyle = '#F5CBA7';
-  ctx.fillRect(x - s*3, ry - s*4, s*6, s*5);
+  _ctx.fillStyle = '#F5CBA7';
+  _ctx.fillRect(x - s*3, ry - s*4, s*6, s*5);
 
   // eyes
-  ctx.fillStyle = '#1A1A1A';
-  ctx.fillRect(x - s*2, ry - s*3, s*1, s*1);
-  ctx.fillRect(x + s*1, ry - s*3, s*1, s*1);
+  _ctx.fillStyle = '#1A1A1A';
+  _ctx.fillRect(x - s*2, ry - s*3, s*1, s*1);
+  _ctx.fillRect(x + s*1, ry - s*3, s*1, s*1);
 
   // hat / helmet
-  ctx.fillStyle = hat;
-  ctx.fillRect(x - s*4, ry - s*5, s*8, s*2);
-  ctx.fillRect(x - s*3, ry - s*7, s*6, s*3);
+  _ctx.fillStyle = hat;
+  _ctx.fillRect(x - s*4, ry - s*5, s*8, s*2);
+  _ctx.fillRect(x - s*3, ry - s*7, s*6, s*3);
+
+  // Document held in hands during handoff
+  if (status === 'handoff') {
+    _ctx.fillStyle = '#FFFFFF';
+    _ctx.fillRect(x + s*2, ry + s*2, s*5, s*6);
+    _ctx.strokeStyle = '#2C3E50';
+    _ctx.lineWidth = 0.5;
+    _ctx.strokeRect(x + s*2, ry + s*2, s*5, s*6);
+    // Lines on document
+    _ctx.fillStyle = '#ADB5BD';
+    _ctx.fillRect(x + s*3, ry + s*3, s*3, s*1);
+    _ctx.fillRect(x + s*3, ry + s*5, s*3, s*1);
+  }
 
   // status icon above head
-  ctx.font = `${Math.max(9, s * 8)}px serif`;
-  ctx.textAlign = 'center';
+  _ctx.font = `${Math.max(9, s * 8)}px serif`;
+  _ctx.textAlign = 'center';
   if (status === 'blocked' || rejected) {
-    ctx.fillText('💢', x, ry - s*9);
+    _ctx.fillText('💢', x, ry - s*9);
   } else if (status === 'waiting') {
     // Animated Zzz sleep bubbles
     const zCount = 3;
@@ -886,20 +912,25 @@ function drawPixelAgent(x, y, color, hat, scale, status, bobPhase, rejected) {
       const zy = ry - s * 9 - progress * s * 8;
       const alpha = Math.sin(progress * Math.PI); // fade in then out
       const zSize = Math.max(7, s * 5 + progress * s * 3);
-      ctx.save();
-      ctx.globalAlpha = alpha * 0.85;
-      ctx.font = `bold ${zSize}px Courier New`;
-      ctx.fillStyle = '#79C0FF';
-      ctx.fillText('z', zx, zy);
-      ctx.restore();
+      _ctx.save();
+      _ctx.globalAlpha = alpha * 0.85;
+      _ctx.font = `bold ${zSize}px Courier New`;
+      _ctx.fillStyle = '#79C0FF';
+      _ctx.fillText('z', zx, zy);
+      _ctx.restore();
     }
+  } else if (status === 'handoff') {
+    _ctx.fillText('📤', x, ry - s*9);
+  } else if (status === 'done') {
+    // Jubel — arms raised
+    _ctx.fillText('🎉', x, ry - s*9);
   } else if (status === 'qa') {
-    ctx.fillText('📋', x, ry - s*9);
+    _ctx.fillText('📋', x, ry - s*9);
   } else if (status === 'approved') {
-    ctx.fillText('✅', x, ry - s*9);
+    _ctx.fillText('✅', x, ry - s*9);
   }
 
-  ctx.restore();
+  _ctx.restore();
 }
 
 function drawAgentLabel(x, y, name, scale) {
@@ -952,6 +983,18 @@ function drawConnectors() {
   }
   ctx.setLineDash([]);
   ctx.restore();
+}
+
+function triggerHandoff(fromId, toId) {
+  const fromState = agentState[fromId];
+  const toAgent = STATIONS.find(s => s.id === (toId === 'qa' ? 'qa' : 'meeting'));
+  if (!fromState || !toAgent) return;
+  handoffs.push({
+    x: fromState.x, y: fromState.y,
+    tx: toAgent.x, ty: toAgent.y,
+    progress: 0, alpha: 1,
+    color: (AGENTS.find(a => a.id === fromId) || {color:'#666'}).color,
+  });
 }
 
 // ============================================================
@@ -1032,6 +1075,32 @@ function draw() {
     drawPixelAgent(s.x, s.y, a.color, a.hat, SCALE, s.status, s.bobPhase, s.rejected);
     drawAgentLabel(s.x, s.y, a.abbr, SCALE);
   });
+
+  // Draw document handoff animations
+  handoffs.forEach((h, i) => {
+    h.progress = Math.min(1, h.progress + 0.015);
+    h.x = h.x + (h.tx - h.x) * 0.015;
+    h.y = h.y + (h.ty - h.y) * 0.015;
+    if (h.progress > 0.85) h.alpha = Math.max(0, h.alpha - 0.05);
+
+    ctx.save();
+    ctx.globalAlpha = h.alpha;
+    // Small document icon moving
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(h.x - 6, h.y - 8, 12, 16);
+    ctx.strokeStyle = h.color;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(h.x - 6, h.y - 8, 12, 16);
+    ctx.fillStyle = '#ADB5BD';
+    ctx.fillRect(h.x - 4, h.y - 5, 8, 2);
+    ctx.fillRect(h.x - 4, h.y - 1, 8, 2);
+    ctx.fillRect(h.x - 4, h.y + 3, 8, 2);
+    ctx.restore();
+  });
+  // Remove completed handoffs
+  for (let i = handoffs.length - 1; i >= 0; i--) {
+    if (handoffs[i].alpha <= 0) handoffs.splice(i, 1);
+  }
 
   // Title watermark
   ctx.save();
@@ -1276,19 +1345,16 @@ function renderAgentCards() {
     
     // Render the agent on a hidden canvas to get a data URL for the card avatar!
     const offCanvas = document.createElement('canvas');
-    offCanvas.width = 40;
-    offCanvas.height = 40;
+    offCanvas.width = 100;
+    offCanvas.height = 120;
     const offCtx = offCanvas.getContext('2d');
-    const oldCtx = ctx; 
-    window.ctx = offCtx; // Temporary hijack of global ctx used by drawPixelAgent
-    drawPixelAgent(20, 20, color, hat, 1.2, 'waiting', 0.5, false);
-    window.ctx = oldCtx;
+    drawPixelAgent(50, 55, color, hat, 3.5, 'waiting', 0.5, false, offCtx);
     const avatarUrl = offCanvas.toDataURL();
 
     return `
       <div class="agent-card" style="--agent-color:${color}">
         <div class="agent-card-header">
-          <div class="agent-card-avatar" style="background:transparent; border:none;"><img src="${avatarUrl}" style="width:36px;height:36px;border-radius:4px;" /></div>
+          <div class="agent-card-avatar" style="background:transparent; border:none;"><img src="${avatarUrl}" class="agent-card-sprite" data-agentid="${a.id}" style="width:100px;height:120px;border-radius:6px;display:block;" /></div>
           <div class="agent-card-title">
             <h4>${a.name} <span style="font-size:10px;color:#868E96;font-weight:normal">· Live tag: <span style="color:${color};font-weight:bold">${agent ? agent.abbr : ''}</span></span></h4>
             <span class="model-badge ${a.modelType}">${a.model}</span>
@@ -1311,6 +1377,34 @@ function renderAgentCards() {
       * May be upgraded to Opus for complex legal/multi-discipline decisions &nbsp;|&nbsp;
       † May be downgraded to Haiku for repetitive templated tasks
     </div>`);
+}
+
+let _cardAnimPhase = {};
+function animateAgentCardSprites() {
+  if (document.getElementById('tab-agents').classList.contains('active')) {
+    document.querySelectorAll('.agent-card-sprite').forEach(img => {
+      const agentId = img.dataset.agentid;
+      if (!agentId) return;
+      const state = agentState[agentId];
+      if (!state) return;
+
+      // Get agent config
+      const agConfig = AGENTS.find(a => a.id === agentId);
+      if (!agConfig) return;
+
+      // Advance phase
+      if (!_cardAnimPhase[agentId]) _cardAnimPhase[agentId] = 0;
+      _cardAnimPhase[agentId] += 0.06;
+
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = 100;
+      offCanvas.height = 120;
+      const offCtx = offCanvas.getContext('2d');
+      drawPixelAgent(50, 55, agConfig.color, agConfig.hat, 3.5, state.status, _cardAnimPhase[agentId], state.rejected, offCtx);
+      img.src = offCanvas.toDataURL();
+    });
+  }
+  requestAnimationFrame(animateAgentCardSprites);
 }
 
 // ============================================================
@@ -1391,8 +1485,17 @@ function renderAgentCards() {
         const did = AGENT_MAP.hasOwnProperty(sid) ? AGENT_MAP[sid] : sid;
         if (!did || !agentState[did]) return;
         const newStatus = STATUS[status] || 'waiting';
+        const prevStatus = agentState[did].status;
         agentState[did].status = newStatus;
-        
+
+        // Trigger handoff animation when agent submits to QA
+        if (prevStatus === 'working' && (newStatus === 'qa' || newStatus === 'approved')) {
+          agentState[did].status = 'handoff';
+          setTimeout(() => { agentState[did].status = newStatus; }, 2000);
+          triggerHandoff(did, 'qa');
+        }
+        agentState[did]._prevStatus = newStatus;
+
         // Ensure agent is moved to their work station when they start working
         if (newStatus === 'working') {
            agentState[did].targetStation = STATION_MAP[did];
@@ -1558,6 +1661,7 @@ resize();
 updateMilestoneUI();
 updateQAUI();
 renderAgentCards();
+animateAgentCardSprites();
 renderOutputs();
 initSim();
 loop();

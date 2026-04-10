@@ -17,6 +17,11 @@ from rich.text import Text
 
 load_dotenv()
 
+# Reconfigure loguru to write to stdout so the dashboard terminal captures it
+import sys as _sys
+logger.remove()
+logger.add(_sys.stdout, format="<level>[{level}]</level> {message}", level="INFO", colorize=False)
+
 console = Console()
 
 
