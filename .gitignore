@@ -31,3 +31,4 @@ compliance_kb/*/chroma/
 # OS
 .DS_Store
 Thumbs.db
+/source/Lib/site-packages
