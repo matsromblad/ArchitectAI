@@ -1203,29 +1203,37 @@
     };
   }
 
+  // ── Backend URL detection ────────────────────────────────────────────────
+  // Served from Render → same origin, use relative URL.
+  // Viewed via GitHub Pages → point to Render deployment.
+  const BACKEND = window.location.hostname.includes('github.io')
+    ? 'https://architectai.onrender.com'   // ← update if your Render URL differs
+    : '';
+
   // ── Submit handler ──
   launchBtn.addEventListener('click', () => {
     const payload = getFormPayload();
     console.group('ArchitectAI — Project Payload');
     console.log(JSON.stringify(payload, null, 2));
     console.groupEnd();
-    showToast();
+    showToast('Launching…', 'Connecting to AI Nightingale backend…');
 
-    // Future: replace with real POST
-    fetch('http://127.0.0.1:8765/launch', { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify(payload) 
+    fetch(`${BACKEND}/launch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     })
     .then(async res => {
-      if(res.ok) {
-        showToast('System Launched!', 'A terminal should pop up to run your architecture. You can close this tab and open the dashboard.');
-        setTimeout(() => { window.location.href = `http://127.0.0.1:8765/?project=${payload.projectName}`; }, 3000);
+      if (res.ok) {
+        const data = await res.json();
+        const projectId = data.project_id || payload.projectName;
+        showToast('Pipeline started!', `Project "${projectId}" is running. Opening dashboard…`);
+        setTimeout(() => { window.location.href = `${BACKEND}/?project=${projectId}`; }, 2500);
       } else {
         showToast('Error', await res.text());
       }
     })
-    .catch(e => showToast('Network error', e.message));
+    .catch(e => showToast('Network error', e.message + ' — is the backend running?'));
   });
 
   // ── Save draft ──

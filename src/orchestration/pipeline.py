@@ -167,6 +167,13 @@ def _milestone_gate(memory, milestone_name, agent_classes, context_data, schema_
         except Exception as e:
             logger.warning(f"Reflection failed for {AgentClass.__name__}: {e}")
 
+    # Headless mode (e.g. Render.com): auto-approve without waiting for user input
+    if os.getenv("HEADLESS", "").lower() in ("1", "true", "yes"):
+        logger.info(f"[HEADLESS] Auto-approving {milestone_name}")
+        memory.approve_milestone(milestone_name, "Auto-approved (headless mode)")
+        console.print(f"[green]{milestone_name} Auto-Approved (headless)[/green]\n")
+        return
+
     console.print("[bold yellow]System paused for human review.[/bold yellow]")
     input(f"Press [ENTER] to approve {milestone_name} and continue...")
     memory.approve_milestone(milestone_name, "Approved via CLI")

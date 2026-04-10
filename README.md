@@ -41,11 +41,10 @@ See [docs/RUNTIME_MODES.md](docs/RUNTIME_MODES.md) for details.
 
 ## Links
 
+- **Website:** [https://matsromblad.github.io/ArchitectAI/website/](https://matsromblad.github.io/ArchitectAI/website/)
 - **Compendium:** [COMPENDIUM.md](COMPENDIUM.md) — full architecture documentation
 - **KB docs:** [docs/KB_INTEGRATION.md](docs/KB_INTEGRATION.md) — knowledge base + RAG design
 - **Runtime modes:** [docs/RUNTIME_MODES.md](docs/RUNTIME_MODES.md) — OpenClaw vs direct API
-
-> GitHub Pages not yet configured. Dashboard and website are local only for now.
 
 ---
 
