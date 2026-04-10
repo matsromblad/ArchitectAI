@@ -32,7 +32,7 @@ def run_test():
     parser = InputParserAgent(memory)
     logger.info("Running InputParser...")
     site_data = parser.run({"file_path": site_file, "jurisdiction": "SE"})
-    logger.info(f"Site Data Parsed: {site_data.get('boundary', {}).get('area_m2', 'unknown')} m2")
+    logger.info(f"Site Data Parsed: {site_data.get('area_m2', 'unknown')} m2")
 
     # 4. Phase 2: Brief Agent (RAG)
     brief = BriefAgent(memory)
