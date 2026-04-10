@@ -112,6 +112,7 @@ def _safe_run_agent(agent, inputs, memory, context_name="task", max_retries=2):
             tb = traceback.format_exc()
             agent.send_message("pm", "status_update", {"status": "blocked", "message": str(e)})
             logger.error(f"[{agent.AGENT_ID}] Crash on {context_name} (attempt {attempt + 1}/{max_retries + 1}): {e}")
+            print(f"[ERROR] {agent.AGENT_ID} crashed on {context_name} (attempt {attempt+1}): {e}", flush=True)
             if attempt < max_retries:
                 pm = PMAgent(memory)
                 fix = pm.chat(
@@ -180,6 +181,7 @@ def run_client(state: PipelineState) -> dict:
     from src.agents.client_agent import ClientAgent
 
     console.print("\n[bold]Phase 0: Interpreting project brief...[/bold]")
+    print(f"[CLIENT] Interpreting brief: {state['prompt'][:80]}...", flush=True)
     client = ClientAgent(state["memory"])
     try:
         brief = client.run({"prompt": state["prompt"], "jurisdiction": state["jurisdiction"]})
@@ -187,6 +189,7 @@ def run_client(state: PipelineState) -> dict:
         logger.warning(f"ClientAgent failed: {e}")
         brief = {"building_type": "healthcare", "jurisdiction": state["jurisdiction"],
                  "brief_summary": state["prompt"]}
+    print(f"[CLIENT] Brief complete: {brief.get('building_type','?')} | {brief.get('project_name','?')}", flush=True)
     return {"project_brief": brief}
 
 
@@ -194,6 +197,7 @@ def run_input_parser(state: PipelineState) -> dict:
     from src.agents.input_parser import InputParserAgent
 
     console.print("\n[bold]Phase 1: Parsing site data...[/bold]")
+    print(f"[PARSER] Parsing site file: {state['site_file']}", flush=True)
     parser = InputParserAgent(state["memory"])
     try:
         site_data = parser.run({"file_path": state["site_file"], "jurisdiction": state["jurisdiction"]})
@@ -204,6 +208,8 @@ def run_input_parser(state: PipelineState) -> dict:
     if site_data.get("error") or not site_data.get("boundary"):
         site_data["boundary"] = site_data.get("boundary", {"points": [], "area_m2": None})
 
+    area = (site_data.get("boundary") or {}).get("area_m2", "?")
+    print(f"[PARSER] Site parsed: {area} m²", flush=True)
     return {"site_data": site_data}
 
 
@@ -212,6 +218,7 @@ def run_brief(state: PipelineState) -> dict:
 
     attempt = state.get("brief_qa_attempt", 0)
     console.print(f"\n[bold]Phase 2: Generating room program (attempt {attempt + 1})...[/bold]")
+    print(f"[BRIEF] Attempt {attempt + 1}/{MAX_RETRIES + 1} — Generating room program...", flush=True)
 
     brief = BriefAgent(state["memory"])
     result = _safe_run_agent(brief, {
@@ -221,6 +228,9 @@ def run_brief(state: PipelineState) -> dict:
         "qa_feedback": state.get("brief_qa_feedback"),
         "project_brief": state.get("project_brief"),
     }, state["memory"], "generating room program")
+
+    n_rooms = len(result.get("rooms", []))
+    print(f"[BRIEF] Generated {n_rooms} rooms, {result.get('total_net_area_m2', '?')} m²", flush=True)
 
     # Export RFP document on first successful generation
     if attempt == 0:
@@ -240,6 +250,11 @@ def qa_brief(state: PipelineState) -> dict:
     )
     verdict = verdict_data.get("verdict", "?")
     console.print(f"  QA verdict: [{'green' if verdict == 'APPROVED' else 'yellow'}]{verdict}[/]")
+    print(f"[QA] room_program v{attempt+1}: {verdict}", flush=True)
+    if verdict not in ("APPROVED",):
+        issues = verdict_data.get("issues", [])
+        for issue in issues[:3]:
+            print(f"[QA]   ↳ {issue}", flush=True)
 
     return {
         "brief_qa_attempt": attempt + 1,
@@ -259,8 +274,10 @@ def run_pm_kickoff(state: PipelineState) -> dict:
     from src.agents.pm_agent import PMAgent
 
     console.print("\n[bold]Phase 3: PM validating brief...[/bold]")
+    print(f"[PM] Validating brief and kicking off project...", flush=True)
     pm = PMAgent(state["memory"])
     pm_decision = pm.kickoff(state["prompt"], state["site_data"], state["jurisdiction"])
+    print(f"[PM] Decision: {pm_decision.get('action', '?')}", flush=True)
     return {"pm_decision": pm_decision}
 
 
@@ -268,6 +285,7 @@ def run_compliance(state: PipelineState) -> dict:
     from src.agents.compliance_agent import ComplianceAgent
 
     console.print("\n[bold]Phase 4: Compliance check...[/bold]")
+    print(f"[COMPLIANCE] Checking room program against regulations...", flush=True)
     compliance = ComplianceAgent(state["memory"])
     comp_results = compliance.check_room_program(state["room_program"])
     summary = comp_results.get("summary", {})
@@ -275,6 +293,7 @@ def run_compliance(state: PipelineState) -> dict:
         f"  Pass: {summary.get('pass', 0)} | Fail: {summary.get('fail', 0)}"
         f" | Conditional: {summary.get('conditional', 0)}"
     )
+    print(f"[COMPLIANCE] Result: {summary.get('pass',0)} pass | {summary.get('fail',0)} fail | {summary.get('conditional',0)} conditional", flush=True)
     return {"comp_results": comp_results}
 
 
@@ -282,6 +301,7 @@ def gate_m1(state: PipelineState) -> dict:
     from src.agents.brief_agent import BriefAgent
     from src.agents.compliance_agent import ComplianceAgent
 
+    print(f"[MILESTONE] Reached M1 — awaiting human approval", flush=True)
     _milestone_gate(
         state["memory"], "M1",
         agent_classes=[BriefAgent, ComplianceAgent],
@@ -296,6 +316,7 @@ def run_architect(state: PipelineState) -> dict:
 
     attempt = state.get("architect_qa_attempt", 0)
     console.print(f"\n[bold]Phase 5: Architect laying out rooms (attempt {attempt + 1})...[/bold]")
+    print(f"[ARCHITECT] Attempt {attempt + 1}/{MAX_RETRIES + 1} — Laying out rooms...", flush=True)
 
     memory = state["memory"]
 
@@ -314,6 +335,9 @@ def run_architect(state: PipelineState) -> dict:
         "qa_feedback": state.get("architect_qa_feedback"),
         "project_brief": state.get("project_brief"),
     }, memory, "layout generation")
+    floors = result.get("floors", [])
+    total_rooms = sum(len(fl.get("rooms",[])) for fl in floors)
+    print(f"[ARCHITECT] Layout: {total_rooms} rooms across {len(floors)} floor(s)", flush=True)
     return {"spatial_layout": result}
 
 
@@ -325,6 +349,11 @@ def qa_architect(state: PipelineState) -> dict:
     )
     verdict = verdict_data.get("verdict", "?")
     console.print(f"  QA verdict: [{'green' if verdict == 'APPROVED' else 'yellow'}]{verdict}[/]")
+    print(f"[QA] spatial_layout v{attempt+1}: {verdict}", flush=True)
+    if verdict not in ("APPROVED",):
+        issues = verdict_data.get("issues", [])
+        for issue in issues[:3]:
+            print(f"[QA]   ↳ {issue}", flush=True)
 
     return {
         "architect_qa_attempt": attempt + 1,
@@ -343,6 +372,7 @@ def route_architect_qa(state: PipelineState) -> str:
 def gate_m2(state: PipelineState) -> dict:
     from src.agents.architect_agent import ArchitectAgent
 
+    print(f"[MILESTONE] Reached M2 — awaiting human approval", flush=True)
     _milestone_gate(
         state["memory"], "M2",
         agent_classes=[ArchitectAgent],
@@ -357,6 +387,7 @@ def run_structural(state: PipelineState) -> dict:
 
     attempt = state.get("structural_qa_attempt", 0)
     console.print(f"\n[bold]Phase 6: Structural grid (attempt {attempt + 1})...[/bold]")
+    print(f"[STRUCTURAL] Attempt {attempt + 1}/{MAX_RETRIES + 1} — Proposing structural grid...", flush=True)
 
     memory = state["memory"]
     site_data_full = state["site_data"]
@@ -371,6 +402,7 @@ def run_structural(state: PipelineState) -> dict:
         "site_data": site_data_full,
         "qa_feedback": state.get("structural_qa_feedback"),
     }, memory, "structural grid")
+    print(f"[STRUCTURAL] Grid: {result.get('structural_system', '?')}", flush=True)
     return {"structural_schema": result}
 
 
@@ -382,6 +414,7 @@ def qa_structural(state: PipelineState) -> dict:
     )
     verdict = verdict_data.get("verdict", "?")
     console.print(f"  QA verdict: [{'green' if verdict == 'APPROVED' else 'yellow'}]{verdict}[/]")
+    print(f"[QA] structural_schema v{attempt+1}: {verdict}", flush=True)
 
     return {
         "structural_qa_attempt": attempt + 1,
@@ -402,6 +435,7 @@ def run_mep(state: PipelineState) -> dict:
 
     attempt = state.get("mep_qa_attempt", 0)
     console.print(f"\n[bold]Phase 7: MEP routing (attempt {attempt + 1})...[/bold]")
+    print(f"[MEP] Attempt {attempt + 1}/{MAX_RETRIES + 1} — Routing MEP systems...", flush=True)
 
     memory = state["memory"]
     site_data_full = state["site_data"]
@@ -428,6 +462,7 @@ def qa_mep(state: PipelineState) -> dict:
     )
     verdict = verdict_data.get("verdict", "?")
     console.print(f"  QA verdict: [{'green' if verdict == 'APPROVED' else 'yellow'}]{verdict}[/]")
+    print(f"[QA] mep_schema v{attempt+1}: {verdict}", flush=True)
 
     return {
         "mep_qa_attempt": attempt + 1,
@@ -447,6 +482,7 @@ def run_ifc_builder(state: PipelineState) -> dict:
     from src.agents.ifc_builder_agent import IFCBuilderAgent
 
     console.print("\n[bold]Phase 8: Building IFC model...[/bold]")
+    print(f"[IFC] Building IFC4 model...", flush=True)
     memory = state["memory"]
     output_dir = Path(state["projects_dir"]) / state["project_id"] / "outputs"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -461,6 +497,7 @@ def run_ifc_builder(state: PipelineState) -> dict:
             "output_path": str(ifc_path),
         })
         console.print(f"  IFC model: {result.get('entity_count', '?')} entities -> {ifc_path.name}")
+        print(f"[IFC] Generated {result.get('entity_count', '?')} entities → {ifc_path.name}", flush=True)
     except Exception as e:
         logger.error(f"IFC Builder failed: {e}")
         result = {"entity_count": 0, "error": str(e)}
@@ -471,6 +508,7 @@ def gate_m3(state: PipelineState) -> dict:
     from src.agents.mep_agent import MEPAgent
     from src.agents.structural_agent import StructuralAgent
 
+    print(f"[MILESTONE] Reached M3 — awaiting human approval", flush=True)
     _milestone_gate(
         state["memory"], "M3",
         agent_classes=[StructuralAgent, MEPAgent],
@@ -501,6 +539,7 @@ def finalize(state: PipelineState) -> dict:
         title="Done",
         border_style="green",
     ))
+    print(f"[DONE] Pipeline complete. Cost: ${memory.state.get('total_cost_usd', 0):.4f}", flush=True)
     return {}
 
 

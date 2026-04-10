@@ -79,7 +79,7 @@
     margin-bottom: 10px;
   }
   .agent-card-avatar {
-    width: 32px; height: 32px;
+    width: 100px; height: 120px;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -246,6 +246,12 @@
   }
   .milestone.done { background: #1A3C2A; border-color: #2ECC71; color: #2ECC71; }
   @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
+  @keyframes flyIn {
+    from { transform: translateX(40px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+  .doc-item { animation: flyIn 0.3s ease-out both; }
 
   /* WebSocket connection status indicator */
   .ws-status {
@@ -480,6 +486,7 @@ let tick = 0;
 let simPaused = false;
 const logs = [];
 const qaQueue = [];
+const handoffs = [];
 
 const agentState = {};
 AGENTS.forEach(a => {
@@ -851,6 +858,10 @@ function drawPixelAgent(x, y, color, hat, scale, status, bobPhase, rejected) {
     const arm = Math.sin(bobPhase * 4 + 1) * s * 2;
     ctx.fillRect(x - s*6, ry + s*2 + arm, s*2, s*4);
     ctx.fillRect(x + s*4, ry + s*2 - arm, s*2, s*4);
+  } else if (status === 'done' || status === 'approved') {
+    // Arms raised in celebration
+    ctx.fillRect(x - s*6, ry - s*1, s*2, s*4);
+    ctx.fillRect(x + s*4, ry - s*1, s*2, s*4);
   } else {
     ctx.fillRect(x - s*6, ry + s*2, s*2, s*4);
     ctx.fillRect(x + s*4, ry + s*2, s*2, s*4);
@@ -869,6 +880,19 @@ function drawPixelAgent(x, y, color, hat, scale, status, bobPhase, rejected) {
   ctx.fillStyle = hat;
   ctx.fillRect(x - s*4, ry - s*5, s*8, s*2);
   ctx.fillRect(x - s*3, ry - s*7, s*6, s*3);
+
+  // Document held in hands during handoff
+  if (status === 'handoff') {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(x + s*2, ry + s*2, s*5, s*6);
+    ctx.strokeStyle = '#2C3E50';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(x + s*2, ry + s*2, s*5, s*6);
+    // Lines on document
+    ctx.fillStyle = '#ADB5BD';
+    ctx.fillRect(x + s*3, ry + s*3, s*3, s*1);
+    ctx.fillRect(x + s*3, ry + s*5, s*3, s*1);
+  }
 
   // status icon above head
   ctx.font = `${Math.max(9, s * 8)}px serif`;
@@ -893,6 +917,11 @@ function drawPixelAgent(x, y, color, hat, scale, status, bobPhase, rejected) {
       ctx.fillText('z', zx, zy);
       ctx.restore();
     }
+  } else if (status === 'handoff') {
+    ctx.fillText('📤', x, ry - s*9);
+  } else if (status === 'done') {
+    // Jubel — arms raised
+    ctx.fillText('🎉', x, ry - s*9);
   } else if (status === 'qa') {
     ctx.fillText('📋', x, ry - s*9);
   } else if (status === 'approved') {
@@ -952,6 +981,18 @@ function drawConnectors() {
   }
   ctx.setLineDash([]);
   ctx.restore();
+}
+
+function triggerHandoff(fromId, toId) {
+  const fromState = agentState[fromId];
+  const toAgent = STATIONS.find(s => s.id === (toId === 'qa' ? 'qa' : 'meeting'));
+  if (!fromState || !toAgent) return;
+  handoffs.push({
+    x: fromState.x, y: fromState.y,
+    tx: toAgent.x, ty: toAgent.y,
+    progress: 0, alpha: 1,
+    color: (AGENTS.find(a => a.id === fromId) || {color:'#666'}).color,
+  });
 }
 
 // ============================================================
@@ -1032,6 +1073,32 @@ function draw() {
     drawPixelAgent(s.x, s.y, a.color, a.hat, SCALE, s.status, s.bobPhase, s.rejected);
     drawAgentLabel(s.x, s.y, a.abbr, SCALE);
   });
+
+  // Draw document handoff animations
+  handoffs.forEach((h, i) => {
+    h.progress = Math.min(1, h.progress + 0.015);
+    h.x = h.x + (h.tx - h.x) * 0.015;
+    h.y = h.y + (h.ty - h.y) * 0.015;
+    if (h.progress > 0.85) h.alpha = Math.max(0, h.alpha - 0.05);
+
+    ctx.save();
+    ctx.globalAlpha = h.alpha;
+    // Small document icon moving
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(h.x - 6, h.y - 8, 12, 16);
+    ctx.strokeStyle = h.color;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(h.x - 6, h.y - 8, 12, 16);
+    ctx.fillStyle = '#ADB5BD';
+    ctx.fillRect(h.x - 4, h.y - 5, 8, 2);
+    ctx.fillRect(h.x - 4, h.y - 1, 8, 2);
+    ctx.fillRect(h.x - 4, h.y + 3, 8, 2);
+    ctx.restore();
+  });
+  // Remove completed handoffs
+  for (let i = handoffs.length - 1; i >= 0; i--) {
+    if (handoffs[i].alpha <= 0) handoffs.splice(i, 1);
+  }
 
   // Title watermark
   ctx.save();
@@ -1276,19 +1343,19 @@ function renderAgentCards() {
     
     // Render the agent on a hidden canvas to get a data URL for the card avatar!
     const offCanvas = document.createElement('canvas');
-    offCanvas.width = 40;
-    offCanvas.height = 40;
+    offCanvas.width = 100;
+    offCanvas.height = 120;
     const offCtx = offCanvas.getContext('2d');
-    const oldCtx = ctx; 
+    const oldCtx = ctx;
     window.ctx = offCtx; // Temporary hijack of global ctx used by drawPixelAgent
-    drawPixelAgent(20, 20, color, hat, 1.2, 'waiting', 0.5, false);
+    drawPixelAgent(50, 55, color, hat, 3.5, 'waiting', 0.5, false);
     window.ctx = oldCtx;
     const avatarUrl = offCanvas.toDataURL();
 
     return `
       <div class="agent-card" style="--agent-color:${color}">
         <div class="agent-card-header">
-          <div class="agent-card-avatar" style="background:transparent; border:none;"><img src="${avatarUrl}" style="width:36px;height:36px;border-radius:4px;" /></div>
+          <div class="agent-card-avatar" style="background:transparent; border:none;"><img src="${avatarUrl}" class="agent-card-sprite" data-agentid="${a.id}" style="width:100px;height:120px;border-radius:6px;display:block;" /></div>
           <div class="agent-card-title">
             <h4>${a.name} <span style="font-size:10px;color:#868E96;font-weight:normal">· Live tag: <span style="color:${color};font-weight:bold">${agent ? agent.abbr : ''}</span></span></h4>
             <span class="model-badge ${a.modelType}">${a.model}</span>
@@ -1311,6 +1378,37 @@ function renderAgentCards() {
       * May be upgraded to Opus for complex legal/multi-discipline decisions &nbsp;|&nbsp;
       † May be downgraded to Haiku for repetitive templated tasks
     </div>`);
+}
+
+let _cardAnimPhase = {};
+function animateAgentCardSprites() {
+  if (document.getElementById('tab-agents').classList.contains('active')) {
+    document.querySelectorAll('.agent-card-sprite').forEach(img => {
+      const agentId = img.dataset.agentid;
+      if (!agentId) return;
+      const state = agentState[agentId];
+      if (!state) return;
+
+      // Get agent config
+      const agConfig = AGENTS.find(a => a.id === agentId);
+      if (!agConfig) return;
+
+      // Advance phase
+      if (!_cardAnimPhase[agentId]) _cardAnimPhase[agentId] = 0;
+      _cardAnimPhase[agentId] += 0.06;
+
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = 100;
+      offCanvas.height = 120;
+      const offCtx = offCanvas.getContext('2d');
+      const oldCtx = window.ctx;
+      window.ctx = offCtx;
+      drawPixelAgent(50, 55, agConfig.color, agConfig.hat, 3.5, state.status, _cardAnimPhase[agentId], state.rejected);
+      window.ctx = oldCtx;
+      img.src = offCanvas.toDataURL();
+    });
+  }
+  requestAnimationFrame(animateAgentCardSprites);
 }
 
 // ============================================================
@@ -1391,8 +1489,17 @@ function renderAgentCards() {
         const did = AGENT_MAP.hasOwnProperty(sid) ? AGENT_MAP[sid] : sid;
         if (!did || !agentState[did]) return;
         const newStatus = STATUS[status] || 'waiting';
+        const prevStatus = agentState[did].status;
         agentState[did].status = newStatus;
-        
+
+        // Trigger handoff animation when agent submits to QA
+        if (prevStatus === 'working' && (newStatus === 'qa' || newStatus === 'approved')) {
+          agentState[did].status = 'handoff';
+          setTimeout(() => { agentState[did].status = newStatus; }, 2000);
+          triggerHandoff(did, 'qa');
+        }
+        agentState[did]._prevStatus = newStatus;
+
         // Ensure agent is moved to their work station when they start working
         if (newStatus === 'working') {
            agentState[did].targetStation = STATION_MAP[did];
@@ -1558,6 +1665,7 @@ resize();
 updateMilestoneUI();
 updateQAUI();
 renderAgentCards();
+animateAgentCardSprites();
 renderOutputs();
 initSim();
 loop();
