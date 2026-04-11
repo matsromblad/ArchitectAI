@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm \"C:\\\\Users\\\\Mats Romblad\\\\Documents\\\\GitHub\\\\ArchitectAI\\\\ArchitectAI\\\\.claude\\\\worktrees\\\\brave-spence\\\\src\\\\runtime\\\\openclaw_runtime.py\")",
+      "Bash(rm \"C:\\\\Users\\\\Mats Romblad\\\\Documents\\\\GitHub\\\\ArchitectAI\\\\ArchitectAI\\\\.claude\\\\worktrees\\\\brave-spence\\\\src\\\\orchestration\\\\pipeline.py\")",
+      "Bash(rm \"C:\\\\Users\\\\Mats Romblad\\\\Documents\\\\GitHub\\\\ArchitectAI\\\\ArchitectAI\\\\.claude\\\\worktrees\\\\brave-spence\\\\tests\\\\test_pipeline_graph.py\")",
+      "Bash(rm \"C:\\\\Users\\\\Mats Romblad\\\\Documents\\\\GitHub\\\\ArchitectAI\\\\ArchitectAI\\\\.claude\\\\worktrees\\\\brave-spence\\\\test_kb_agents.py\")",
+      "Bash(rm \"C:\\\\Users\\\\Mats Romblad\\\\Documents\\\\GitHub\\\\ArchitectAI\\\\ArchitectAI\\\\.claude\\\\worktrees\\\\brave-spence\\\\test_kb_integration.py\")",
+      "Bash(gh pr create --title 'chore: remove dead code — Ollama, Gemma, OpenClaw, LangGraph' --body ':*)",
+      "Bash(where gh:*)",
+      "Bash(winget list:*)"
+    ]
+  }
+}

@@ -1,597 +1,606 @@
 """
-LangGraph Pipeline — orchestrates the full M1 build loop for ArchitectAI.
+ArchitectAI -- LangGraph Pipeline
 
-State machine:
-  parse_input → generate_brief → fetch_components → compliance_check
-    → architect → structural → mep → ifc_build → qa → pm_decision
-    ↺ (rejection loops back to originating node, up to 3 times)
-    → user_approval (on escalation)
+Orchestrates the multi-agent design pipeline as a directed graph with:
+- Sequential agent phases (Client -> InputParser -> Brief -> ... -> IFC)
+- QA retry loops (up to MAX_RETRIES rejections per phase)
+- Human-in-the-loop milestone gates (M1, M2, M3)
+- Crash recovery via PM-guided self-healing
 """
 
+import json
 import os
-from typing import Annotated, Any, Optional, TypedDict
+import subprocess
+import sys
+import traceback
+from pathlib import Path
+from typing import Any, Optional, TypedDict
 
+from langgraph.graph import END, START, StateGraph
 from loguru import logger
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
-try:
-    from langgraph.graph import StateGraph, END
-    from langgraph.checkpoint.memory import MemorySaver
-    _LANGGRAPH_AVAILABLE = True
-except ImportError:
-    _LANGGRAPH_AVAILABLE = False
-    logger.warning(
-        "[pipeline] langgraph not installed — "
-        "run: pip install langgraph  to enable the pipeline."
-    )
-
-from src.memory.project_memory import ProjectMemory
-from src.agents.input_parser import InputParserAgent
-from src.agents.brief_agent import BriefAgent
-from src.agents.compliance_agent import ComplianceAgent
-from src.agents.qa_agent import QAAgent
-from src.agents.architect_agent import ArchitectAgent
-from src.agents.structural_agent import StructuralAgent
-from src.agents.mep_agent import MEPAgent
-from src.agents.component_library_agent import ComponentLibraryAgent
-from src.agents.ifc_builder_agent import IFCBuilderAgent
-
-try:
-    from src.agents.pm_agent import PMAgent
-    _PM_AVAILABLE = True
-except ImportError:
-    _PM_AVAILABLE = False
-    logger.warning("[pipeline] PMAgent not found — pm_decision_node will be limited")
+console = Console()
+MAX_RETRIES = 4
 
 
-# --------------------------------------------------------------------------- #
-# State schema                                                                  #
-# --------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------
+# State
+# ---------------------------------------------------------------------------
 
-class PipelineState(TypedDict, total=False):
-    """Full state carried through the LangGraph pipeline."""
-
-    # Identity
+class PipelineState(TypedDict):
+    # Inputs (set once at start)
     project_id: str
-    phase: str
-    user_prompt: str
+    prompt: str
+    site_file: str
     jurisdiction: str
-
-    # Data produced by agents
-    site_data: dict
-    room_program: dict
-    component_templates: dict
-    spatial_layout: dict
-    structural_schema: dict
-    mep_schema: dict
-
-    # QA tracking
-    qa_results: dict          # schema_type → {"verdict": str, "version": str}
-    rejection_counts: dict    # schema_type → int
-
-    # Human-in-the-loop
-    awaiting_user_approval: bool
-    user_approval_response: Optional[str]
-
-    # Misc
-    messages: list            # recent agent messages (last ~20)
-    error: Optional[str]
-
-    # Internal routing
-    _last_schema: str         # which schema just went through QA
-    _qa_target_node: str      # node to re-run on rejection
-
-
-# --------------------------------------------------------------------------- #
-# Node implementations                                                          #
-# --------------------------------------------------------------------------- #
-
-def _memory(state: PipelineState) -> ProjectMemory:
-    base_dir = os.getenv("PROJECTS_DIR", "./projects")
-    return ProjectMemory(state["project_id"], base_dir=base_dir)
-
-
-def parse_input_node(state: PipelineState) -> dict:
-    """Run InputParserAgent to extract site_data from the user prompt / file."""
-    logger.info("[pipeline] Node: parse_input")
-    mem = _memory(state)
-    agent = InputParserAgent(memory=mem)
-
-    # Accept either a file path or a plain text prompt
-    prompt = state.get("user_prompt", "")
-    site_file = None
-    if os.path.isfile(prompt):
-        site_file = prompt
-
-    try:
-        site_data = agent.run({"file_path": site_file, "prompt": prompt})
-        mem.update_phase("brief")
-        return {
-            "site_data": site_data,
-            "phase": "brief",
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] parse_input failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def generate_brief_node(state: PipelineState) -> dict:
-    """Run BriefAgent to generate the room program."""
-    logger.info("[pipeline] Node: generate_brief")
-    mem = _memory(state)
-    agent = BriefAgent(memory=mem)
-
-    # TOKEN-OPT: Pass QA feedback + prior version so BriefAgent can use patch mode.
-    # Patch mode: LLM outputs only changed rooms (modified/added/removed), not full JSON.
-    # Expected savings: ~70% fewer output tokens on revision calls.
-    qa_results = state.get("qa_results") or {}
-    last_qa = qa_results.get("room_program", {})
-    qa_feedback = None
-    prior_room_program = None
-    if last_qa.get("verdict") in ("REJECTED", "CONDITIONAL"):
-        qa_feedback = {
-            "issues": last_qa.get("issues", []),
-            "fix_instructions": last_qa.get("fix_instructions", ""),
-        }
-        # Pass the current room_program as the base for patching
-        prior_room_program = state.get("room_program")
-
-    try:
-        room_program = agent.run({
-            "prompt": state.get("user_prompt", ""),
-            "site_data": state.get("site_data", {}),
-            "jurisdiction": state.get("jurisdiction", "SE"),
-            "qa_feedback": qa_feedback,          # TOKEN-OPT: structured feedback
-            "prior_room_program": prior_room_program,  # TOKEN-OPT: base for patch
-        })
-        mem.update_phase("components")
-        return {
-            "room_program": room_program,
-            "phase": "components",
-            "_last_schema": "room_program",
-            "_qa_target_node": "generate_brief",
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] generate_brief failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def fetch_components_node(state: PipelineState) -> dict:
-    """Run ComponentLibraryAgent to fetch/generate room templates."""
-    logger.info("[pipeline] Node: fetch_components")
-    mem = _memory(state)
-    agent = ComponentLibraryAgent(memory=mem)
-
-    try:
-        templates = agent.run({
-            "room_program": state.get("room_program", {}),
-            "jurisdiction": state.get("jurisdiction", "SE"),
-        })
-        mem.update_phase("compliance_check")
-        return {
-            "component_templates": templates,
-            "phase": "compliance_check",
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] fetch_components failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def compliance_check_node(state: PipelineState) -> dict:
-    """Run ComplianceAgent to validate the room program."""
-    logger.info("[pipeline] Node: compliance_check")
-    mem = _memory(state)
-    agent = ComplianceAgent(memory=mem)
-
-    try:
-        result = agent.run({
-            "room_program": state.get("room_program", {}),
-            "jurisdiction": state.get("jurisdiction", "SE"),
-        })
-        mem.update_phase("architect")
-        return {
-            "phase": "architect",
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] compliance_check failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def architect_node(state: PipelineState) -> dict:
-    """Run ArchitectAgent to create the spatial layout."""
-    logger.info("[pipeline] Node: architect")
-    mem = _memory(state)
-    agent = ArchitectAgent(memory=mem)
-
-    try:
-        spatial_layout = agent.run({
-            "room_program": state.get("room_program", {}),
-            "site_data": state.get("site_data", {}),
-            "component_templates": state.get("component_templates", {}),
-        })
-        mem.update_phase("qa_spatial_layout")
-        return {
-            "spatial_layout": spatial_layout,
-            "phase": "qa_spatial_layout",
-            "_last_schema": "spatial_layout",
-            "_qa_target_node": "architect",
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] architect failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def structural_node(state: PipelineState) -> dict:
-    """Run StructuralAgent to propose the structural grid."""
-    logger.info("[pipeline] Node: structural")
-    mem = _memory(state)
-    agent = StructuralAgent(memory=mem)
-
-    try:
-        structural_schema = agent.run({
-            "spatial_layout": state.get("spatial_layout", {}),
-        })
-        mem.update_phase("qa_structural_schema")
-        return {
-            "structural_schema": structural_schema,
-            "phase": "qa_structural_schema",
-            "_last_schema": "structural_schema",
-            "_qa_target_node": "structural",
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] structural failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def mep_node(state: PipelineState) -> dict:
-    """Run MEPAgent to generate the MEP schema."""
-    logger.info("[pipeline] Node: mep")
-    mem = _memory(state)
-    agent = MEPAgent(memory=mem)
-
-    try:
-        mep_schema = agent.run({
-            "spatial_layout": state.get("spatial_layout", {}),
-            "structural_schema": state.get("structural_schema", {}),
-        })
-        mem.update_phase("qa_mep_schema")
-        return {
-            "mep_schema": mep_schema,
-            "phase": "qa_mep_schema",
-            "_last_schema": "mep_schema",
-            "_qa_target_node": "mep",
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] mep failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def ifc_build_node(state: PipelineState) -> dict:
-    """Run IFCBuilderAgent to generate the IFC4 file."""
-    logger.info("[pipeline] Node: ifc_build")
-    mem = _memory(state)
-    agent = IFCBuilderAgent(memory=mem)
-
-    project_id = state["project_id"]
-    projects_dir = os.getenv("PROJECTS_DIR", "./projects")
-    output_path = os.path.join(projects_dir, project_id, "outputs", "model_M1.ifc")
-
-    try:
-        result = agent.run({
-            "spatial_layout": state.get("spatial_layout", {}),
-            "structural_schema": state.get("structural_schema", {}),
-            "mep_schema": state.get("mep_schema", {}),
-            "component_templates": state.get("component_templates", {}),
-            "output_path": output_path,
-        })
-        mem.update_phase("complete")
-        mem.approve_milestone("M1", notes=f"IFC saved: {result['ifc_path']}")
-        return {
-            "phase": "complete",
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] ifc_build failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def qa_node(state: PipelineState) -> dict:
-    """Run QAAgent on the most recently produced schema."""
-    schema_type = state.get("_last_schema", "unknown")
-    logger.info(f"[pipeline] Node: qa ({schema_type})")
-    mem = _memory(state)
-    agent = QAAgent(memory=mem)
-
-    # Determine the schema data
-    schema_map = {
-        "room_program": state.get("room_program", {}),
-        "spatial_layout": state.get("spatial_layout", {}),
-        "structural_schema": state.get("structural_schema", {}),
-        "mep_schema": state.get("mep_schema", {}),
-    }
-    schema_data = schema_map.get(schema_type, {})
-    version = schema_data.get("_version", "v1")
-    rejection_counts = dict(state.get("rejection_counts") or {})
-    prior_rejections = rejection_counts.get(schema_type, 0)
-
-    try:
-        verdict = agent.run({
-            "schema_type": schema_type,
-            "schema_data": schema_data,
-            "version": version,
-            "prior_rejections": prior_rejections,
-            "context": {
-                k: v for k, v in schema_map.items()
-                if k != schema_type and v
-            },
-        })
-
-        qa_results = dict(state.get("qa_results") or {})
-        qa_results[schema_type] = {
-            "verdict": verdict["verdict"],
-            "version": version,
-            "issues": verdict.get("issues", []),
-        }
-
-        if verdict["verdict"] != "APPROVED":
-            rejection_counts[schema_type] = prior_rejections + 1
-
-        return {
-            "qa_results": qa_results,
-            "rejection_counts": rejection_counts,
-            "messages": _tail_messages(mem),
-        }
-    except Exception as exc:
-        logger.error(f"[pipeline] qa failed: {exc}")
-        return {"error": str(exc), "phase": "error"}
-
-
-def pm_decision_node(state: PipelineState) -> dict:
-    """PM decides next action after repeated rejections or escalations."""
-    logger.info("[pipeline] Node: pm_decision")
-    mem = _memory(state)
-
-    if not _PM_AVAILABLE:
-        logger.warning("[pipeline] PMAgent unavailable — defaulting to user_approval")
-        return {"awaiting_user_approval": True, "phase": "awaiting_approval"}
-
-    agent = PMAgent(memory=mem)  # type: ignore[name-defined]
-    schema_type = state.get("_last_schema", "unknown")
-    rejection_counts = state.get("rejection_counts") or {}
-
-    try:
-        decision = agent.run({
-            "event": "qa_verdict",
-            "schema_type": schema_type,
-            "rejection_count": rejection_counts.get(schema_type, 0),
-            "qa_results": state.get("qa_results", {}),
-            "phase": state.get("phase"),
-        })
-
-        action = decision.get("action", "escalate")
-        if action == "escalate":
-            return {"awaiting_user_approval": True, "phase": "awaiting_approval"}
-        else:
-            # PM assigns a target node — store in state for routing
-            return {
-                "phase": decision.get("next_phase", state.get("phase")),
-                "_qa_target_node": decision.get("target_node", state.get("_qa_target_node")),
-                "messages": _tail_messages(mem),
-            }
-    except Exception as exc:
-        logger.error(f"[pipeline] pm_decision failed: {exc}")
-        return {"awaiting_user_approval": True, "phase": "awaiting_approval"}
-
-
-def user_approval_node(state: PipelineState) -> dict:
-    """
-    Pause for human review. Sets awaiting_user_approval=True.
-    The LangGraph interrupt mechanism (or external trigger) resumes the graph
-    once user_approval_response is set.
-    """
-    logger.info("[pipeline] Node: user_approval — WAITING for human response")
-    mem = _memory(state)
-    mem.update_phase("awaiting_approval")
-
-    approval_response = state.get("user_approval_response")
-    if approval_response:
-        logger.info(f"[pipeline] User responded: {approval_response[:80]}")
-        return {
-            "awaiting_user_approval": False,
-            "phase": "pm_review",
-            "messages": _tail_messages(mem),
-        }
-
-    return {
-        "awaiting_user_approval": True,
-        "phase": "awaiting_approval",
-    }
-
-
-# --------------------------------------------------------------------------- #
-# Routing functions                                                             #
-# --------------------------------------------------------------------------- #
-
-def _route_after_qa(state: PipelineState) -> str:
-    """Decide where to go after QA."""
-    schema_type = state.get("_last_schema", "unknown")
-    qa_results = state.get("qa_results") or {}
-    rejection_counts = state.get("rejection_counts") or {}
-
-    result = qa_results.get(schema_type, {})
-    verdict = result.get("verdict", "REJECTED")
-    rejections = rejection_counts.get(schema_type, 0)
-
-    if verdict == "APPROVED":
-        # Advance to the next phase
-        phase = state.get("phase", "")
-        logger.info(f"[pipeline] QA APPROVED {schema_type} → routing to next phase ({phase})")
-        return _next_node_after_approval(schema_type)
-    elif rejections >= QAAgent.MAX_REJECTIONS:
-        logger.warning(f"[pipeline] {schema_type} hit max rejections ({rejections}) → pm_decision")
-        return "pm_decision"
-    else:
-        target = state.get("_qa_target_node", "architect")
-        # TOKEN-OPT: Log iteration depth so we can spot runaway loops in production
-        logger.info(f"[pipeline] QA REJECTED {schema_type} (attempt {rejections}/{QAAgent.MAX_REJECTIONS}) → {target}")
-        return target
-
-
-def _next_node_after_approval(schema_type: str) -> str:
-    """Map a just-approved schema to the next pipeline node."""
-    return {
-        "room_program": "fetch_components",
-        "spatial_layout": "structural",
-        "structural_schema": "mep",
-        "mep_schema": "ifc_build",
-    }.get(schema_type, END)
-
-
-def _route_after_pm(state: PipelineState) -> str:
-    """After pm_decision, go to user_approval or the target node."""
-    if state.get("awaiting_user_approval"):
-        return "user_approval"
-    return state.get("_qa_target_node", "architect")
-
-
-def _route_after_user_approval(state: PipelineState) -> str:
-    """After user responds, go back to pm_decision for re-routing."""
-    if state.get("awaiting_user_approval"):
-        return "user_approval"  # Still waiting
-    return "pm_decision"
-
-
-# --------------------------------------------------------------------------- #
-# Graph assembly                                                                #
-# --------------------------------------------------------------------------- #
-
-def build_pipeline() -> Any:
-    """
-    Assemble and compile the LangGraph state machine.
-
-    Returns:
-        Compiled LangGraph app with MemorySaver checkpointer.
-
-    Raises:
-        ImportError: if langgraph is not installed.
-    """
-    if not _LANGGRAPH_AVAILABLE:
-        raise ImportError(
-            "langgraph is required. Install with: pip install langgraph"
-        )
-
-    graph = StateGraph(PipelineState)
-
-    # Register nodes
-    graph.add_node("parse_input", parse_input_node)
-    graph.add_node("generate_brief", generate_brief_node)
-    graph.add_node("fetch_components", fetch_components_node)
-    graph.add_node("compliance_check", compliance_check_node)
-    graph.add_node("architect", architect_node)
-    graph.add_node("structural", structural_node)
-    graph.add_node("mep", mep_node)
-    graph.add_node("ifc_build", ifc_build_node)
-    graph.add_node("qa", qa_node)
-    graph.add_node("pm_decision", pm_decision_node)
-    graph.add_node("user_approval", user_approval_node)
-
-    # Entry point
-    graph.set_entry_point("parse_input")
-
-    # Linear edges (no branching)
-    graph.add_edge("parse_input", "generate_brief")
-    graph.add_edge("generate_brief", "qa")         # QA the room_program
-    graph.add_edge("fetch_components", "compliance_check")
-    graph.add_edge("compliance_check", "architect")
-    graph.add_edge("architect", "qa")              # QA spatial_layout
-    graph.add_edge("structural", "qa")             # QA structural_schema
-    graph.add_edge("mep", "qa")                    # QA mep_schema
-    graph.add_edge("ifc_build", END)
-
-    # Branching from qa
-    graph.add_conditional_edges(
-        "qa",
-        _route_after_qa,
-        {
-            "fetch_components": "fetch_components",
-            "structural": "structural",
-            "mep": "mep",
-            "ifc_build": "ifc_build",
-            "generate_brief": "generate_brief",   # rejection loop
-            "architect": "architect",             # rejection loop
-            "pm_decision": "pm_decision",
-            END: END,
-        },
-    )
-
-    # Branching from pm_decision
-    graph.add_conditional_edges(
-        "pm_decision",
-        _route_after_pm,
-        {
-            "user_approval": "user_approval",
-            "generate_brief": "generate_brief",
-            "architect": "architect",
-            "structural": "structural",
-            "mep": "mep",
-        },
-    )
-
-    # user_approval → pm_decision (or loops on itself while waiting)
-    graph.add_conditional_edges(
-        "user_approval",
-        _route_after_user_approval,
-        {
-            "pm_decision": "pm_decision",
-            "user_approval": "user_approval",
-        },
-    )
-
-    checkpointer = MemorySaver()
-    app = graph.compile(checkpointer=checkpointer)
-    logger.info("[pipeline] LangGraph pipeline compiled successfully")
-    return app
-
-
-# --------------------------------------------------------------------------- #
-# Helpers                                                                       #
-# --------------------------------------------------------------------------- #
-
-def _tail_messages(mem: ProjectMemory, n: int = 20) -> list:
-    return mem.get_recent_messages(n)
-
-
-def run_pipeline(project_id: str, prompt: str, jurisdiction: str = "SE") -> PipelineState:
-    """
-    Convenience function: build and run the full pipeline for a project.
-
-    Args:
-        project_id: unique project identifier
-        prompt: user's building brief (text or file path)
-        jurisdiction: regulatory jurisdiction code (e.g. "SE")
-
-    Returns:
-        Final pipeline state
-    """
-    app = build_pipeline()
-    initial_state: PipelineState = {
+    projects_dir: str
+    memory: Any  # ProjectMemory
+
+    # Agent outputs
+    project_brief: Optional[dict]
+    site_data: Optional[dict]
+    room_program: Optional[dict]
+    comp_results: Optional[dict]
+    spatial_layout: Optional[dict]
+    structural_schema: Optional[dict]
+    mep_schema: Optional[dict]
+    ifc_result: Optional[dict]
+    pm_decision: Optional[dict]
+
+    # Per-phase QA tracking
+    brief_qa_feedback: Optional[str]
+    brief_qa_attempt: int
+    architect_qa_feedback: Optional[str]
+    architect_qa_attempt: int
+    structural_qa_feedback: Optional[str]
+    structural_qa_attempt: int
+    mep_qa_feedback: Optional[str]
+    mep_qa_attempt: int
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _run_qa_subprocess(schema_type, schema_data, version, prior_rejections,
+                       projects_dir, project_id, timeout=90):
+    """Run QA evaluation as an isolated subprocess with timeout."""
+    payload = {
         "project_id": project_id,
-        "phase": "init",
-        "user_prompt": prompt,
-        "jurisdiction": jurisdiction,
-        "qa_results": {},
-        "rejection_counts": {},
-        "awaiting_user_approval": False,
-        "user_approval_response": None,
-        "messages": [],
-        "error": None,
+        "base_dir": projects_dir,
+        "schema_type": schema_type,
+        "schema_data": schema_data,
+        "version": version,
+        "prior_rejections": prior_rejections,
     }
-    config = {"configurable": {"thread_id": project_id}}
-    final = app.invoke(initial_state, config=config)
-    return final
+    venv_python = str(Path(projects_dir).parent / ".venv" / "bin" / "python3")
+    if not Path(venv_python).exists():
+        venv_python = sys.executable
+    try:
+        proc = subprocess.run(
+            [venv_python, "scripts/run_qa.py"],
+            input=json.dumps(payload),
+            capture_output=True, text=True, timeout=timeout,
+            env={
+                **os.environ,
+                "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "dummy"),
+                "GEMINI_API_KEY": os.getenv("GEMINI_API_KEY", ""),
+            },
+        )
+        if proc.returncode != 0:
+            logger.warning(f"QA subprocess stderr: {proc.stderr[:200]}")
+        return json.loads(proc.stdout)
+    except subprocess.TimeoutExpired:
+        return {"verdict": "CONDITIONAL", "issues": [f"QA timed out after {timeout}s"]}
+    except Exception as e:
+        return {"verdict": "CONDITIONAL", "issues": [f"QA error: {e}"]}
+
+
+def _safe_run_agent(agent, inputs, memory, context_name="task", max_retries=2):
+    """Run an agent with PM-guided crash recovery (up to max_retries internal retries)."""
+    from src.agents.pm_agent import PMAgent
+
+    last_e = None
+    for attempt in range(max_retries + 1):
+        try:
+            return agent.run(inputs)
+        except Exception as e:
+            last_e = e
+            tb = traceback.format_exc()
+            agent.send_message("pm", "status_update", {"status": "blocked", "message": str(e)})
+            logger.error(f"[{agent.AGENT_ID}] Crash on {context_name} (attempt {attempt + 1}/{max_retries + 1}): {e}")
+            print(f"[ERROR] {agent.AGENT_ID} crashed on {context_name} (attempt {attempt+1}): {e}", flush=True)
+            if attempt < max_retries:
+                pm = PMAgent(memory)
+                fix = pm.chat(
+                    "You are a project manager. An agent crashed. Suggest a brief instruction to fix the input.",
+                    [{"role": "user", "content": f"Agent {agent.AGENT_ID} crashed:\n{tb[:500]}"}],
+                    max_tokens=200,
+                )
+                inputs = {**inputs, "qa_feedback": fix}
+    raise last_e
+
+
+def _qa_feedback_from_verdict(verdict_data):
+    """Extract actionable feedback string from a QA verdict dict."""
+    return (verdict_data.get("fix_instructions")
+            or "; ".join(verdict_data.get("issues", [])[:3])
+            or None)
+
+
+def _should_proceed(verdict, attempt):
+    """Decide whether to proceed past a QA gate."""
+    if verdict == "APPROVED":
+        return True
+    if verdict == "CONDITIONAL" and attempt >= 2:
+        return True
+    if attempt >= MAX_RETRIES:
+        return True
+    return False
+
+
+def _milestone_gate(memory, milestone_name, agent_classes, context_data, schema_names):
+    """Display milestone info, run agent reflections, pause for human approval."""
+    schemas_found = []
+    for name in schema_names:
+        path = memory.root / "schemas" / f"{name}_v1.json"
+        if path.exists():
+            schemas_found.append(path.name)
+
+    console.print(Panel(
+        Text.assemble(
+            (f"Milestone: {milestone_name}\n", "bold"),
+            (f"Cost so far: ${memory.state.get('total_cost_usd', 0):.4f}\n", "cyan"),
+            (f"Schemas: {', '.join(schemas_found) or '(none)'}", "green"),
+        ),
+        title=f"-- {milestone_name} Gate --",
+        border_style="yellow",
+    ))
+
+    for AgentClass in agent_classes:
+        try:
+            agent = AgentClass(memory)
+            agent.reflect(milestone_name, context_data)
+        except Exception as e:
+            logger.warning(f"Reflection failed for {AgentClass.__name__}: {e}")
+
+    # Headless mode (e.g. Render.com): auto-approve without waiting for user input
+    if os.getenv("HEADLESS", "").lower() in ("1", "true", "yes"):
+        logger.info(f"[HEADLESS] Auto-approving {milestone_name}")
+        memory.approve_milestone(milestone_name, "Auto-approved (headless mode)")
+        console.print(f"[green]{milestone_name} Auto-Approved (headless)[/green]\n")
+        return
+
+    console.print("[bold yellow]System paused for human review.[/bold yellow]")
+    input(f"Press [ENTER] to approve {milestone_name} and continue...")
+    memory.approve_milestone(milestone_name, "Approved via CLI")
+    console.print(f"[green]{milestone_name} Approved[/green]\n")
+
+
+# ---------------------------------------------------------------------------
+# Node functions
+# ---------------------------------------------------------------------------
+
+def run_client(state: PipelineState) -> dict:
+    from src.agents.client_agent import ClientAgent
+
+    console.print("\n[bold]Phase 0: Interpreting project brief...[/bold]")
+    print(f"[CLIENT] Interpreting brief: {state['prompt'][:80]}...", flush=True)
+    client = ClientAgent(state["memory"])
+    try:
+        brief = client.run({"prompt": state["prompt"], "jurisdiction": state["jurisdiction"]})
+    except Exception as e:
+        logger.warning(f"ClientAgent failed: {e}")
+        brief = {"building_type": "healthcare", "jurisdiction": state["jurisdiction"],
+                 "brief_summary": state["prompt"]}
+    print(f"[CLIENT] Brief complete: {brief.get('building_type','?')} | {brief.get('project_name','?')}", flush=True)
+    return {"project_brief": brief}
+
+
+def run_input_parser(state: PipelineState) -> dict:
+    from src.agents.input_parser import InputParserAgent
+
+    console.print("\n[bold]Phase 1: Parsing site data...[/bold]")
+    print(f"[PARSER] Parsing site file: {state['site_file']}", flush=True)
+    parser = InputParserAgent(state["memory"])
+    try:
+        site_data = parser.run({"file_path": state["site_file"], "jurisdiction": state["jurisdiction"]})
+    except Exception as e:
+        logger.warning(f"InputParserAgent failed: {e}")
+        site_data = {"boundary": {"points": [], "area_m2": None}, "jurisdiction": state["jurisdiction"]}
+
+    if site_data.get("error") or not site_data.get("boundary"):
+        site_data["boundary"] = site_data.get("boundary", {"points": [], "area_m2": None})
+
+    area = (site_data.get("boundary") or {}).get("area_m2", "?")
+    print(f"[PARSER] Site parsed: {area} m²", flush=True)
+    return {"site_data": site_data}
+
+
+def run_brief(state: PipelineState) -> dict:
+    from src.agents.brief_agent import BriefAgent
+
+    attempt = state.get("brief_qa_attempt", 0)
+    console.print(f"\n[bold]Phase 2: Generating room program (attempt {attempt + 1})...[/bold]")
+    print(f"[BRIEF] Attempt {attempt + 1}/{MAX_RETRIES + 1} — Generating room program...", flush=True)
+
+    brief = BriefAgent(state["memory"])
+    result = _safe_run_agent(brief, {
+        "prompt": state["prompt"],
+        "site_data": state["site_data"],
+        "jurisdiction": state["jurisdiction"],
+        "qa_feedback": state.get("brief_qa_feedback"),
+        "project_brief": state.get("project_brief"),
+    }, state["memory"], "generating room program")
+
+    n_rooms = len(result.get("rooms", []))
+    print(f"[BRIEF] Generated {n_rooms} rooms, {result.get('total_net_area_m2', '?')} m²", flush=True)
+
+    # Export RFP document on first successful generation
+    if attempt == 0:
+        try:
+            brief.export_rfp_document(result)
+        except Exception as e:
+            logger.warning(f"RFP export failed: {e}")
+
+    return {"room_program": result}
+
+
+def qa_brief(state: PipelineState) -> dict:
+    attempt = state.get("brief_qa_attempt", 0)
+    verdict_data = _run_qa_subprocess(
+        "room_program", state["room_program"], f"v{attempt + 1}", attempt,
+        state["projects_dir"], state["project_id"],
+    )
+    verdict = verdict_data.get("verdict", "?")
+    console.print(f"  QA verdict: [{'green' if verdict == 'APPROVED' else 'yellow'}]{verdict}[/]")
+    print(f"[QA] room_program v{attempt+1}: {verdict}", flush=True)
+    if verdict not in ("APPROVED",):
+        issues = verdict_data.get("issues", [])
+        for issue in issues[:3]:
+            print(f"[QA]   ↳ {issue}", flush=True)
+
+    return {
+        "brief_qa_attempt": attempt + 1,
+        "brief_qa_feedback": _qa_feedback_from_verdict(verdict_data) if verdict != "APPROVED" else None,
+    }
+
+
+def route_brief_qa(state: PipelineState) -> str:
+    attempt = state.get("brief_qa_attempt", 0)
+    has_feedback = state.get("brief_qa_feedback") is not None
+    if not has_feedback or attempt >= MAX_RETRIES:
+        return "run_pm_kickoff"
+    return "run_brief"
+
+
+def run_pm_kickoff(state: PipelineState) -> dict:
+    from src.agents.pm_agent import PMAgent
+
+    console.print("\n[bold]Phase 3: PM validating brief...[/bold]")
+    print(f"[PM] Validating brief and kicking off project...", flush=True)
+    pm = PMAgent(state["memory"])
+    pm_decision = pm.kickoff(state["prompt"], state["site_data"], state["jurisdiction"])
+    print(f"[PM] Decision: {pm_decision.get('action', '?')}", flush=True)
+    return {"pm_decision": pm_decision}
+
+
+def run_compliance(state: PipelineState) -> dict:
+    from src.agents.compliance_agent import ComplianceAgent
+
+    console.print("\n[bold]Phase 4: Compliance check...[/bold]")
+    print(f"[COMPLIANCE] Checking room program against regulations...", flush=True)
+    compliance = ComplianceAgent(state["memory"])
+    comp_results = compliance.check_room_program(state["room_program"])
+    summary = comp_results.get("summary", {})
+    console.print(
+        f"  Pass: {summary.get('pass', 0)} | Fail: {summary.get('fail', 0)}"
+        f" | Conditional: {summary.get('conditional', 0)}"
+    )
+    print(f"[COMPLIANCE] Result: {summary.get('pass',0)} pass | {summary.get('fail',0)} fail | {summary.get('conditional',0)} conditional", flush=True)
+    return {"comp_results": comp_results}
+
+
+def gate_m1(state: PipelineState) -> dict:
+    from src.agents.brief_agent import BriefAgent
+    from src.agents.compliance_agent import ComplianceAgent
+
+    print(f"[MILESTONE] Reached M1 — awaiting human approval", flush=True)
+    _milestone_gate(
+        state["memory"], "M1",
+        agent_classes=[BriefAgent, ComplianceAgent],
+        context_data={"room_program": state.get("room_program"), "comp_results": state.get("comp_results")},
+        schema_names=["site_data", "room_program", "compliance_brief"],
+    )
+    return {}
+
+
+def run_architect(state: PipelineState) -> dict:
+    from src.agents.architect_agent import ArchitectAgent
+
+    attempt = state.get("architect_qa_attempt", 0)
+    console.print(f"\n[bold]Phase 5: Architect laying out rooms (attempt {attempt + 1})...[/bold]")
+    print(f"[ARCHITECT] Attempt {attempt + 1}/{MAX_RETRIES + 1} — Laying out rooms...", flush=True)
+
+    memory = state["memory"]
+
+    # Try to load enriched site_data from saved schema
+    site_data_full = state["site_data"]
+    site_data_path = memory.root / "schemas" / "site_data_v1.json"
+    if site_data_path.exists():
+        with open(site_data_path) as f:
+            site_data_full = json.load(f)
+
+    architect = ArchitectAgent(memory)
+    result = _safe_run_agent(architect, {
+        "room_program": state["room_program"],
+        "site_data": site_data_full,
+        "component_templates": {},
+        "qa_feedback": state.get("architect_qa_feedback"),
+        "project_brief": state.get("project_brief"),
+    }, memory, "layout generation")
+    floors = result.get("floors", [])
+    total_rooms = sum(len(fl.get("rooms",[])) for fl in floors)
+    print(f"[ARCHITECT] Layout: {total_rooms} rooms across {len(floors)} floor(s)", flush=True)
+    return {"spatial_layout": result}
+
+
+def qa_architect(state: PipelineState) -> dict:
+    attempt = state.get("architect_qa_attempt", 0)
+    verdict_data = _run_qa_subprocess(
+        "spatial_layout", state["spatial_layout"], f"v{attempt + 1}", attempt,
+        state["projects_dir"], state["project_id"],
+    )
+    verdict = verdict_data.get("verdict", "?")
+    console.print(f"  QA verdict: [{'green' if verdict == 'APPROVED' else 'yellow'}]{verdict}[/]")
+    print(f"[QA] spatial_layout v{attempt+1}: {verdict}", flush=True)
+    if verdict not in ("APPROVED",):
+        issues = verdict_data.get("issues", [])
+        for issue in issues[:3]:
+            print(f"[QA]   ↳ {issue}", flush=True)
+
+    return {
+        "architect_qa_attempt": attempt + 1,
+        "architect_qa_feedback": _qa_feedback_from_verdict(verdict_data) if verdict != "APPROVED" else None,
+    }
+
+
+def route_architect_qa(state: PipelineState) -> str:
+    attempt = state.get("architect_qa_attempt", 0)
+    has_feedback = state.get("architect_qa_feedback") is not None
+    if not has_feedback or attempt >= MAX_RETRIES:
+        return "gate_m2"
+    return "run_architect"
+
+
+def gate_m2(state: PipelineState) -> dict:
+    from src.agents.architect_agent import ArchitectAgent
+
+    print(f"[MILESTONE] Reached M2 — awaiting human approval", flush=True)
+    _milestone_gate(
+        state["memory"], "M2",
+        agent_classes=[ArchitectAgent],
+        context_data={"spatial_layout": state.get("spatial_layout")},
+        schema_names=["spatial_layout"],
+    )
+    return {}
+
+
+def run_structural(state: PipelineState) -> dict:
+    from src.agents.structural_agent import StructuralAgent
+
+    attempt = state.get("structural_qa_attempt", 0)
+    console.print(f"\n[bold]Phase 6: Structural grid (attempt {attempt + 1})...[/bold]")
+    print(f"[STRUCTURAL] Attempt {attempt + 1}/{MAX_RETRIES + 1} — Proposing structural grid...", flush=True)
+
+    memory = state["memory"]
+    site_data_full = state["site_data"]
+    site_data_path = memory.root / "schemas" / "site_data_v1.json"
+    if site_data_path.exists():
+        with open(site_data_path) as f:
+            site_data_full = json.load(f)
+
+    structural = StructuralAgent(memory)
+    result = _safe_run_agent(structural, {
+        "spatial_layout": state["spatial_layout"],
+        "site_data": site_data_full,
+        "qa_feedback": state.get("structural_qa_feedback"),
+    }, memory, "structural grid")
+    print(f"[STRUCTURAL] Grid: {result.get('structural_system', '?')}", flush=True)
+    return {"structural_schema": result}
+
+
+def qa_structural(state: PipelineState) -> dict:
+    attempt = state.get("structural_qa_attempt", 0)
+    verdict_data = _run_qa_subprocess(
+        "structural_schema", state["structural_schema"], f"v{attempt + 1}", attempt,
+        state["projects_dir"], state["project_id"],
+    )
+    verdict = verdict_data.get("verdict", "?")
+    console.print(f"  QA verdict: [{'green' if verdict == 'APPROVED' else 'yellow'}]{verdict}[/]")
+    print(f"[QA] structural_schema v{attempt+1}: {verdict}", flush=True)
+
+    return {
+        "structural_qa_attempt": attempt + 1,
+        "structural_qa_feedback": _qa_feedback_from_verdict(verdict_data) if verdict != "APPROVED" else None,
+    }
+
+
+def route_structural_qa(state: PipelineState) -> str:
+    attempt = state.get("structural_qa_attempt", 0)
+    has_feedback = state.get("structural_qa_feedback") is not None
+    if not has_feedback or attempt >= MAX_RETRIES:
+        return "run_mep"
+    return "run_structural"
+
+
+def run_mep(state: PipelineState) -> dict:
+    from src.agents.mep_agent import MEPAgent
+
+    attempt = state.get("mep_qa_attempt", 0)
+    console.print(f"\n[bold]Phase 7: MEP routing (attempt {attempt + 1})...[/bold]")
+    print(f"[MEP] Attempt {attempt + 1}/{MAX_RETRIES + 1} — Routing MEP systems...", flush=True)
+
+    memory = state["memory"]
+    site_data_full = state["site_data"]
+    site_data_path = memory.root / "schemas" / "site_data_v1.json"
+    if site_data_path.exists():
+        with open(site_data_path) as f:
+            site_data_full = json.load(f)
+
+    mep = MEPAgent(memory)
+    result = _safe_run_agent(mep, {
+        "spatial_layout": state["spatial_layout"],
+        "structural_schema": state["structural_schema"],
+        "site_data": site_data_full,
+        "qa_feedback": state.get("mep_qa_feedback"),
+    }, memory, "mep routing")
+    return {"mep_schema": result}
+
+
+def qa_mep(state: PipelineState) -> dict:
+    attempt = state.get("mep_qa_attempt", 0)
+    verdict_data = _run_qa_subprocess(
+        "mep_schema", state["mep_schema"], f"v{attempt + 1}", attempt,
+        state["projects_dir"], state["project_id"],
+    )
+    verdict = verdict_data.get("verdict", "?")
+    console.print(f"  QA verdict: [{'green' if verdict == 'APPROVED' else 'yellow'}]{verdict}[/]")
+    print(f"[QA] mep_schema v{attempt+1}: {verdict}", flush=True)
+
+    return {
+        "mep_qa_attempt": attempt + 1,
+        "mep_qa_feedback": _qa_feedback_from_verdict(verdict_data) if verdict != "APPROVED" else None,
+    }
+
+
+def route_mep_qa(state: PipelineState) -> str:
+    attempt = state.get("mep_qa_attempt", 0)
+    has_feedback = state.get("mep_qa_feedback") is not None
+    if not has_feedback or attempt >= MAX_RETRIES:
+        return "run_ifc_builder"
+    return "run_mep"
+
+
+def run_ifc_builder(state: PipelineState) -> dict:
+    from src.agents.ifc_builder_agent import IFCBuilderAgent
+
+    console.print("\n[bold]Phase 8: Building IFC model...[/bold]")
+    print(f"[IFC] Building IFC4 model...", flush=True)
+    memory = state["memory"]
+    output_dir = Path(state["projects_dir"]) / state["project_id"] / "outputs"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    ifc_path = output_dir / "model_M1.ifc"
+
+    ifc_builder = IFCBuilderAgent(memory)
+    try:
+        result = ifc_builder.run({
+            "spatial_layout": state["spatial_layout"],
+            "structural_schema": state["structural_schema"],
+            "mep_schema": state["mep_schema"],
+            "output_path": str(ifc_path),
+        })
+        console.print(f"  IFC model: {result.get('entity_count', '?')} entities -> {ifc_path.name}")
+        print(f"[IFC] Generated {result.get('entity_count', '?')} entities → {ifc_path.name}", flush=True)
+    except Exception as e:
+        logger.error(f"IFC Builder failed: {e}")
+        result = {"entity_count": 0, "error": str(e)}
+    return {"ifc_result": result}
+
+
+def gate_m3(state: PipelineState) -> dict:
+    from src.agents.mep_agent import MEPAgent
+    from src.agents.structural_agent import StructuralAgent
+
+    print(f"[MILESTONE] Reached M3 — awaiting human approval", flush=True)
+    _milestone_gate(
+        state["memory"], "M3",
+        agent_classes=[StructuralAgent, MEPAgent],
+        context_data={
+            "structural_schema": state.get("structural_schema"),
+            "mep_schema": state.get("mep_schema"),
+        },
+        schema_names=["structural_schema", "mep_schema"],
+    )
+    return {}
+
+
+def finalize(state: PipelineState) -> dict:
+    memory = state["memory"]
+    memory.update_phase("complete")
+
+    ifc_path = Path(state["projects_dir"]) / state["project_id"] / "outputs" / "model_M1.ifc"
+    memory.approve_milestone("M4", "IFC Base Model generated")
+    memory.approve_milestone("M5", f"Final export approved: {ifc_path.name}")
+
+    console.print(Panel(
+        Text.assemble(
+            ("Pipeline Complete\n", "bold green"),
+            (f"Project: {state['project_id']}\n", "white"),
+            (f"Total cost: ${memory.state.get('total_cost_usd', 0):.4f}\n", "cyan"),
+            (f"IFC entities: {state.get('ifc_result', {}).get('entity_count', '?')}", "green"),
+        ),
+        title="Done",
+        border_style="green",
+    ))
+    print(f"[DONE] Pipeline complete. Cost: ${memory.state.get('total_cost_usd', 0):.4f}", flush=True)
+    return {}
+
+
+# ---------------------------------------------------------------------------
+# Graph construction
+# ---------------------------------------------------------------------------
+
+def build_pipeline() -> StateGraph:
+    """Build and compile the ArchitectAI LangGraph pipeline."""
+    builder = StateGraph(PipelineState)
+
+    # --- Add nodes ---
+    builder.add_node("run_client", run_client)
+    builder.add_node("run_input_parser", run_input_parser)
+    builder.add_node("run_brief", run_brief)
+    builder.add_node("qa_brief", qa_brief)
+    builder.add_node("run_pm_kickoff", run_pm_kickoff)
+    builder.add_node("run_compliance", run_compliance)
+    builder.add_node("gate_m1", gate_m1)
+    builder.add_node("run_architect", run_architect)
+    builder.add_node("qa_architect", qa_architect)
+    builder.add_node("gate_m2", gate_m2)
+    builder.add_node("run_structural", run_structural)
+    builder.add_node("qa_structural", qa_structural)
+    builder.add_node("run_mep", run_mep)
+    builder.add_node("qa_mep", qa_mep)
+    builder.add_node("run_ifc_builder", run_ifc_builder)
+    builder.add_node("gate_m3", gate_m3)
+    builder.add_node("finalize", finalize)
+
+    # --- Linear edges ---
+    builder.add_edge(START, "run_client")
+    builder.add_edge("run_client", "run_input_parser")
+    builder.add_edge("run_input_parser", "run_brief")
+    builder.add_edge("run_brief", "qa_brief")
+    # qa_brief -> conditional (run_brief or run_pm_kickoff)
+    builder.add_edge("run_pm_kickoff", "run_compliance")
+    builder.add_edge("run_compliance", "gate_m1")
+    builder.add_edge("gate_m1", "run_architect")
+    builder.add_edge("run_architect", "qa_architect")
+    # qa_architect -> conditional (run_architect or gate_m2)
+    builder.add_edge("gate_m2", "run_structural")
+    builder.add_edge("run_structural", "qa_structural")
+    # qa_structural -> conditional (run_structural or run_mep)
+    builder.add_edge("run_mep", "qa_mep")
+    # qa_mep -> conditional (run_mep or run_ifc_builder)
+    builder.add_edge("run_ifc_builder", "gate_m3")
+    builder.add_edge("gate_m3", "finalize")
+    builder.add_edge("finalize", END)
+
+    # --- QA retry loops (conditional edges) ---
+    builder.add_conditional_edges("qa_brief", route_brief_qa)
+    builder.add_conditional_edges("qa_architect", route_architect_qa)
+    builder.add_conditional_edges("qa_structural", route_structural_qa)
+    builder.add_conditional_edges("qa_mep", route_mep_qa)
+
+    return builder.compile()

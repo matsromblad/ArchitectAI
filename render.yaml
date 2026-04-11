@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: architectai
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: pip install -r requirements.txt && python scripts/vectorize_kb.py
+    startCommand: python -m src.server.ws_server
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false          # Set manually in Render dashboard
+      - key: HEADLESS
+        value: "true"        # Auto-approve milestone gates (no stdin on server)
+      - key: LOG_LEVEL
+        value: INFO
+      - key: PROJECTS_DIR
+        value: ./projects
+      - key: COMPLIANCE_KB_DIR
+        value: ./compliance_kb

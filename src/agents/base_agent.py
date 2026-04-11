@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from loguru import logger
-from openai import OpenAI
 from dotenv import load_dotenv
 
 from src.memory.project_memory import ProjectMemory
@@ -13,27 +12,13 @@ from src.memory.project_memory import ProjectMemory
 # Load environment variables (critical for standalone tests and scripts)
 load_dotenv()
 
-# ---------------------------------------------------------------------------
-# Runtime: OpenClaw Gateway proxy (OpenAI-compatible endpoint)
-#
-# Config (env or .env):
-#   OLLAMA_URL             default: http://127.0.0.1:11434
-#   OLLAMA_MODEL           default: gemma
-#   OPENCLAW_GATEWAY_URL   Anthropic proxy
-#   OPENCLAW_GATEWAY_TOKEN gateway auth token
-# ---------------------------------------------------------------------------
-
-_GATEWAY_URL   = os.getenv("OLLAMA_URL",   "http://127.0.0.1:11434")
-_GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN", "dummy")
-_OLLAMA_MODEL  = os.getenv("OLLAMA_MODEL", "gemma")
-
 
 class BaseAgent(ABC):
     """
     Base class for all ArchitectAI agents.
 
     Provides:
-    - OpenClaw Gateway client (OpenAI-compat, proxied via OAuth)
+    - Gemini REST API integration (primary model backend)
     - Shared message logging via ProjectMemory
     - Standard call() interface
     - Structured response parsing helpers
@@ -46,11 +31,7 @@ class BaseAgent(ABC):
     def __init__(self, memory: ProjectMemory, model: str = None):
         self.memory = memory
         self.model = model or os.getenv(f"{self.AGENT_ID.upper()}_MODEL", self.DEFAULT_MODEL)
-        self.client = OpenAI(
-            base_url=f"{_GATEWAY_URL}/v1",
-            api_key=_GATEWAY_TOKEN or "dummy",
-        )
-        logger.info(f"[{self.AGENT_ID}] Initialized → Model pref: {self.model} (Ollama fallback: {_OLLAMA_MODEL})")
+        logger.info(f"[{self.AGENT_ID}] Initialized → Model: {self.model}")
 
     def _chat_gemini_rest(
         self,
@@ -165,83 +146,25 @@ class BaseAgent(ABC):
         temperature: float = 0.2,
         response_format: dict = None,
     ) -> str:
-        """Send a chat request. If model is Gemini or Claude, routes to them first, then falls back to Ollama."""
-        
-        if self.model.startswith("gemini"):
-            # Map marketing names
-            api_model_name = self.model
-            if "3.1-pro" in self.model:
-                api_model_name = "models/gemini-3.1-pro-preview"
-            elif "flash-lite" in self.model:
-                api_model_name = "models/gemini-3.1-flash-lite-preview"
-            elif "3-flash" in self.model:
-                api_model_name = "models/gemini-3-flash-preview"
-            elif not api_model_name.startswith("models/"):
-                api_model_name = f"models/{api_model_name}"
-                
-            if os.getenv("GEMINI_API_KEY") and os.getenv("GEMINI_API_KEY") != "dummy":
-                # For Phase 4 verification, we DO NOT catch this exception to see it in logs
-                return self._chat_gemini_rest(api_model_name, system, messages, max_tokens, temperature)
-            else:
-                logger.warning(f"[{self.AGENT_ID}] No valid GEMINI_API_KEY found, falling back to Ollama.")
-                
-        # 1. Try OpenClaw if model is Claude
-        if self.model.startswith("claude"):
-            try:
-                openclaw_url = os.getenv("OPENCLAW_GATEWAY_URL", "http://127.0.0.1:18789")
-                openclaw_token = os.getenv("OPENCLAW_GATEWAY_TOKEN", "dummy")
-                
-                openclaw_client = OpenAI(
-                    base_url=f"{openclaw_url}/v1",
-                    api_key=openclaw_token,
-                )
-                logger.debug(f"[{self.AGENT_ID}] → OpenClaw API ({self.model})")
-                
-                full_messages = [{"role": "system", "content": system}] + messages
-                
-                response = openclaw_client.chat.completions.create(
-                    model="openclaw",
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    messages=full_messages,
-                    extra_headers={"x-openclaw-model": f"anthropic/{self.model}"},
-                )
-                content = response.choices[0].message.content
-                
-                usage = getattr(response, "usage", None)
-                in_tok = getattr(usage, "prompt_tokens", 0) if usage else 0
-                out_tok = getattr(usage, "completion_tokens", 0) if usage else 0
-                
-                cost = (in_tok / 1_000_000) * 15.0 + (out_tok / 1_000_000) * 75.0
-                self.memory.log_cost(cost)
-                logger.info(f"[{self.AGENT_ID}] ← {len(content)} chars | tokens: {in_tok} in / {out_tok} out | cost: ${cost:.4f} (OpenClaw: {self.model})")
-                return content
-            except Exception as e:
-                logger.warning(f"[{self.AGENT_ID}] OpenClaw failed: {e}. Falling back to Ollama.")
+        """Send a chat request via Gemini REST API."""
+        if not self.model.startswith("gemini"):
+            raise ValueError(f"[{self.AGENT_ID}] Unsupported model: {self.model}. Only Gemini models are supported.")
 
-        # 2. Ollama Request (Default or Fallback)
-        logger.debug(f"[{self.AGENT_ID}] → Ollama ({_OLLAMA_MODEL}), {len(messages)} messages")
+        # Map marketing names to API model names
+        api_model_name = self.model
+        if "3.1-pro" in self.model:
+            api_model_name = "models/gemini-3.1-pro-preview"
+        elif "flash-lite" in self.model:
+            api_model_name = "models/gemini-3.1-flash-lite-preview"
+        elif "3-flash" in self.model:
+            api_model_name = "models/gemini-3-flash-preview"
+        elif not api_model_name.startswith("models/"):
+            api_model_name = f"models/{api_model_name}"
 
-        full_messages = [{"role": "system", "content": system}] + messages
+        if not os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY") == "dummy":
+            raise EnvironmentError(f"[{self.AGENT_ID}] GEMINI_API_KEY is not set.")
 
-        response = self.client.chat.completions.create(
-            model=_OLLAMA_MODEL,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            messages=full_messages,
-        )
-        content = response.choices[0].message.content
-
-        usage = getattr(response, "usage", None)
-        if usage:
-            in_tok  = getattr(usage, "prompt_tokens", 0)
-            out_tok = getattr(usage, "completion_tokens", 0)
-            cost = (in_tok / 1_000_000) * 1.0 + (out_tok / 1_000_000) * 5.0
-            self.memory.log_cost(cost)
-            logger.info(f"[{self.AGENT_ID}] ← {len(content)} chars | tokens: {in_tok} in / {out_tok} out | cost: ${cost:.4f} (model: {self.model})")
-        else:
-            logger.debug(f"[{self.AGENT_ID}] ← {len(content)} chars")
-        return content
+        return self._chat_gemini_rest(api_model_name, system, messages, max_tokens, temperature)
 
     def send_message(self, to: str, msg_type: str, payload: dict, reply_to: str = None) -> str:
         """Log a message to the project message bus. Returns msg_id."""
