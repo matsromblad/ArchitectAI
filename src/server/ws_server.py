@@ -404,6 +404,8 @@ else:
         prompt: str
         siteDrawings: list
         governingDocs: list
+        apiKey: str = ""
+        provider: str = "gemini"
 
     @app.post("/launch")
     async def launch_project(payload: LaunchPayload):
@@ -432,6 +434,14 @@ else:
         env["NO_COLOR"] = "1"
         env["FORCE_COLOR"] = "0"
         env["PYTHONIOENCODING"] = "utf-8"
+        if payload.apiKey:
+            provider_env = {
+                "gemini":    "GEMINI_API_KEY",
+                "anthropic": "ANTHROPIC_API_KEY",
+                "openai":    "OPENAI_API_KEY",
+            }
+            env_var = provider_env.get(payload.provider, "GEMINI_API_KEY")
+            env[env_var] = payload.apiKey
             
         try:
             cwd = Path(__file__).parent.parent.parent

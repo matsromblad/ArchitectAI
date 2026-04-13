@@ -933,7 +933,56 @@
       </div>
     </div>
 
-    <!-- ── SECTION E: Submit ── -->
+    <!-- ── SECTION E: API Key ── -->
+    <div class="section-card" id="card-apikey">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="card-icon">🔑</div>
+          <div class="card-title-group">
+            <div class="card-title">AI Provider API Key</div>
+            <div class="card-subtitle">Your key is stored in this browser session only — never saved to disk</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="settings-grid">
+          <div class="field-group full">
+            <label class="field-label" for="provider">Provider</label>
+            <select id="provider" class="field-select">
+              <option value="gemini">Google Gemini</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="openai">OpenAI</option>
+            </select>
+          </div>
+          <div class="field-group full">
+            <label class="field-label" id="api-key-label" for="api-key">API Key</label>
+            <div style="position:relative;">
+              <input
+                type="password"
+                id="api-key"
+                class="field-input"
+                placeholder="AIza…"
+                autocomplete="off"
+                spellcheck="false"
+                style="padding-right: 44px;"
+              />
+              <button
+                id="btn-toggle-key"
+                type="button"
+                aria-label="Show/hide API key"
+                style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-dim); font-size:14px; padding:4px;"
+              >👁</button>
+            </div>
+            <div style="margin-top:6px; font-size:12px; color:var(--text-dim);" id="api-key-hint">
+              Used for all agents. The project manager always runs on the most capable model available.
+              Get a key at <a id="api-key-link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--gold);">Google AI Studio</a>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION F: Submit ── -->
     <div class="submit-section">
       <div class="submit-actions">
         <button class="btn btn-gold" id="btn-launch" style="background:#BEB1A4; color:white;">
@@ -971,6 +1020,10 @@
             <span class="summary-key">Building type</span>
             <span class="summary-val missing" id="sum-btype">—</span>
           </div>
+          <div class="summary-row">
+            <span class="summary-key">API key</span>
+            <span class="summary-val missing" id="sum-apikey">Missing</span>
+          </div>
         </div>
       </div>
     </div>
@@ -997,7 +1050,9 @@
     prompt: '',
     projectName: '',
     jurisdiction: '',
-    buildingType: ''
+    buildingType: '',
+    apiKey: '',
+    provider: 'gemini'
   };
 
   // ── File helpers ──
@@ -1140,6 +1195,57 @@
     promptEl.focus();
   });
 
+  // ── API Key & Provider ──
+  const apiKeyEl    = document.getElementById('api-key');
+  const providerEl  = document.getElementById('provider');
+  const toggleKeyBtn = document.getElementById('btn-toggle-key');
+  const apiKeyLabel = document.getElementById('api-key-label');
+  const apiKeyLink  = document.getElementById('api-key-link');
+
+  const PROVIDER_META = {
+    gemini:    { label: 'Gemini API Key',    placeholder: 'AIza…',    linkText: 'Google AI Studio',  href: 'https://aistudio.google.com/apikey' },
+    anthropic: { label: 'Anthropic API Key', placeholder: 'sk-ant-…', linkText: 'Anthropic Console', href: 'https://console.anthropic.com/settings/keys' },
+    openai:    { label: 'OpenAI API Key',    placeholder: 'sk-…',     linkText: 'OpenAI Platform',   href: 'https://platform.openai.com/api-keys' },
+  };
+
+  function applyProviderMeta(provider) {
+    const meta = PROVIDER_META[provider] || PROVIDER_META.gemini;
+    apiKeyLabel.textContent = meta.label;
+    apiKeyEl.placeholder = meta.placeholder;
+    apiKeyLink.textContent = meta.linkText;
+    apiKeyLink.href = meta.href;
+    // Clear key when switching provider
+    apiKeyEl.value = '';
+    state.apiKey = '';
+    const savedKey = sessionStorage.getItem('architectai_api_key_' + provider);
+    if (savedKey) { apiKeyEl.value = savedKey; state.apiKey = savedKey; }
+    updateSummary();
+    updateLaunchState();
+  }
+
+  // Restore provider from sessionStorage
+  const savedProvider = sessionStorage.getItem('architectai_provider') || 'gemini';
+  providerEl.value = savedProvider;
+  state.provider = savedProvider;
+  applyProviderMeta(savedProvider);
+
+  providerEl.addEventListener('change', () => {
+    state.provider = providerEl.value;
+    sessionStorage.setItem('architectai_provider', state.provider);
+    applyProviderMeta(state.provider);
+  });
+
+  apiKeyEl.addEventListener('input', () => {
+    state.apiKey = apiKeyEl.value.trim();
+    sessionStorage.setItem('architectai_api_key_' + state.provider, state.apiKey);
+    updateSummary();
+    updateLaunchState();
+  });
+
+  toggleKeyBtn.addEventListener('click', () => {
+    apiKeyEl.type = apiKeyEl.type === 'password' ? 'text' : 'password';
+  });
+
   // ── Settings ──
   const projectNameEl  = document.getElementById('project-name');
   const jurisdictionEl = document.getElementById('jurisdiction');
@@ -1180,13 +1286,14 @@
     setSummaryVal('sum-name',        state.projectName || '—', !!state.projectName);
     setSummaryVal('sum-jurisdiction', state.jurisdiction ? jurisdictionLabels[state.jurisdiction] : '—', !!state.jurisdiction);
     setSummaryVal('sum-btype',       state.buildingType ? buildingTypeLabels[state.buildingType] : '—', !!state.buildingType);
+    setSummaryVal('sum-apikey',      state.apiKey ? '••••••••' : 'Missing', !!state.apiKey);
   }
 
   // ── Launch button state ──
   const launchBtn = document.getElementById('btn-launch');
 
   function updateLaunchState() {
-    const canLaunch = state.siteDrawings.length > 0 && state.prompt.length > 0 && state.projectName.length > 0;
+    const canLaunch = state.siteDrawings.length > 0 && state.prompt.length > 0 && state.projectName.length > 0 && state.apiKey.length > 0;
     launchBtn.disabled = !canLaunch;
   }
 
@@ -1199,6 +1306,8 @@
       prompt:        state.prompt,
       siteDrawings:  state.siteDrawings.map(f => ({ name: f.name, size: f.size, type: f.type })),
       governingDocs: state.governingDocs.map(f => ({ name: f.name, size: f.size, type: f.type })),
+      apiKey:        state.apiKey,
+      provider:      state.provider,
       createdAt:     new Date().toISOString()
     };
   }
