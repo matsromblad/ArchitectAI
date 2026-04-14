@@ -36,24 +36,26 @@ class ArchitectAgent(BaseAgent):
             kb_docs.get("tekniska_krav", "")[:5000]
             if kb_docs.get("tekniska_krav") else "[Tekniska krav not loaded]"
         )
+
+    def run(self, inputs: dict) -> dict:
         room_program    = inputs["room_program"]
         site_data       = inputs.get("site_data", {})
         qa_feedback     = inputs.get("qa_feedback")
         project_brief   = inputs.get("project_brief", {})
+        attempt         = inputs.get("attempt", 0)
 
         rooms_input    = room_program.get("rooms", [])
         building_type  = room_program.get("building_type", "healthcare")
         jurisdiction   = room_program.get("jurisdiction", "SE")
 
         attempt_label  = "REVISION" if qa_feedback else "INITIAL"
-        logger.info(f"[{self.AGENT_ID}] [{attempt_label}] Laying out {len(rooms_input)} rooms on site")
+        logger.info(f"[{self.AGENT_ID}] [{attempt_label}] Laying out {len(rooms_input)} rooms on site (attempt {attempt})")
         self.send_message("pm", "status_update", {
             "status": "working",
             "task": f"Spatial layout ({attempt_label}) — {len(rooms_input)} rooms",
         })
 
         # Get semantic context for the specific project type if needed
-        # (Using 'query' as project_brief['description'] or building_type)
         kb_project_context = self.kb_loader.get_semantic_context(
             f"{building_type} {project_brief.get('description', '')}",
             self.AGENT_ID,
@@ -70,16 +72,56 @@ Use the following regulatory guidelines for your reasoning:
 Your task is to place rooms onto the site based on the room program.
 """
 
-        # Prefer project_brief dimensions (realistic), fall back to site_data, then defaults
+        # Site dimensions: prefer site_data (parsed from actual file) over project_brief (LLM estimate)
+        boundary = site_data.get("boundary", {})
         pb_size = project_brief.get("size", {})
-        site_w  = float(pb_size.get("site_width_m") or site_data.get("boundary", {}).get("width_m") or 30)
-        site_d  = float(pb_size.get("site_depth_m") or site_data.get("boundary", {}).get("depth_m") or 20)
+        pb_source = pb_size.get("source", "unknown")
+
+        # Ground truth: site_data from Input Parser
+        sd_w = boundary.get("width_m")
+        sd_d = boundary.get("depth_m")
+        # Fallback: derive from boundary points if width/depth not explicit
+        if not sd_w and boundary.get("points"):
+            pts = boundary["points"]
+            xs = [p[0] for p in pts if isinstance(p, (list, tuple)) and len(p) >= 2]
+            ys = [p[1] for p in pts if isinstance(p, (list, tuple)) and len(p) >= 2]
+            if xs and ys:
+                sd_w = max(xs) - min(xs)
+                sd_d = max(ys) - min(ys)
+        # Fallback: derive from area (assume ~1.5:1 ratio)
+        if not sd_w and boundary.get("area_m2"):
+            import math
+            area = float(boundary["area_m2"])
+            sd_w = round(math.sqrt(area * 1.5), 1)
+            sd_d = round(area / sd_w, 1)
+
+        # Project brief as secondary source (only if site_data unavailable)
+        pb_w = float(pb_size.get("site_width_m") or 0)
+        pb_d = float(pb_size.get("site_depth_m") or 0)
+
+        site_w = float(sd_w or pb_w or 60)
+        site_d = float(sd_d or pb_d or 40)
+
+        # Log if sources disagree
+        if sd_w and pb_w and abs(sd_w - pb_w) > 2.0:
+            logger.warning(f"[{self.AGENT_ID}] Site width mismatch: site_data={sd_w}m vs project_brief={pb_w}m (source={pb_source}) — using site_data")
+        if sd_d and pb_d and abs(sd_d - pb_d) > 2.0:
+            logger.warning(f"[{self.AGENT_ID}] Site depth mismatch: site_data={sd_d}m vs project_brief={pb_d}m (source={pb_source}) — using site_data")
 
         # All layout constants in metres but derived from SE mm constants.
         # snap_mm(x*1000, 100)/1000 ensures values are multiples of 100 mm.
         WALL   = SE.WALL_INTERNAL_LOADBEARING / 1000          # 0.200 m
-        CORR_W = SE.CORRIDOR_HEALTHCARE_REC  / 1000           # 0.270 m → 2.700 m
+
+        # QA-responsive variation: adjust layout parameters per attempt
+        # This ensures retries produce different layouts instead of identical ones
+        CORR_VARIANTS = [2.7, 3.0, 2.4, 3.3]  # corridor widths in metres
+        CORE_SIDE_VARIANTS = ["east", "west", "east", "center"]  # core placement
+        CORR_W = CORR_VARIANTS[attempt % len(CORR_VARIANTS)]
+        core_side = CORE_SIDE_VARIANTS[attempt % len(CORE_SIDE_VARIANTS)]
         CORE_W = snap_mm(SE.COLUMN_SIZE_TYPICAL * 8, 100) / 1000  # 3200 mm → 3.200 m
+
+        if attempt > 0:
+            logger.info(f"[{self.AGENT_ID}] Variation attempt {attempt}: corridor={CORR_W}m, core={core_side}")
 
         # ── 1. Filter corridor-named rooms ────────────────────────────────────
         def _is_corr(r):
@@ -138,8 +180,19 @@ Your task is to place rooms onto the site based on the room program.
         clean_rooms = paired_clean if paired_clean else all_clean
 
         # ── 3. Row-packing helper ─────────────────────────────────────────────
-        # Leaves CORE_W + 1.0m gap on the east side for the stair/lift core
-        ROW_MAX_X = site_w - CORE_W - 1.0
+        # Reserve space for stair/lift core based on core_side variant
+        if core_side == "west":
+            CORE_OFFSET_X = 0.0
+            PACK_START_X = CORE_W + 1.0
+            ROW_MAX_X = site_w
+        elif core_side == "center":
+            CORE_OFFSET_X = round(site_w / 2 - CORE_W / 2, 2)
+            PACK_START_X = 0.0
+            ROW_MAX_X = CORE_OFFSET_X - 1.0
+        else:  # east (default)
+            CORE_OFFSET_X = round(site_w - CORE_W, 2)
+            PACK_START_X = 0.0
+            ROW_MAX_X = site_w - CORE_W - 1.0
 
         def _snap(val_m: float, grid_mm: int = 100) -> float:
             """Snap a metre value to the nearest grid_mm boundary."""
@@ -150,7 +203,7 @@ Your task is to place rooms onto the site based on the room program.
             All x/y/width/depth values are snapped to 100 mm grid (SE standard).
             """
             placed = []
-            x, y, row_max_d = 0.0, y0, 0.0
+            x, y, row_max_d = PACK_START_X, y0, 0.0
             for r in room_list:
                 name = r.get("room_name") or r.get("name") or "Room"
                 area = float(r.get("min_area_m2") or 12)
@@ -214,14 +267,18 @@ Your task is to place rooms onto the site based on the room program.
 
         all_rooms = p_clean + p_staff + p_dirty
 
-        # ── 5. Stair/lift core (east end, no collision guaranteed) ──────────
-        core_x = round(site_w - CORE_W, 2)
+        # ── 5. Stair/lift core (position varies by attempt) ──────────────────
+        core_x = round(CORE_OFFSET_X, 2)
 
         # Fill gap between last clean room and stair core with entrance/reception
-        if p_clean:
+        # Guard: max 40 m2, no duplicate R_ENT, no absurd strips
+        MAX_ENTRANCE_AREA = 40.0
+        existing_ids = {r.get("room_id") for r in all_rooms}
+        if p_clean and "R_ENT" not in existing_ids:
             last_clean_x = max(r["x_m"] + r["width_m"] for r in p_clean)
             gap = round(core_x - last_clean_x - WALL, 2)
-            if gap > 1.0:
+            gap_area = round(gap * y_c01, 1) if y_c01 > 0 else 0
+            if 1.0 < gap <= 12.0 and gap_area <= MAX_ENTRANCE_AREA:
                 all_rooms.append({
                     "room_id": "R_ENT",
                     "name": "Ward Entrance / Reception",
@@ -229,10 +286,12 @@ Your task is to place rooms onto the site based on the room program.
                     "y_m": 0.0,
                     "width_m": round(gap, 2),
                     "depth_m": round(y_c01, 2),
-                    "area_m2": round(gap * y_c01, 1),
+                    "area_m2": gap_area,
                     "zone": "public",
                     "access": "public",
                 })
+            elif gap > 12.0:
+                logger.warning(f"[{self.AGENT_ID}] Gap of {gap}m too large for auto-fill entrance ({gap_area} m2) — leaving as circulation space")
 
         # ST01: primary stair spans from C01 southward (clear of C01 top = y_c01)
         # Place it ABOVE clean row so it doesn't touch corridors
@@ -310,7 +369,7 @@ Your task is to place rooms onto the site based on the room program.
         for i, ea in enumerate(all_elements):
             for eb in all_elements[i+1:]:
                 if overlaps(ea, eb):
-                    msg = f"COLLISION: {ea.get('room_id') or ea.get('corridor_id') or ea.get('stair_id') or ea.get('lift_id')} ↔ {eb.get('room_id') or eb.get('corridor_id') or eb.get('stair_id') or eb.get('lift_id')}"
+                    msg = f"COLLISION: {ea.get('room_id') or ea.get('corridor_id') or ea.get('stair_id') or ea.get('lift_id')} <-> {eb.get('room_id') or eb.get('corridor_id') or eb.get('stair_id') or eb.get('lift_id')}"
                     collision_notes.append(msg)
                     logger.warning(f"[{self.AGENT_ID}] {msg}")
 

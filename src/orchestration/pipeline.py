@@ -60,6 +60,10 @@ class PipelineState(TypedDict):
     mep_qa_feedback: Optional[str]
     mep_qa_attempt: int
 
+    # Alternative suggestions
+    brief_alternatives: Optional[list]
+    architect_alternatives: Optional[list]
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -84,6 +88,7 @@ def _run_qa_subprocess(schema_type, schema_data, version, prior_rejections,
             [venv_python, "scripts/run_qa.py"],
             input=json.dumps(payload),
             capture_output=True, text=True, timeout=timeout,
+            encoding="utf-8", errors="replace",
             env={
                 **os.environ,
                 "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "dummy"),
@@ -234,6 +239,7 @@ def run_brief(state: PipelineState) -> dict:
         "jurisdiction": state["jurisdiction"],
         "qa_feedback": state.get("brief_qa_feedback"),
         "project_brief": state.get("project_brief"),
+        "prior_room_program": state.get("room_program"),
     }, state["memory"], "generating room program")
 
     n_rooms = len(result.get("rooms", []))
@@ -261,7 +267,7 @@ def qa_brief(state: PipelineState) -> dict:
     if verdict not in ("APPROVED",):
         issues = verdict_data.get("issues", [])
         for issue in issues[:3]:
-            print(f"[QA]   ↳ {issue}", flush=True)
+            print(f"[QA]   > {issue}", flush=True)
 
     return {
         "brief_qa_attempt": attempt + 1,
@@ -272,9 +278,89 @@ def qa_brief(state: PipelineState) -> dict:
 def route_brief_qa(state: PipelineState) -> str:
     attempt = state.get("brief_qa_attempt", 0)
     has_feedback = state.get("brief_qa_feedback") is not None
-    if not has_feedback or attempt >= MAX_RETRIES:
+    if not has_feedback:
         return "run_pm_kickoff"
+    if attempt >= MAX_RETRIES:
+        return "generate_brief_alternatives"
     return "run_brief"
+
+
+def generate_brief_alternatives(state: PipelineState) -> dict:
+    """Generate 2-3 variant room programs when QA retries are exhausted."""
+    from src.agents.brief_agent import BriefAgent
+
+    console.print("\n[bold yellow]QA retries exhausted — generating alternative room programs...[/bold yellow]")
+    print("[ALTERNATIVES] Generating 3 brief variants...", flush=True)
+
+    strategies = [
+        "Prioritera kliniska karnrum (operationssal, sterilcentral, uppvakningsrum). Minska stodutrymmens ytor for att rymmas pa tomten.",
+        "Komplett program med alla rum men reducerade ytor. Varje rum far minsta tillagna yta enligt PTS.",
+        "Dela programmet pa 2 vaningar for att rymma fullstandigt program inom tomtens grundyta.",
+    ]
+
+    variants = []
+    for i, strategy in enumerate(strategies):
+        try:
+            brief = BriefAgent(state["memory"])
+            result = _safe_run_agent(brief, {
+                "prompt": state["prompt"],
+                "site_data": state["site_data"],
+                "jurisdiction": state["jurisdiction"],
+                "qa_feedback": f"Generera variant {i+1}: {strategy}",
+                "project_brief": state.get("project_brief"),
+            }, state["memory"], f"brief alternative {i+1}")
+            n_rooms = len(result.get("rooms", []))
+            area = result.get("total_net_area_m2", 0)
+            print(f"[ALTERNATIVES]   Variant {i+1}: {n_rooms} rooms, {area:.0f} m2 — {strategy[:60]}", flush=True)
+            variants.append({"strategy": strategy, "room_program": result})
+        except Exception as e:
+            logger.warning(f"Alternative {i+1} failed: {e}")
+
+    return {"brief_alternatives": variants}
+
+
+def select_brief_alternative(state: PipelineState) -> dict:
+    """Auto-select best variant (headless) or let user choose (interactive)."""
+    variants = state.get("brief_alternatives", [])
+    if not variants:
+        console.print("[yellow]No alternatives generated — proceeding with current room program[/yellow]")
+        return {}
+
+    if os.getenv("HEADLESS", "").lower() in ("1", "true", "yes"):
+        # Auto-select: variant with most rooms that has reasonable area
+        site_area = (state.get("site_data", {}).get("boundary", {}).get("area_m2") or 2400)
+        max_net = site_area * 0.6  # ~60% of site as buildable
+
+        def score(v):
+            rp = v["room_program"]
+            n_rooms = len(rp.get("rooms", []))
+            area = rp.get("total_net_area_m2", 0)
+            # Prefer more rooms, penalize if way over site capacity
+            penalty = max(0, area - max_net) * 0.01
+            return n_rooms - penalty
+
+        best = max(variants, key=score)
+        best_rp = best["room_program"]
+        console.print(f"[green]Auto-selected: {best['strategy'][:60]}... ({len(best_rp.get('rooms',[]))} rooms, {best_rp.get('total_net_area_m2',0):.0f} m2)[/green]")
+        print(f"[ALTERNATIVES] Auto-selected variant: {len(best_rp.get('rooms',[]))} rooms", flush=True)
+        return {"room_program": best_rp}
+    else:
+        # Interactive: show options
+        console.print("\n[bold yellow]Choose a room program variant:[/bold yellow]")
+        for i, v in enumerate(variants):
+            rp = v["room_program"]
+            n = len(rp.get("rooms", []))
+            a = rp.get("total_net_area_m2", 0)
+            console.print(f"  [cyan]{i+1}[/cyan]. {v['strategy'][:80]}")
+            console.print(f"     {n} rooms, {a:.0f} m2 net")
+        choice = input("Select option (1/2/3): ").strip()
+        try:
+            idx = int(choice) - 1
+            selected = variants[idx]
+        except (ValueError, IndexError):
+            selected = variants[0]
+        console.print(f"[green]Selected variant {idx+1}[/green]")
+        return {"room_program": selected["room_program"]}
 
 
 def run_pm_kickoff(state: PipelineState) -> dict:
@@ -341,6 +427,7 @@ def run_architect(state: PipelineState) -> dict:
         "component_templates": {},
         "qa_feedback": state.get("architect_qa_feedback"),
         "project_brief": state.get("project_brief"),
+        "attempt": state.get("architect_qa_attempt", 0),
     }, memory, "layout generation")
     floors = result.get("floors", [])
     total_rooms = sum(len(fl.get("rooms",[])) for fl in floors)
@@ -360,7 +447,7 @@ def qa_architect(state: PipelineState) -> dict:
     if verdict not in ("APPROVED",):
         issues = verdict_data.get("issues", [])
         for issue in issues[:3]:
-            print(f"[QA]   ↳ {issue}", flush=True)
+            print(f"[QA]   > {issue}", flush=True)
 
     return {
         "architect_qa_attempt": attempt + 1,
@@ -371,9 +458,90 @@ def qa_architect(state: PipelineState) -> dict:
 def route_architect_qa(state: PipelineState) -> str:
     attempt = state.get("architect_qa_attempt", 0)
     has_feedback = state.get("architect_qa_feedback") is not None
-    if not has_feedback or attempt >= MAX_RETRIES:
+    if not has_feedback:
         return "gate_m2"
+    if attempt >= MAX_RETRIES:
+        return "generate_architect_alternatives"
     return "run_architect"
+
+
+def generate_architect_alternatives(state: PipelineState) -> dict:
+    """Generate layout variants by running architect with different parameters."""
+    from src.agents.architect_agent import ArchitectAgent
+
+    console.print("\n[bold yellow]QA retries exhausted — generating alternative layouts...[/bold yellow]")
+    print("[ALTERNATIVES] Generating 3 layout variants...", flush=True)
+
+    memory = state["memory"]
+    site_data_full = state["site_data"]
+    site_data_path = memory.root / "schemas" / "site_data_v1.json"
+    if site_data_path.exists():
+        with open(site_data_path) as f:
+            site_data_full = json.load(f)
+
+    variants = []
+    variant_labels = [
+        "Standard (core ost, 2.7m korridor)",
+        "Bredare korridor (3.0m), core vast",
+        "Smalare korridor (2.4m), core mitt",
+    ]
+    for i in range(3):
+        try:
+            architect = ArchitectAgent(memory)
+            result = architect.run({
+                "room_program": state["room_program"],
+                "site_data": site_data_full,
+                "component_templates": {},
+                "qa_feedback": None,
+                "project_brief": state.get("project_brief"),
+                "attempt": i,
+            })
+            floors = result.get("floors", [])
+            total_rooms = sum(len(fl.get("rooms", [])) for fl in floors)
+            collision = result.get("collision_check", "?")
+            print(f"[ALTERNATIVES]   Variant {i+1}: {total_rooms} rooms, collision={collision[:10]} — {variant_labels[i]}", flush=True)
+            variants.append({"label": variant_labels[i], "spatial_layout": result})
+        except Exception as e:
+            logger.warning(f"Architect alternative {i+1} failed: {e}")
+
+    return {"architect_alternatives": variants}
+
+
+def select_architect_alternative(state: PipelineState) -> dict:
+    """Auto-select best layout (headless) or let user choose."""
+    variants = state.get("architect_alternatives", [])
+    if not variants:
+        return {}
+
+    if os.getenv("HEADLESS", "").lower() in ("1", "true", "yes"):
+        # Prefer variant with PASS collision check and most rooms
+        def score(v):
+            sl = v["spatial_layout"]
+            floors = sl.get("floors", [])
+            total_rooms = sum(len(fl.get("rooms", [])) for fl in floors)
+            collision_pass = 1 if sl.get("collision_check", "").startswith("PASS") else 0
+            return (collision_pass, total_rooms)
+
+        best = max(variants, key=score)
+        sl = best["spatial_layout"]
+        console.print(f"[green]Auto-selected layout: {best['label']}[/green]")
+        print(f"[ALTERNATIVES] Auto-selected layout: {best['label']}", flush=True)
+        return {"spatial_layout": sl}
+    else:
+        console.print("\n[bold yellow]Choose a layout variant:[/bold yellow]")
+        for i, v in enumerate(variants):
+            sl = v["spatial_layout"]
+            floors = sl.get("floors", [])
+            total_rooms = sum(len(fl.get("rooms", [])) for fl in floors)
+            collision = sl.get("collision_check", "?")
+            console.print(f"  [cyan]{i+1}[/cyan]. {v['label']} — {total_rooms} rooms, collision: {collision[:20]}")
+        choice = input("Select option (1/2/3): ").strip()
+        try:
+            idx = int(choice) - 1
+            selected = variants[idx]
+        except (ValueError, IndexError):
+            selected = variants[0]
+        return {"spatial_layout": selected["spatial_layout"]}
 
 
 def gate_m2(state: PipelineState) -> dict:
@@ -504,7 +672,7 @@ def run_ifc_builder(state: PipelineState) -> dict:
             "output_path": str(ifc_path),
         })
         console.print(f"  IFC model: {result.get('entity_count', '?')} entities -> {ifc_path.name}")
-        print(f"[IFC] Generated {result.get('entity_count', '?')} entities → {ifc_path.name}", flush=True)
+        print(f"[IFC] Generated {result.get('entity_count', '?')} entities -> {ifc_path.name}", flush=True)
     except Exception as e:
         logger.error(f"IFC Builder failed: {e}")
         result = {"entity_count": 0, "error": str(e)}
@@ -563,11 +731,15 @@ def build_pipeline() -> StateGraph:
     builder.add_node("run_input_parser", run_input_parser)
     builder.add_node("run_brief", run_brief)
     builder.add_node("qa_brief", qa_brief)
+    builder.add_node("generate_brief_alternatives", generate_brief_alternatives)
+    builder.add_node("select_brief_alternative", select_brief_alternative)
     builder.add_node("run_pm_kickoff", run_pm_kickoff)
     builder.add_node("run_compliance", run_compliance)
     builder.add_node("gate_m1", gate_m1)
     builder.add_node("run_architect", run_architect)
     builder.add_node("qa_architect", qa_architect)
+    builder.add_node("generate_architect_alternatives", generate_architect_alternatives)
+    builder.add_node("select_architect_alternative", select_architect_alternative)
     builder.add_node("gate_m2", gate_m2)
     builder.add_node("run_structural", run_structural)
     builder.add_node("qa_structural", qa_structural)
@@ -582,12 +754,16 @@ def build_pipeline() -> StateGraph:
     builder.add_edge("run_client", "run_input_parser")
     builder.add_edge("run_input_parser", "run_brief")
     builder.add_edge("run_brief", "qa_brief")
-    # qa_brief -> conditional (run_brief or run_pm_kickoff)
+    # qa_brief -> conditional (run_brief / run_pm_kickoff / generate_brief_alternatives)
+    builder.add_edge("generate_brief_alternatives", "select_brief_alternative")
+    builder.add_edge("select_brief_alternative", "run_pm_kickoff")
     builder.add_edge("run_pm_kickoff", "run_compliance")
     builder.add_edge("run_compliance", "gate_m1")
     builder.add_edge("gate_m1", "run_architect")
     builder.add_edge("run_architect", "qa_architect")
-    # qa_architect -> conditional (run_architect or gate_m2)
+    # qa_architect -> conditional (run_architect / gate_m2 / generate_architect_alternatives)
+    builder.add_edge("generate_architect_alternatives", "select_architect_alternative")
+    builder.add_edge("select_architect_alternative", "gate_m2")
     builder.add_edge("gate_m2", "run_structural")
     builder.add_edge("run_structural", "qa_structural")
     # qa_structural -> conditional (run_structural or run_mep)

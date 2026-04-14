@@ -195,6 +195,9 @@ Schema:
         structural_schema["slab_thickness_mm"] = snap_mm(slab, 50)
 
         flags = structural_schema.get("engineering_flags", [])
+        # Normalize: LLM may return flags as strings instead of dicts
+        flags = [f if isinstance(f, dict) else {"severity": "info", "message": str(f)} for f in flags]
+        structural_schema["engineering_flags"] = flags
         critical = [f for f in flags if f.get("severity") == "critical"]
         warnings = [f for f in flags if f.get("severity") == "warning"]
 

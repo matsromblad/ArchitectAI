@@ -79,6 +79,8 @@ class ClientAgent(BaseAgent):
             size["site_width_m"] = side
             size["site_depth_m"] = round(gross / side + 6, 0)
             size["site_area_m2"] = round(size["site_width_m"] * size["site_depth_m"], 0)
+        # Mark dimensions as estimated so downstream agents prefer site_data
+        size["source"] = "estimated"
 
         version = self.memory.save_schema("project_brief", brief)
         logger.success(

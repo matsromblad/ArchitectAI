@@ -18,9 +18,12 @@ from rich.text import Text
 load_dotenv()
 
 # Reconfigure loguru to write to stdout so the dashboard terminal captures it
+# Use utf-8 wrapper to avoid cp1252 encoding errors on Windows
 import sys as _sys
+import io as _io
 logger.remove()
-logger.add(_sys.stdout, format="<level>[{level}]</level> {message}", level="INFO", colorize=False)
+_utf8_stdout = _io.TextIOWrapper(_sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+logger.add(_utf8_stdout, format="<level>[{level}]</level> {message}", level="INFO", colorize=False)
 
 console = Console()
 

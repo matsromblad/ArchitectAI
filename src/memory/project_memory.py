@@ -130,7 +130,8 @@ class ProjectMemory:
         data["_version"] = version
         data["_saved_at"] = self._now()
         (self.root / "schemas" / filename).write_text(
-            json.dumps(data, indent=2, ensure_ascii=False)
+            json.dumps(data, indent=2, ensure_ascii=False),
+            encoding="utf-8",
         )
         return version
 
@@ -197,7 +198,7 @@ class ProjectMemory:
 
     def save_qa_report(self, milestone: str, report: dict):
         path = self.root / "outputs" / "qa_reports" / f"qa_{milestone}.json"
-        path.write_text(json.dumps(report, indent=2, ensure_ascii=False))
+        path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # ------------------------------------------------------------------ #
     # Helpers                                                              #

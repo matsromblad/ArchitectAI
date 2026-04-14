@@ -160,7 +160,44 @@ class BriefAgent(BaseAgent):
     # Set BRIEF_PATCH_MODE=false in .env to disable (fall back to full regen).
     PATCH_MODE = True
 
-    def _apply_patch(self, prior: dict, patch: dict) -> dict:
+    # Core rooms per building subtype — these must NEVER be removed by QA patch
+    CORE_ROOMS = {
+        "operationsavdelning": {
+            "operationssal", "operating", "op-sal", "surgery",
+            "forberedelse", "preparation", "prep room", "forberedelserum",
+            "uppvaknings", "recovery", "uppvakningsrum", "pacu",
+            "sterilcentral", "sterile", "steril",
+            "sluice", "diskrum", "smutsig disk",
+        },
+        "hospital_ward": {
+            "patient room", "patientrum", "bedroom",
+            "treatment", "behandling",
+            "clean utility", "ren disk", "dirty utility", "smutsig disk",
+        },
+        "primary_care": {
+            "konsultation", "consultation", "mottagning",
+            "examination", "undersok",
+            "clean utility", "ren disk", "dirty utility", "smutsig disk",
+        },
+    }
+
+    def _get_core_keywords(self, prompt: str, building_type: str) -> set:
+        """Return core room keywords that must be preserved based on prompt + building type."""
+        prompt_lower = prompt.lower()
+        # Check prompt for building subtype
+        for subtype, keywords in self.CORE_ROOMS.items():
+            if subtype in prompt_lower:
+                return keywords
+        # Fall back to building_type match
+        for subtype, keywords in self.CORE_ROOMS.items():
+            if subtype in building_type.lower():
+                return keywords
+        # Default: at least keep clean/dirty utility for healthcare
+        if "healthcare" in building_type.lower():
+            return {"clean utility", "ren disk", "dirty utility", "smutsig disk"}
+        return set()
+
+    def _apply_patch(self, prior: dict, patch: dict, core_keywords: set = None) -> dict:
         """
         TOKEN-OPT: Apply a patch dict to the prior room_program.
 
@@ -168,6 +205,8 @@ class BriefAgent(BaseAgent):
           modified_rooms:    list of room objects (full) — replaces matching room_id
           added_rooms:       list of new room objects — appended
           removed_room_ids:  list of room_id strings — removed
+
+        core_keywords: set of keywords for rooms that must NOT be removed.
 
         Returns a new room_program dict with the patch applied.
         """
@@ -177,8 +216,20 @@ class BriefAgent(BaseAgent):
         # Index by room_id
         room_by_id = {r["room_id"]: i for i, r in enumerate(rooms) if r.get("room_id")}
 
-        # 1. Remove
+        # 1. Remove — but protect core rooms
         removed = set(patch.get("removed_room_ids") or [])
+        if removed and core_keywords:
+            protected = set()
+            for rid in removed:
+                room = room_by_id.get(rid)
+                if room is not None:
+                    r = rooms[room]
+                    name_lower = (r.get("room_name") or r.get("name") or "").lower()
+                    if any(kw in name_lower for kw in core_keywords):
+                        protected.add(rid)
+                        logger.warning(f"[{self.AGENT_ID}] Scope preservation: refusing to remove core room {rid} ({name_lower})")
+            removed -= protected
+
         if removed:
             rooms = [r for r in rooms if r.get("room_id") not in removed]
             logger.info(f"[{self.AGENT_ID}] Patch: removed {len(removed)} rooms: {removed}")
@@ -223,6 +274,10 @@ class BriefAgent(BaseAgent):
         project_brief       = inputs.get("project_brief", {})
         prior_room_program  = inputs.get("prior_room_program")  # TOKEN-OPT
 
+        # Determine core rooms for this building type
+        building_type = project_brief.get("building_type", "healthcare")
+        core_keywords = self._get_core_keywords(prompt, building_type)
+
         # Decide mode: patch or full
         use_patch_mode = (
             self.PATCH_MODE
@@ -265,15 +320,22 @@ class BriefAgent(BaseAgent):
                  for r in prior_room_program.get("rooms", [])],
                 separators=(',', ':'),
             )
+            core_instruction = ""
+            if core_keywords:
+                core_instruction = (
+                    f"\n\nCRITICAL: NEVER remove rooms whose name contains these keywords "
+                    f"(they are core to the building function): {', '.join(sorted(core_keywords))}. "
+                    f"If area exceeds site capacity, REDUCE min_area_m2 instead of removing rooms."
+                )
             user_message = (
                 f"Project: {self.memory.project_id} ({jurisdiction})\n\n"
                 f"Current rooms (compact):\n{prior_rooms_compact}\n\n"
-                f"{feedback_section}\n\n"
+                f"{feedback_section}{core_instruction}\n\n"
                 f"Output ONLY a patch JSON to fix the listed issues. "
                 f"Do not output rooms that are already correct."
             )
             
-            sys_prompt = REVISION_SYSTEM_PROMPT
+            sys_prompt = REVISION_SYSTEM_PROMPT_BASE
             if extra_kb_context:
                 sys_prompt += f"\n\n{extra_kb_context}"
                 
@@ -285,13 +347,21 @@ class BriefAgent(BaseAgent):
             patch = self._extract_json(response)
             if "patch" in patch and isinstance(patch["patch"], dict):
                 patch = patch["patch"]
-            room_program = self._apply_patch(prior_room_program, patch)
+            room_program = self._apply_patch(prior_room_program, patch, core_keywords=core_keywords)
 
         elif qa_feedback:
             # Fallback non-patch revision: compact prompt, full regen
+            core_instruction = ""
+            if core_keywords:
+                core_instruction = (
+                    f"\n\nCRITICAL: NEVER remove rooms whose name contains these keywords "
+                    f"(they are core to the building function): {', '.join(sorted(core_keywords))}. "
+                    f"If area exceeds site capacity, REDUCE min_area_m2 instead of removing rooms."
+                )
             user_message = (
                 f"Project: {self.memory.project_id} ({jurisdiction})\n"
-                f"{feedback_section}\n"
+                f"User request: \"{prompt}\"\n"
+                f"{feedback_section}{core_instruction}\n"
                 f"Output corrected room_program JSON. Same rooms, fix only the listed issues."
             )
             
@@ -340,6 +410,28 @@ class BriefAgent(BaseAgent):
             room_program = self._extract_json(response)
             if "room_program" in room_program and isinstance(room_program["room_program"], dict):
                 room_program = room_program["room_program"]
+
+        # ── Shrinkage guard: prevent drastic scope reduction during QA iterations ──
+        if prior_room_program and qa_feedback:
+            prior_rooms = prior_room_program.get("rooms", [])
+            prior_total = sum(float(r.get("min_area_m2", 0)) for r in prior_rooms)
+            new_rooms = room_program.get("rooms", [])
+            new_total = sum(float(r.get("min_area_m2", 0)) for r in new_rooms)
+            prior_count = len(prior_rooms)
+            new_count = len(new_rooms)
+
+            if prior_total > 0 and new_total < prior_total * 0.6:
+                logger.warning(
+                    f"[{self.AGENT_ID}] Shrinkage guard: new area {new_total:.0f} m2 is <60% of prior "
+                    f"{prior_total:.0f} m2 — reverting to prior and adjusting areas only"
+                )
+                room_program = copy.deepcopy(prior_room_program)
+            elif prior_count > 0 and new_count < prior_count * 0.5:
+                logger.warning(
+                    f"[{self.AGENT_ID}] Shrinkage guard: room count dropped from {prior_count} to "
+                    f"{new_count} (>50% loss) — reverting to prior"
+                )
+                room_program = copy.deepcopy(prior_room_program)
 
         # ── Code-level sanitisation (fixes common LLM inconsistencies) ──────
         rooms = room_program.get("rooms", [])
