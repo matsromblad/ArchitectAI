@@ -57,6 +57,15 @@ PROJECTS_DIR = os.getenv("PROJECTS_DIR", "./projects")
 DASHBOARD_DIR = os.getenv("DASHBOARD_DIR", "./dashboard")
 POLL_INTERVAL_S = float(os.getenv("WS_POLL_INTERVAL", "2.0"))
 
+PHASE_LABELS = {
+    "init": "Forstudie",
+    "brief": "Programhandling",
+    "design": "Systemhandling",
+    "construction": "Bygghandling",
+    "production": "Produktion",
+    "complete": "Klart",
+}
+
 # Known agent IDs — used to build the agents status map
 ALL_AGENTS = [
     "pm", "brief", "input_parser", "compliance",
@@ -167,10 +176,12 @@ else:
                         "versions": versions,
                     }
 
+            phase = summary.get("phase", "init")
             return {
                 "type": "state_update",
                 "project_id": project_id,
-                "phase": summary.get("phase", "init"),
+                "phase": phase,
+                "phase_label": PHASE_LABELS.get(phase, phase),
                 "milestone": summary.get("milestone", 0),
                 "agents": agents,
                 "outputs": outputs,
@@ -179,6 +190,8 @@ else:
                 "jurisdiction": summary.get("jurisdiction"),
                 "building_type": summary.get("building_type"),
                 "total_cost_usd": summary.get("total_cost_usd", 0.0),
+                "decisions": summary.get("decisions", [])[-10:],
+                "reflections": summary.get("reflections", [])[-10:],
                 "console_output": _process_logs.get(project_id, []),
                 "timestamp": _now_iso(),
             }
@@ -326,23 +339,14 @@ else:
 
     @app.get("/projects")
     async def list_projects():
-        """List available project directories that have passed Phase 0 (client)."""
-        import json
+        """List available project directories that have a state.json."""
         projects_dir = Path(PROJECTS_DIR)
         projects = []
         if projects_dir.exists():
-            for d in projects_dir.iterdir():
+            for d in sorted(projects_dir.iterdir(), key=lambda p: p.stat().st_mtime if p.is_dir() else 0, reverse=True):
                 state_file = d / "state.json"
                 if d.is_dir() and state_file.exists():
-                    try:
-                        with open(state_file, 'r', encoding='utf-8') as f:
-                            st = json.load(f)
-                            # Only show projects that passed milestone 1 (client)
-                            client_status = st.get("milestones", {}).get("client", {}).get("status")
-                            if client_status in ("approved", "completed"):
-                                projects.append(d.name)
-                    except Exception:
-                        pass
+                    projects.append(d.name)
         return {"projects": projects}
 
     @app.get("/files/{project_id}")

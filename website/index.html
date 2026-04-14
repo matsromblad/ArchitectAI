@@ -102,6 +102,11 @@
       flex-shrink: 0;
     }
 
+    .lang-toggle { display:inline-flex; align-items:center; gap:0; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+    .lang-btn { padding:4px 10px; background:transparent; border:none; color:var(--text-dim); cursor:pointer; font-family:inherit; font-size:11px; font-weight:700; letter-spacing:0.5px; transition:all 0.2s; }
+    .lang-btn.active { background:var(--gold); color:#FFFFFF; }
+    .lang-btn:hover:not(.active) { background:rgba(0,0,0,0.04); }
+
     .nav-links {
       display: flex;
       align-items: center;
@@ -734,13 +739,17 @@
     </a>
 
     <ul class="nav-links" id="navLinks">
-      <li><a href="#how-it-works">How it Works</a></li>
-      <li><a href="#agents">Agents</a></li>
-      <li><a href="#tech">Tech</a></li>
+      <li><a href="#how-it-works" data-i18n="nav.howItWorks">Hur det fungerar</a></li>
+      <li><a href="#agents" data-i18n="nav.agents">Agenter</a></li>
+      <li><a href="#tech" data-i18n="nav.tech">Teknik</a></li>
       <li><a href="https://github.com/matsromblad/ArchitectAI" target="_blank" rel="noopener">GitHub</a></li>
     </ul>
 
-    <a href="/dashboard" class="btn btn-gold nav-cta-desktop">View Dashboard →</a>
+    <div class="lang-toggle" style="display:inline-flex;margin-right:8px;">
+      <button class="lang-btn active" onclick="setLang('sv')">SV</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="/dashboard" class="btn btn-gold nav-cta-desktop" data-i18n="nav.dashboard">Visa Dashboard</a>
 
     <div class="nav-hamburger" id="hamburger" aria-label="Menu" role="button" tabindex="0">
       <span></span><span></span><span></span>
@@ -755,33 +764,33 @@
   <div style="position:absolute;inset:0;background-image:url('images/medarch_bg.png');background-size:cover;background-position:center;opacity:0.18;z-index:0;pointer-events:none;"></div>
 
   <div class="hero-content" style="position:relative;z-index:1;">
-    <div class="hero-badge">Multi-Agent AI · PTS · BIM</div>
+    <div class="hero-badge">Multi-Agent AI &middot; PTS &middot; BIM</div>
 
-    <h1>From guideline to hospital.<br /><span class="accent">In minutes.</span></h1>
+    <h1 data-i18n="hero.title">Fran riktlinje till sjukhus. Pa minuter.</h1>
 
-    <p class="hero-sub">
-      AI Nightingale is a multi-agent system that autonomously designs standards-compliant buildings —
-      from a natural language brief and a site plan to a full IFC model.
+    <p class="hero-sub" data-i18n="hero.sub">
+      AI Nightingale ar ett multi-agent-system som autonomt designar standardsenliga byggnader --
+      fran en beskrivning och en situationsplan till en komplett IFC-modell.
     </p>
 
     <div class="hero-ctas">
-      <a href="input.html" class="btn btn-gold btn-lg">Start a project →</a>
-      <a href="https://github.com/matsromblad/ArchitectAI" class="btn btn-outline btn-lg" target="_blank" rel="noopener">View on GitHub →</a>
+      <a href="input.html" class="btn btn-gold btn-lg" data-i18n="hero.cta1">Starta projekt</a>
+      <a href="https://github.com/matsromblad/ArchitectAI" class="btn btn-outline btn-lg" target="_blank" rel="noopener" data-i18n="hero.cta2">Visa pa GitHub</a>
     </div>
   </div>
 
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="hero-stat-value">10</div>
-      <div class="hero-stat-label">Agents</div>
+      <div class="hero-stat-label" data-i18n="stat.agents">Agenter</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-value">IFC4</div>
-      <div class="hero-stat-label">Output</div>
+      <div class="hero-stat-label" data-i18n="stat.output">Utdata</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-value">Global</div>
-      <div class="hero-stat-label">Compliance</div>
+      <div class="hero-stat-label" data-i18n="stat.compliance">Regelefterlevnad</div>
     </div>
   </div>
 </section>
@@ -791,9 +800,9 @@
 <!-- ── HOW IT WORKS ── -->
 <section id="how-it-works">
   <div class="section-inner">
-    <span class="section-label fade-up">Process</span>
-    <h2 class="fade-up">How it works</h2>
-    <p class="section-sub fade-up">Five milestones from brief to BIM — fully automated, quality-gated at every step.</p>
+    <span class="section-label fade-up" data-i18n="section.process">Process</span>
+    <h2 class="fade-up" data-i18n="section.howItWorks">Sa har fungerar det</h2>
+    <p class="section-sub fade-up" data-i18n="section.howItWorksSub">Fem milstolpar fran brief till BIM -- helautomatiserat, kvalitetsgranskat i varje steg.</p>
     <div class="fade-up" style="margin:2rem 0 2.5rem;border-radius:12px;overflow:hidden;border:1px solid #30363D;">
       <img src="images/workflow.png" alt="AI Nightingale workflow — 5 milestones from brief to IFC" style="width:100%;display:block;">
     </div>
@@ -862,9 +871,9 @@
 <!-- ── AGENTS ── -->
 <section id="agents">
   <div class="section-inner">
-    <span class="section-label fade-up">Architecture</span>
-    <h2 class="fade-up">10 specialized agents</h2>
-    <p class="section-sub fade-up">Each agent owns a domain. The Project Manager orchestrates them all.</p>
+    <span class="section-label fade-up" data-i18n="section.architecture">Arkitektur</span>
+    <h2 class="fade-up" data-i18n="section.agents">10 specialiserade agenter</h2>
+    <p class="section-sub fade-up" data-i18n="section.agentsSub">Varje agent ager ett omrade. Projektledaren orkestrerar dem alla.</p>
     <div class="fade-up" style="margin:2rem 0 2.5rem;border-radius:12px;overflow:hidden;border:1px solid #30363D;max-width:700px;margin-left:auto;margin-right:auto;">
       <img src="images/agents-team.png" alt="AI Nightingale agent team in pixel art style" style="width:100%;display:block;">
     </div>
@@ -970,9 +979,9 @@
 <!-- ── FEATURES ── -->
 <section id="features">
   <div class="section-inner">
-    <span class="section-label fade-up">Why AI Nightingale</span>
-    <h2 class="fade-up">Built for real projects</h2>
-    <p class="section-sub fade-up">Not just a demo — a production-grade pipeline designed for architects and AEC firms.</p>
+    <span class="section-label fade-up" data-i18n="section.why">Varfor AI Nightingale</span>
+    <h2 class="fade-up" data-i18n="section.features">Byggt for riktiga projekt</h2>
+    <p class="section-sub fade-up" data-i18n="section.featuresSub">Inte bara en demo -- en produktionsklar pipeline designad for arkitekter och byggforetag.</p>
     <div class="fade-up" style="margin:2rem auto 2.5rem;border-radius:12px;overflow:hidden;border:1px solid #30363D;max-width:800px;">
       <img src="images/ifc-model.png" alt="IFC4 building model generated by AI Nightingale" style="width:100%;display:block;">
     </div>
@@ -1004,9 +1013,9 @@
 <!-- ── TECH STACK ── -->
 <section id="tech">
   <div class="section-inner">
-    <span class="section-label fade-up">Under the Hood</span>
-    <h2 class="fade-up">Tech stack</h2>
-    <p class="section-sub fade-up">Proven open-source tooling, orchestrated by LangGraph and powered by Anthropic Claude.</p>
+    <span class="section-label fade-up" data-i18n="section.underTheHood">Under huven</span>
+    <h2 class="fade-up" data-i18n="section.tech">Teknikstack</h2>
+    <p class="section-sub fade-up" data-i18n="section.techSub">Beprövade open source-verktyg, orkestrerade av LangGraph och drivna av Anthropic Claude.</p>
 
     <div class="tech-grid">
       <div class="tech-pill fade-up fade-up-delay-1">
@@ -1110,6 +1119,39 @@
       heroGrid.style.transform = `translateY(${y * 0.3}px)`;
     }, { passive: true });
   }
+
+  // ── i18n ──
+  const LANG = {
+    sv: {
+      "nav.howItWorks": "Hur det fungerar", "nav.agents": "Agenter", "nav.tech": "Teknik", "nav.dashboard": "Visa Dashboard",
+      "hero.title": "Fran riktlinje till sjukhus. Pa minuter.", "hero.sub": "AI Nightingale ar ett multi-agent-system som autonomt designar standardsenliga byggnader -- fran en beskrivning och en situationsplan till en komplett IFC-modell.",
+      "hero.cta1": "Starta projekt", "hero.cta2": "Visa pa GitHub",
+      "stat.agents": "Agenter", "stat.output": "Utdata", "stat.compliance": "Regelefterlevnad",
+      "section.process": "Process", "section.howItWorks": "Sa har fungerar det", "section.howItWorksSub": "Fem milstolpar fran brief till BIM -- helautomatiserat, kvalitetsgranskat i varje steg.",
+      "section.architecture": "Arkitektur", "section.agents": "10 specialiserade agenter", "section.agentsSub": "Varje agent ager ett omrade. Projektledaren orkestrerar dem alla.",
+      "section.why": "Varfor AI Nightingale", "section.features": "Byggt for riktiga projekt", "section.featuresSub": "Inte bara en demo -- en produktionsklar pipeline designad for arkitekter och byggforetag.",
+      "section.underTheHood": "Under huven", "section.tech": "Teknikstack", "section.techSub": "Beprovade open source-verktyg, orkestrerade av LangGraph och drivna av Anthropic Claude.",
+    },
+    en: {
+      "nav.howItWorks": "How it Works", "nav.agents": "Agents", "nav.tech": "Tech", "nav.dashboard": "View Dashboard",
+      "hero.title": "From guideline to hospital. In minutes.", "hero.sub": "AI Nightingale is a multi-agent system that autonomously designs standards-compliant buildings -- from a natural language brief and a site plan to a full IFC model.",
+      "hero.cta1": "Start a project", "hero.cta2": "View on GitHub",
+      "stat.agents": "Agents", "stat.output": "Output", "stat.compliance": "Compliance",
+      "section.process": "Process", "section.howItWorks": "How it works", "section.howItWorksSub": "Five milestones from brief to BIM -- fully automated, quality-gated at every step.",
+      "section.architecture": "Architecture", "section.agents": "10 specialized agents", "section.agentsSub": "Each agent owns a domain. The Project Manager orchestrates them all.",
+      "section.why": "Why AI Nightingale", "section.features": "Built for real projects", "section.featuresSub": "Not just a demo -- a production-grade pipeline designed for architects and AEC firms.",
+      "section.underTheHood": "Under the Hood", "section.tech": "Tech stack", "section.techSub": "Proven open-source tooling, orchestrated by LangGraph and powered by Anthropic Claude.",
+    }
+  };
+  let currentLang = localStorage.getItem('lang') || 'sv';
+  function t(key) { return (LANG[currentLang] && LANG[currentLang][key]) || (LANG.sv[key]) || key; }
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el) { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.toggle('active', b.textContent.trim() === lang.toUpperCase()); });
+  }
+  setLang(currentLang);
 </script>
 
 </body>
