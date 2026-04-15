@@ -96,6 +96,11 @@
       flex-shrink: 0;
     }
 
+    .lang-toggle { display:inline-flex; align-items:center; gap:0; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+    .lang-btn { padding:4px 10px; background:transparent; border:none; color:var(--text-dim); cursor:pointer; font-family:inherit; font-size:11px; font-weight:700; letter-spacing:0.5px; transition:all 0.2s; }
+    .lang-btn.active { background:var(--gold); color:#FFFFFF; }
+    .lang-btn:hover:not(.active) { background:rgba(0,0,0,0.04); }
+
     .nav-page-label {
       font-size: 13px;
       color: var(--text-muted);
@@ -748,10 +753,12 @@
       <div class="logo-icon" style="background:#BEB1A4; display:flex; align-items:center; justify-content:center; color:white; font-size:14px; width:24px; height:24px; border-radius:4px;">+</div>
       AI Nightingale <span style="font-weight:400; color:var(--text-dim); font-size:14px; margin-left:4px;">PTS Edition</span>
     </a>
-    <div class="nav-page-label">Hospital Setup</div>
-    <a href="index.html" class="nav-back">
-      ← Back to home
-    </a>
+    <div class="lang-toggle" style="display:inline-flex;margin-right:12px;">
+      <button class="lang-btn active" onclick="setLang('sv')">SV</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <div class="nav-page-label" data-i18n="nav.setup">Sjukhusinstallning</div>
+    <a href="index.html" class="nav-back" data-i18n="nav.back">Tillbaka</a>
   </div>
 </nav>
 
@@ -760,19 +767,19 @@
   <div class="progress-inner">
     <div class="progress-step active">
       <span class="step-dot"></span>
-      <span>Input</span>
+      <span data-i18n="step.input">Indata</span>
     </div>
     <div class="progress-step">
       <span class="step-dot"></span>
-      <span>Agents</span>
+      <span data-i18n="step.agents">Agenter</span>
     </div>
     <div class="progress-step">
       <span class="step-dot"></span>
-      <span>Review</span>
+      <span data-i18n="step.review">Granskning</span>
     </div>
     <div class="progress-step">
       <span class="step-dot"></span>
-      <span>IFC Export</span>
+      <span data-i18n="step.export">IFC Export</span>
     </div>
   </div>
 </div>
@@ -783,8 +790,8 @@
 
     <!-- Page header -->
     <div class="page-header">
-      <h1>Start a new project</h1>
-      <p>Upload your site drawings, attach any governing documents, then describe the building in plain language. AI Nightingale will take it from there.</p>
+      <h1 data-i18n="page.title">Starta ett nytt projekt</h1>
+      <p data-i18n="page.desc">Ladda upp dina ritningar, bifoga styrande dokument och beskriv byggnaden i fritext. AI Nightingale tar det darifran.</p>
     </div>
 
     <!-- ── SECTION A: Site Drawings ── -->
@@ -793,8 +800,8 @@
         <div class="card-header-left">
           <div class="card-icon">📐</div>
           <div class="card-title-group">
-            <div class="card-title">Site Drawings</div>
-            <div class="card-subtitle">The Input Parser agent will extract site boundaries and constraints</div>
+            <div class="card-title" data-i18n="card.drawings">Ritningar</div>
+            <div class="card-subtitle" data-i18n="card.drawingsSub">Input Parser-agenten extraherar tomtgranser och begransningar</div>
           </div>
         </div>
       </div>
@@ -825,8 +832,8 @@
         <div class="card-header-left">
           <div class="card-icon">📄</div>
           <div class="card-title-group">
-            <div class="card-title">Governing Documents</div>
-            <div class="card-subtitle">Space programs, healthcare standards, employer requirements, room data sheets</div>
+            <div class="card-title" data-i18n="card.docs">Styrande dokument</div>
+            <div class="card-subtitle" data-i18n="card.docsSub">Rumsprogram, vardstandarder, bestellarens krav, rumsdatablad</div>
           </div>
         </div>
         <span class="badge-optional">Optional</span>
@@ -857,8 +864,8 @@
         <div class="card-header-left">
           <div class="card-icon">✍️</div>
           <div class="card-title-group">
-            <div class="card-title">Design Brief</div>
-            <div class="card-subtitle">Describe the building you want AI Nightingale to design</div>
+            <div class="card-title" data-i18n="card.brief">Projektbeskrivning</div>
+            <div class="card-subtitle" data-i18n="card.briefSub">Beskriv byggnaden du vill att AI Nightingale ska designa</div>
           </div>
         </div>
       </div>
@@ -936,16 +943,16 @@
     <!-- ── SECTION E: Submit ── -->
     <div class="submit-section">
       <div class="submit-actions">
-        <button class="btn btn-gold" id="btn-launch" style="background:#BEB1A4; color:white;">
-          Launch AI Nightingale →
+        <button class="btn btn-gold" id="btn-launch" style="background:#BEB1A4; color:white;" data-i18n="btn.launch">
+          Starta AI Nightingale
         </button>
-        <button class="btn btn-outline" id="btn-draft">
-          Save draft
+        <button class="btn btn-outline" id="btn-draft" data-i18n="btn.draft">
+          Spara utkast
         </button>
       </div>
 
       <div class="summary-card">
-        <div class="summary-title">Project summary</div>
+        <div class="summary-title" data-i18n="summary.title">Projektsammanfattning</div>
         <div class="summary-rows">
           <div class="summary-row">
             <span class="summary-key">Site drawings</span>
@@ -1266,6 +1273,39 @@
 
   // ── Init ──
   updateSummary();
+
+  // ── i18n ──
+  const LANG = {
+    sv: {
+      "nav.setup": "Sjukhusinstallning", "nav.back": "Tillbaka",
+      "step.input": "Indata", "step.agents": "Agenter", "step.review": "Granskning", "step.export": "IFC Export",
+      "page.title": "Starta ett nytt projekt", "page.desc": "Ladda upp dina ritningar, bifoga styrande dokument och beskriv byggnaden i fritext. AI Nightingale tar det darifran.",
+      "card.drawings": "Ritningar", "card.drawingsSub": "Input Parser-agenten extraherar tomtgranser och begransningar",
+      "card.docs": "Styrande dokument", "card.docsSub": "Rumsprogram, vardstandarder, bestellarens krav, rumsdatablad",
+      "card.brief": "Projektbeskrivning", "card.briefSub": "Beskriv byggnaden du vill att AI Nightingale ska designa",
+      "btn.launch": "Starta AI Nightingale", "btn.draft": "Spara utkast",
+      "summary.title": "Projektsammanfattning",
+    },
+    en: {
+      "nav.setup": "Hospital Setup", "nav.back": "Back to home",
+      "step.input": "Input", "step.agents": "Agents", "step.review": "Review", "step.export": "IFC Export",
+      "page.title": "Start a new project", "page.desc": "Upload your site drawings, attach any governing documents, then describe the building in plain language. AI Nightingale will take it from there.",
+      "card.drawings": "Site Drawings", "card.drawingsSub": "The Input Parser agent will extract site boundaries and constraints",
+      "card.docs": "Governing Documents", "card.docsSub": "Space programs, healthcare standards, employer requirements, room data sheets",
+      "card.brief": "Design Brief", "card.briefSub": "Describe the building you want AI Nightingale to design",
+      "btn.launch": "Launch AI Nightingale", "btn.draft": "Save draft",
+      "summary.title": "Project summary",
+    }
+  };
+  let currentLang = localStorage.getItem('lang') || 'sv';
+  function t(key) { return (LANG[currentLang] && LANG[currentLang][key]) || (LANG.sv[key]) || key; }
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el) { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.toggle('active', b.textContent.trim() === lang.toUpperCase()); });
+  }
+  setLang(currentLang);
 </script>
 
 </body>

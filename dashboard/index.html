@@ -378,6 +378,75 @@
     text-overflow: ellipsis;
   }
   .log-entry span { color: #C9D1D9; }
+
+  /* Language toggle */
+  .lang-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 3px;
+    overflow: hidden;
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    user-select: none;
+  }
+  .lang-btn {
+    padding: 3px 8px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: #495057;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .lang-btn:hover { background: rgba(0,0,0,0.04); }
+  .lang-btn.active { background: #BEB1A4; color: #FFFFFF; font-weight: bold; }
+
+  /* Enhanced terminal */
+  .term-filters { display:flex; gap:4px; padding:4px 10px; background:#FFFFFF; border-bottom:1px solid rgba(0,0,0,0.06); }
+  .term-filter { font-size:9px; padding:2px 8px; border-radius:3px; border:1px solid rgba(0,0,0,0.08); background:transparent; color:#495057; cursor:pointer; font-family:'Courier New',monospace; }
+  .term-filter:hover { background:rgba(0,0,0,0.04); }
+  .term-filter.active { background:#BEB1A4; color:#FFFFFF; border-color:#BEB1A4; }
+  .term-entry { display:flex; gap:8px; align-items:flex-start; padding:3px 0; border-bottom:1px solid rgba(0,0,0,0.04); font-size:11px; }
+  .term-ts { color:#868E96; flex-shrink:0; font-size:10px; min-width:60px; }
+  .term-badge { font-size:9px; padding:1px 6px; border-radius:3px; font-weight:bold; flex-shrink:0; min-width:70px; text-align:center; }
+  .term-msg { flex:1; color:#212529; word-break:break-word; }
+  .term-agent-status .term-badge { background:#E3FAFC; color:#1098AD; }
+  .term-qa .term-badge { background:#EBFBEE; color:#2B8A3E; }
+  .term-qa.term-fail .term-badge { background:#FFF5F5; color:#E03131; }
+  .term-milestone .term-badge { background:#FFF9DB; color:#E67700; }
+  .term-cost .term-badge { background:#F8F9FA; color:#495057; }
+  .term-reflection .term-badge { background:#F3F0FF; color:#7048E8; }
+  .term-escalation .term-badge { background:#FFF5F5; color:#E03131; animation:pulse 1.5s infinite; }
+  .term-system .term-badge { background:#F8F9FA; color:#868E96; }
+
+  /* Projektplan tab */
+  .projektplan { padding:20px; display:flex; gap:20px; flex:1; overflow:auto; background:#F8F9FA; }
+  .pp-sidebar { width:160px; flex-shrink:0; }
+  .pp-discipline { padding:10px 12px; border-radius:6px; margin-bottom:8px; border:1px solid rgba(0,0,0,0.08); background:#FFFFFF; cursor:default; display:flex; align-items:center; gap:8px; font-size:12px; }
+  .pp-discipline-icon { width:24px; height:24px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:13px; }
+  .pp-discipline-name { font-weight:600; color:#212529; }
+  .pp-discipline-status { font-size:9px; margin-left:auto; padding:2px 6px; border-radius:8px; }
+  .pp-status-done { background:#EBFBEE; color:#2B8A3E; }
+  .pp-status-active { background:#FFF9DB; color:#E67700; }
+  .pp-status-pending { background:#F8F9FA; color:#868E96; }
+  .pp-status-problem { background:#FFF5F5; color:#E03131; }
+  .pp-main { flex:1; }
+  .pp-phase-header { display:flex; gap:0; margin-bottom:16px; border-bottom:2px solid rgba(0,0,0,0.08); }
+  .pp-phase-label { flex:1; text-align:center; padding:8px 4px; font-size:11px; font-weight:700; letter-spacing:0.5px; color:#868E96; position:relative; }
+  .pp-phase-label.active { color:#BEB1A4; }
+  .pp-phase-label.active::after { content:''; position:absolute; bottom:-2px; left:10%; right:10%; height:2px; background:#BEB1A4; }
+  .pp-row { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.04); }
+  .pp-row-label { width:120px; font-size:11px; font-weight:600; color:#495057; flex-shrink:0; }
+  .pp-bar-track { flex:1; height:20px; background:#F1F3F5; border-radius:4px; overflow:hidden; display:flex; }
+  .pp-bar-segment { height:100%; transition:width 0.5s ease; }
+  .pp-bar-done { background:#BEB1A4; }
+  .pp-bar-active { background:#BEB1A466; animation:pulse 2s infinite; }
+  .pp-row-pct { width:40px; text-align:right; font-size:11px; font-weight:700; color:#495057; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -385,7 +454,7 @@
 <header>
   <div>
     <h1>⬛ ARCHITECTAI DASHBOARD</h1>
-    <div class="subtitle">Multi-Agent Building Design System — Live Simulation</div>
+    <div class="subtitle" data-i18n="header.subtitle">Multi-Agent Byggnadsdesignsystem</div>
   </div>
   <div style="display:flex;align-items:center;gap:14px;">
     <select id="projectSelector" style="background:rgba(0,0,0,0.04); color:#495057; border:1px solid rgba(0,0,0,0.12); border-radius:3px; padding:3px; font-size:10px; font-family:'Courier New', monospace; outline:none;">
@@ -394,15 +463,20 @@
     <div id="costTracker" title="Total API Cost" style="font-size:12px; font-weight:bold; color:var(--gold); display:flex; align-items:center; gap:6px; background:rgba(255,215,0,0.1); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,215,0,0.2);">
       <span>💰</span> $<span id="costAmount">0.000</span>
     </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('sv')">SV</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
     <div id="wsStatus" class="ws-status ws-disconnected" title="WebSocket connection status"><span class="ws-dot ws-sim"></span>SIM</div>
     <div class="milestone-bar" id="milestoneBar"></div>
   </div>
 </header>
 
 <div class="tab-bar">
-  <button class="tab active" onclick="switchTab('live')">🟢 LIVE VIEW</button>
-  <button class="tab" onclick="switchTab('agents')">🤖 AGENTS</button>
-  <button class="tab" onclick="switchTab('outputs')">📁 OUTPUTS</button>
+  <button class="tab active" onclick="switchTab('live')" data-i18n="tab.live">LIVE-VY</button>
+  <button class="tab" onclick="switchTab('agents')" data-i18n="tab.agents">AGENTER</button>
+  <button class="tab" onclick="switchTab('outputs')" data-i18n="tab.outputs">UTDATA</button>
+  <button class="tab" onclick="switchTab('projektplan')" data-i18n="tab.projektplan">PROJEKTPLAN</button>
 </div>
 
 <div id="tab-live" class="tab-content active" style="flex-direction:column;">
@@ -410,15 +484,15 @@
   <canvas id="worldCanvas"></canvas>
   <div class="sidebar">
     <div class="sidebar-section">
-      <h3>Agent Status</h3>
+      <h3 data-i18n="sidebar.agentStatus">Agentstatus</h3>
       <div id="agentList"></div>
     </div>
     <div class="qa-queue">
-      <h3>QA Queue</h3>
+      <h3 data-i18n="sidebar.qaQueue">QA-ko</h3>
       <div id="qaQueue"></div>
     </div>
     <div class="log-section">
-      <h3>Activity Log</h3>
+      <h3 data-i18n="sidebar.activityLog">Aktivitetslogg</h3>
       <div id="activityLog"></div>
     </div>
   </div>
@@ -426,10 +500,16 @@
 <div class="terminal-panel" id="terminalPanel" style="height:200px; min-height:100px; max-height:80vh; background:#F8F9FA; color:#212529; font-family:monospace; font-size:11px; border-top:2px solid rgba(0,0,0,0.12); display:flex; flex-direction:column; position:relative;">
   <div id="terminalResizer" style="height:8px; width:100%; position:absolute; top:-4px; cursor:ns-resize; z-index:10;"></div>
   <div style="padding:4px 10px; background:#FFFFFF; border-bottom:1px solid rgba(0,0,0,0.12); display:flex; justify-content:space-between; align-items:center;">
-    <span style="color:#40C057; font-weight:bold;">>_ SYSTEM TERMINAL (LIVE)</span>
-    <button id="btnApprove" disabled style="background:#2EA043; color:white; border:none; border-radius:4px; padding:4px 12px; font-weight:bold; font-size:11px; cursor:not-allowed;" onclick="approveMilestone()">APPROVE MILESTONE</button>
+    <span style="color:#40C057; font-weight:bold;" data-i18n="terminal.title">&gt;_ SYSTEMTERMINAL (LIVE)</span>
+    <button id="btnApprove" disabled style="background:#2EA043; color:white; border:none; border-radius:4px; padding:4px 12px; font-weight:bold; font-size:11px; cursor:not-allowed;" onclick="approveMilestone()" data-i18n="terminal.approve">GODKANN MILSTOLPE</button>
   </div>
-  <div id="terminalContent" style="flex:1; padding:10px; overflow-y:auto; white-space:pre-wrap; line-height:1.4;"></div>
+  <div class="term-filters">
+    <button class="term-filter active" onclick="filterTerm('all')" data-i18n="term.all">Alla</button>
+    <button class="term-filter" onclick="filterTerm('agent')" data-i18n="term.agents">Agenter</button>
+    <button class="term-filter" onclick="filterTerm('qa')" data-i18n="term.qa">QA</button>
+    <button class="term-filter" onclick="filterTerm('milestone')" data-i18n="term.milestones">Milstolpar</button>
+  </div>
+  <div id="terminalContent" style="flex:1; padding:10px; overflow-y:auto; line-height:1.4;"></div>
 </div>
 </div><!-- end tab-live -->
 
@@ -441,7 +521,251 @@
   <div id="outputsRoot" style="padding:16px 20px;"></div>
 </div>
 
+<div id="tab-projektplan" class="tab-content" style="overflow-y:auto; flex-direction:column; background:#F8F9FA;">
+  <div class="projektplan" id="projektplanRoot"></div>
+</div>
+
 <script>
+// ============================================================
+// i18n — Swedish / English
+// ============================================================
+const LANG = {
+  sv: {
+    "tab.live": "LIVE-VY", "tab.agents": "AGENTER", "tab.outputs": "UTDATA", "tab.projektplan": "PROJEKTPLAN",
+    "sidebar.agentStatus": "Agentstatus", "sidebar.qaQueue": "QA-ko", "sidebar.activityLog": "Aktivitetslogg",
+    "terminal.title": ">_ SYSTEMTERMINAL (LIVE)", "terminal.approve": "GODKANN MILSTOLPE",
+    "terminal.approveAction": "GODKANN MILSTOLPE", "terminal.waiting": "VANTAR PA KO...",
+    "term.all": "Alla", "term.agents": "Agenter", "term.qa": "QA", "term.milestones": "Milstolpar",
+    "milestone.M1": "M1 Brief", "milestone.M2": "M2 Planlosning", "milestone.M3": "M3 System", "milestone.M4": "M4 Modell", "milestone.M5": "M5 Export",
+    "phase.forstudie": "Forstudie", "phase.program": "Programhandling", "phase.system": "Systemhandling", "phase.bygg": "Bygghandling", "phase.produktion": "Produktion",
+    "status.working": "arbetar", "status.waiting": "vantar", "status.approved": "godkand", "status.blocked": "blockerad", "status.moving": "forflyttar", "status.qa": "QA",
+    "status.done": "Klar", "status.active": "Pagar", "status.pending": "Ej pabörjad", "status.problem": "Problem",
+    "qa.noItems": "Inga objekt i kon", "project.noSelection": "Inget projekt valt",
+    "pp.disciplines": "DISCIPLINER", "pp.arkitektur": "Arkitektur", "pp.konstruktion": "Konstruktion", "pp.vvs": "VVS", "pp.el": "El", "pp.brand": "Brand",
+    "header.subtitle": "Multi-Agent Byggnadsdesignsystem",
+  },
+  en: {
+    "tab.live": "LIVE VIEW", "tab.agents": "AGENTS", "tab.outputs": "OUTPUTS", "tab.projektplan": "PROJECT PLAN",
+    "sidebar.agentStatus": "Agent Status", "sidebar.qaQueue": "QA Queue", "sidebar.activityLog": "Activity Log",
+    "terminal.title": ">_ SYSTEM TERMINAL (LIVE)", "terminal.approve": "APPROVE MILESTONE",
+    "terminal.approveAction": "APPROVE MILESTONE", "terminal.waiting": "WAITING FOR QUEUE...",
+    "term.all": "All", "term.agents": "Agents", "term.qa": "QA", "term.milestones": "Milestones",
+    "milestone.M1": "M1 Brief", "milestone.M2": "M2 Layout", "milestone.M3": "M3 Systems", "milestone.M4": "M4 Model", "milestone.M5": "M5 Export",
+    "phase.forstudie": "Feasibility", "phase.program": "Programme", "phase.system": "System Design", "phase.bygg": "Detail Design", "phase.produktion": "Production",
+    "status.working": "working", "status.waiting": "waiting", "status.approved": "approved", "status.blocked": "blocked", "status.moving": "moving", "status.qa": "QA",
+    "status.done": "Done", "status.active": "In Progress", "status.pending": "Not Started", "status.problem": "Problem",
+    "qa.noItems": "No items in queue", "project.noSelection": "No project selected",
+    "pp.disciplines": "DISCIPLINES", "pp.arkitektur": "Architecture", "pp.konstruktion": "Structure", "pp.vvs": "HVAC", "pp.el": "Electrical", "pp.brand": "Fire Safety",
+    "header.subtitle": "Multi-Agent Building Design System",
+  }
+};
+
+let currentLang = localStorage.getItem('lang') || 'sv';
+function t(key) { return (LANG[currentLang] && LANG[currentLang][key]) || (LANG.sv[key]) || key; }
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(function(el) { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.toggle('active', b.textContent.trim() === lang.toUpperCase()); });
+  updateMilestoneUI();
+  if (document.getElementById('tab-projektplan').classList.contains('active')) renderProjektplan();
+}
+// Apply on load
+document.addEventListener('DOMContentLoaded', function() { setLang(currentLang); });
+
+// ============================================================
+// ENHANCED TERMINAL
+// ============================================================
+let termAutoScroll = true;
+let termFilterMode = 'all';
+const termEntries = [];
+const MAX_TERM_ENTRIES = 500;
+
+function addTermEntry(type, agent, message, details) {
+  const now = new Date();
+  const ts = now.toLocaleTimeString('sv', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const entry = { type: type, agent: agent, message: message, details: details || '', ts: ts, time: now.getTime() };
+  termEntries.push(entry);
+  if (termEntries.length > MAX_TERM_ENTRIES) termEntries.shift();
+  renderTermEntry(entry);
+}
+
+function renderTermEntry(entry) {
+  var tc = document.getElementById('terminalContent');
+  if (!tc) return;
+  // Check filter
+  if (termFilterMode !== 'all') {
+    if (termFilterMode === 'agent' && entry.type !== 'agent-status') return;
+    if (termFilterMode === 'qa' && entry.type !== 'qa' && entry.type !== 'qa-fail') return;
+    if (termFilterMode === 'milestone' && entry.type !== 'milestone') return;
+  }
+  var div = document.createElement('div');
+  var cssType = 'term-system';
+  if (entry.type === 'agent-status') cssType = 'term-agent-status';
+  else if (entry.type === 'qa') cssType = 'term-qa';
+  else if (entry.type === 'qa-fail') cssType = 'term-qa term-fail';
+  else if (entry.type === 'milestone') cssType = 'term-milestone';
+  else if (entry.type === 'cost') cssType = 'term-cost';
+  else if (entry.type === 'reflection') cssType = 'term-reflection';
+  else if (entry.type === 'escalation') cssType = 'term-escalation';
+  div.className = 'term-entry ' + cssType;
+  div.setAttribute('data-type', entry.type);
+  div.innerHTML = '<span class="term-ts">' + entry.ts + '</span>'
+    + '<span class="term-badge">' + (entry.agent || 'SYSTEM') + '</span>'
+    + '<span class="term-msg">' + escapeHtml(entry.message) + (entry.details ? ' <span style="color:#868E96">' + escapeHtml(entry.details) + '</span>' : '') + '</span>';
+  tc.appendChild(div);
+  // Auto-scroll
+  if (termAutoScroll) tc.scrollTop = tc.scrollHeight;
+  // Limit DOM entries
+  while (tc.children.length > MAX_TERM_ENTRIES) tc.removeChild(tc.firstChild);
+}
+
+function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function filterTerm(mode) {
+  termFilterMode = mode;
+  document.querySelectorAll('.term-filter').forEach(function(b) { b.classList.toggle('active', b.getAttribute('onclick').indexOf("'" + mode + "'") > -1); });
+  var tc = document.getElementById('terminalContent');
+  if (tc) tc.innerHTML = '';
+  termEntries.forEach(function(e) { renderTermEntry(e); });
+}
+
+// Detect manual scroll
+(function() {
+  var tc = document.getElementById('terminalContent');
+  if (tc) {
+    tc.addEventListener('scroll', function() {
+      var atBottom = tc.scrollHeight - tc.scrollTop - tc.clientHeight < 30;
+      termAutoScroll = atBottom;
+    });
+  }
+})();
+
+// Parse console line into structured entry
+function parseConsoleLine(line) {
+  if (!line || line.trim().length === 0) return null;
+  var lower = line.toLowerCase();
+  // Detect type from content
+  if (lower.indexOf('[info]') > -1 || lower.indexOf('[success]') > -1) {
+    var agentMatch = line.match(/\[(\w+)\]/g);
+    var agent = agentMatch && agentMatch.length > 1 ? agentMatch[1].replace(/[\[\]]/g, '') : 'system';
+    var msg = line.replace(/\[[\w]+\]\s*/g, '').trim();
+    if (lower.indexOf('qa') > -1 && (lower.indexOf('pass') > -1 || lower.indexOf('approved') > -1)) return { type:'qa', agent:'QA', message:msg };
+    if (lower.indexOf('qa') > -1 && (lower.indexOf('fail') > -1 || lower.indexOf('rejected') > -1)) return { type:'qa-fail', agent:'QA', message:msg };
+    if (lower.indexOf('milestone') > -1 || lower.indexOf('m1') > -1 || lower.indexOf('m2') > -1 || lower.indexOf('m3') > -1 || lower.indexOf('m4') > -1 || lower.indexOf('m5') > -1) return { type:'milestone', agent:agent, message:msg };
+    if (lower.indexOf('cost') > -1 || lower.indexOf('$') > -1) return { type:'cost', agent:agent, message:msg };
+    if (lower.indexOf('reflection') > -1) return { type:'reflection', agent:agent, message:msg };
+    if (lower.indexOf('alternative') > -1 || lower.indexOf('escalat') > -1) return { type:'escalation', agent:agent, message:msg };
+    return { type:'agent-status', agent:agent, message:msg };
+  }
+  if (lower.indexOf('[error]') > -1 || lower.indexOf('[warning]') > -1) {
+    return { type:'escalation', agent:'system', message:line.replace(/\[[\w]+\]\s*/g, '').trim() };
+  }
+  return { type:'system', agent:'system', message:line.trim() };
+}
+
+// ============================================================
+// PROJEKTPLAN
+// ============================================================
+function renderProjektplan() {
+  var root = document.getElementById('projektplanRoot');
+  if (!root) return;
+
+  var phases = [
+    { key:'forstudie', milestones:['M1'] },
+    { key:'program', milestones:['M2'] },
+    { key:'system', milestones:['M3'] },
+    { key:'bygg', milestones:['M4'] },
+    { key:'produktion', milestones:['M5'] },
+  ];
+
+  var disciplines = [
+    { key:'arkitektur', icon:'A', color:'#3498DB', agents:['brief','architect'], milestones:['M1','M2'] },
+    { key:'konstruktion', icon:'K', color:'#95A5A6', agents:['structural'], milestones:['M2','M3'] },
+    { key:'vvs', icon:'V', color:'#E67E22', agents:['mep'], milestones:['M3'] },
+    { key:'el', icon:'E', color:'#F1C40F', agents:[], milestones:[] },
+    { key:'brand', icon:'B', color:'#E74C3C', agents:['qa','compliance'], milestones:['M1','M2','M3','M4'] },
+  ];
+
+  // Compute progress for each discipline
+  var msStatus = _lastMilestones || {};
+  function milestoneProgress(mKey) {
+    var ms = msStatus[mKey];
+    if (!ms) return 0;
+    if (ms.status === 'approved' || ms.approved_at) return 1;
+    return 0;
+  }
+
+  function disciplineProgress(disc) {
+    if (disc.milestones.length === 0) return 0;
+    var total = 0;
+    disc.milestones.forEach(function(m) { total += milestoneProgress(m); });
+    // Also check if agents are working (partial progress)
+    disc.agents.forEach(function(aid) {
+      var dashId = aid;
+      if (agentState[dashId] && agentState[dashId].status === 'working') total += 0.3;
+    });
+    return Math.min(1, total / disc.milestones.length);
+  }
+
+  function statusBadge(progress) {
+    if (progress >= 1) return '<span class="pp-discipline-status pp-status-done">' + t('status.done') + '</span>';
+    if (progress > 0) return '<span class="pp-discipline-status pp-status-active">' + t('status.active') + '</span>';
+    return '<span class="pp-discipline-status pp-status-pending">' + t('status.pending') + '</span>';
+  }
+
+  // Current active phase
+  var activePhaseIdx = Math.min(currentMilestone, 4);
+
+  // Build HTML
+  var html = '<div class="pp-sidebar">';
+  html += '<div style="font-size:10px;letter-spacing:1px;color:#868E96;text-transform:uppercase;margin-bottom:10px;font-weight:bold;">' + t('pp.disciplines') + '</div>';
+  disciplines.forEach(function(d) {
+    var p = disciplineProgress(d);
+    html += '<div class="pp-discipline">'
+      + '<div class="pp-discipline-icon" style="background:' + d.color + '">' + d.icon + '</div>'
+      + '<div class="pp-discipline-name">' + t('pp.' + d.key) + '</div>'
+      + statusBadge(p)
+      + '</div>';
+  });
+  html += '</div>';
+
+  html += '<div class="pp-main">';
+  // Phase headers
+  html += '<div class="pp-phase-header">';
+  phases.forEach(function(ph, i) {
+    var cls = i === activePhaseIdx ? 'pp-phase-label pp-active' : (i < activePhaseIdx ? 'pp-phase-label pp-done' : 'pp-phase-label');
+    html += '<div class="' + cls + '">' + t('phase.' + ph.key) + '</div>';
+  });
+  html += '</div>';
+
+  // Discipline rows with progress bars
+  disciplines.forEach(function(d) {
+    var p = disciplineProgress(d);
+    var pct = Math.round(p * 100);
+    var doneWidth = Math.round(Math.min(p, 1) * 100);
+    var activeWidth = (p > 0 && p < 1) ? 8 : 0;
+
+    html += '<div class="pp-row">'
+      + '<div class="pp-row-label">' + t('pp.' + d.key) + '</div>'
+      + '<div class="pp-bar-track" style="position:relative">';
+    // Phase dividers
+    for (var i = 1; i < 5; i++) {
+      html += '<div style="position:absolute;top:0;bottom:0;left:' + (i*20) + '%;width:1px;background:rgba(0,0,0,0.08);z-index:1"></div>';
+    }
+    html += '<div class="pp-bar-segment pp-bar-done" style="width:' + doneWidth + '%"></div>'
+      + '<div class="pp-bar-segment pp-bar-active" style="width:' + activeWidth + '%"></div>'
+      + '</div>'
+      + '<div class="pp-row-pct">' + pct + '%</div>'
+      + '</div>';
+  });
+  html += '</div>';
+
+  root.innerHTML = html;
+}
+
+var _lastMilestones = {};
+
 // ============================================================
 // CONFIG
 // ============================================================
@@ -1123,10 +1447,11 @@ function loop() {
 // ============================================================
 function updateMilestoneUI() {
   const bar = document.getElementById('milestoneBar');
-  bar.innerHTML = MILESTONES.map((m, i) => {
+  const mKeys = ['milestone.M1','milestone.M2','milestone.M3','milestone.M4','milestone.M5'];
+  bar.innerHTML = mKeys.map((k, i) => {
     const cls = i < currentMilestone ? 'done' : i === currentMilestone ? 'active' : '';
-    return `<span class="milestone ${cls}">${m}</span>`;
-  }).join('→');
+    return '<span class="milestone ' + cls + '">' + t(k) + '</span>';
+  }).join(' - ');
 }
 
 function updateAgentUI() {
@@ -1134,12 +1459,13 @@ function updateAgentUI() {
   const list = document.getElementById('agentList');
   list.innerHTML = AGENTS.map(a => {
     const s = agentState[a.id];
-    const statusLabel = s.moving ? 'moving' : s.status;
+    const rawStatus = s.moving ? 'moving' : s.status;
+    const localStatus = t('status.' + rawStatus) || rawStatus;
     return `
       <div class="agent-row">
         <div class="agent-dot" style="background:${a.color}"></div>
         <div class="agent-name">${a.name}</div>
-        <div class="agent-status ${statusLabel}">${statusLabel}</div>
+        <div class="agent-status ${rawStatus}">${localStatus}</div>
       </div>`;
   }).join('');
 }
@@ -1147,7 +1473,7 @@ function updateAgentUI() {
 function updateQAUI() {
   const el = document.getElementById('qaQueue');
   if (qaQueue.length === 0) {
-    el.innerHTML = '<div style="font-size:10px;color:#495057">No items in queue</div>';
+    el.innerHTML = '<div style="font-size:10px;color:#495057">' + t('qa.noItems') + '</div>';
     return;
   }
   el.innerHTML = qaQueue.map(q =>
@@ -1172,6 +1498,7 @@ function switchTab(name) {
   document.getElementById(`tab-${name}`).classList.add('active');
   if (name === 'live') resize();
   if (name === 'outputs') renderOutputs();
+  if (name === 'projektplan') renderProjektplan();
 }
 
 // ============================================================
@@ -1522,34 +1849,67 @@ function animateAgentCardSprites() {
       if (el) el.textContent = parseFloat(s.total_cost_usd).toFixed(3);
     }
 
-    // Update Terminal
+    // Update milestones data for projektplan
+    if (s.milestones) _lastMilestones = s.milestones;
+
+    // Update Terminal with structured entries from console_output
     if (s.hasOwnProperty('console_output')) {
-      const term = document.getElementById('terminalContent');
-      const atBottom = term.scrollHeight - term.scrollTop - term.clientHeight < 20;
-      
-      const newText = s.console_output.join('\n');
-      if (term.textContent !== newText) {
-         term.textContent = newText;
-         if (atBottom) {
-            term.scrollTop = term.scrollHeight;
-         }
+      // Track which lines we've already processed
+      if (!window._lastConsoleLen) window._lastConsoleLen = 0;
+      var lines = s.console_output;
+      if (lines.length > window._lastConsoleLen) {
+        for (var li = window._lastConsoleLen; li < lines.length; li++) {
+          var parsed = parseConsoleLine(lines[li]);
+          if (parsed) addTermEntry(parsed.type, parsed.agent, parsed.message);
+        }
+        window._lastConsoleLen = lines.length;
       }
-      
-      // Determine if waiting for approval
-      const btn = document.getElementById('btnApprove');
-      if (newText.includes('System paused for human review.')) {
+
+      // Check combined text for approval state
+      var combinedText = lines.join('\n');
+      var btn = document.getElementById('btnApprove');
+      if (combinedText.indexOf('System paused for human review.') > -1) {
          btn.disabled = false;
          btn.style.cursor = 'pointer';
          btn.style.opacity = '1';
-         btn.textContent = '▶ ACTION REQUIRED: APPROVE MILESTONE';
+         btn.textContent = t('terminal.approveAction');
          btn.style.boxShadow = '0 0 10px rgba(46,160,67,0.8)';
       } else {
          btn.disabled = true;
          btn.style.cursor = 'not-allowed';
          btn.style.opacity = '0.5';
-         btn.textContent = 'WAITING FOR QUEUE...';
+         btn.textContent = t('terminal.waiting');
          btn.style.boxShadow = 'none';
       }
+    }
+
+    // Add decisions as terminal entries
+    if (s.decisions && s.decisions.length > 0) {
+      if (!window._lastDecisionCount) window._lastDecisionCount = 0;
+      if (s.decisions.length > window._lastDecisionCount) {
+        for (var di = window._lastDecisionCount; di < s.decisions.length; di++) {
+          var dec = s.decisions[di];
+          addTermEntry('agent-status', dec.agent || 'PM', dec.decision, dec.context || '');
+        }
+        window._lastDecisionCount = s.decisions.length;
+      }
+    }
+
+    // Add reflections as terminal entries
+    if (s.reflections && s.reflections.length > 0) {
+      if (!window._lastReflectionCount) window._lastReflectionCount = 0;
+      if (s.reflections.length > window._lastReflectionCount) {
+        for (var ri = window._lastReflectionCount; ri < s.reflections.length; ri++) {
+          var ref = s.reflections[ri];
+          addTermEntry('reflection', ref.agent || 'system', ref.content, ref.milestone || '');
+        }
+        window._lastReflectionCount = s.reflections.length;
+      }
+    }
+
+    // Update projektplan if visible
+    if (document.getElementById('tab-projektplan') && document.getElementById('tab-projektplan').classList.contains('active')) {
+      renderProjektplan();
     }
 
     // Log the newest incoming message (avoid flooding)

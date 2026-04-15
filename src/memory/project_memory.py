@@ -219,4 +219,5 @@ class ProjectMemory:
             "building_type": self.state.get("building_type"),
             "total_cost_usd": self.state.get("total_cost_usd", 0.0),
             "reflections": self.state.get("reflections", []),
+            "decisions": self.state.get("decisions", []),
         }
